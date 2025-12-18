@@ -1,10 +1,10 @@
-import FloatingActionButton from "@/components/FloatingActionButton";
 import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import BottomSheet, { BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -13,433 +13,523 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-interface FeatureCardProps {
-  title: string;
-  subtitle: string;
+// Dummy data
+const VEHICLE_TYPES = [
+  {
+    id: "economy",
+    name: "Economy",
+    icon: "car-outline",
+    price: "$12.50",
+    eta: "5 min",
+    description: "Affordable rides for everyday trips",
+  },
+  {
+    id: "comfort",
+    name: "Comfort",
+    icon: "car-sport-outline",
+    price: "$18.00",
+    eta: "7 min",
+    description: "Extra legroom and comfort",
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    icon: "diamond-outline",
+    price: "$28.50",
+    eta: "10 min",
+    description: "Luxury vehicles with premium features",
+  },
+  {
+    id: "xl",
+    name: "XL",
+    icon: "car-sport",
+    price: "$22.00",
+    eta: "8 min",
+    description: "Spacious rides for up to 6 passengers",
+  },
+];
+
+const RECENT_LOCATIONS = [
+  { id: "1", name: "Home", address: "123 Main Street, City", icon: "home" },
+  { id: "2", name: "Work", address: "456 Business Ave, City", icon: "briefcase" },
+  { id: "3", name: "Airport", address: "789 Airport Road", icon: "airplane" },
+];
+
+interface LocationInputProps {
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
   icon: string;
-  color: string;
-  onPress: () => void;
-  index: number;
-  size: "small" | "medium" | "large" | "xLarge";
+  onPress?: () => void;
+  editable?: boolean;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  title,
-  subtitle,
+const LocationInput: React.FC<LocationInputProps> = ({
+  placeholder,
+  value,
+  onChangeText,
   icon,
-  color,
   onPress,
-  index,
-  size,
+  editable = true,
 }) => {
-  const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
-  const opacityAnim = React.useRef(new Animated.Value(0)).current;
-
-  React.useEffect(() => {
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 600,
-        delay: index * 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 600,
-        delay: index * 80,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
-
-  const getCardStyle = () => {
-    switch (size) {
-      case "small":
-        return styles.smallCard;
-      case "medium":
-        return styles.mediumCard;
-      case "large":
-        return styles.largeCard;
-      case "xLarge":
-        return styles.xLargeCard;
-      default:
-        return styles.mediumCard;
-    }
-  };
-
-  const getIconSize = () => {
-    switch (size) {
-      case "small":
-        return 20;
-      case "medium":
-        return 24;
-      case "large":
-        return 32;
-      default:
-        return 24;
-    }
-  };
-
-  const getTitleSize = () => {
-    switch (size) {
-      case "small":
-        return 14;
-      case "medium":
-        return 16;
-      case "large":
-        return 20;
-      default:
-        return 16;
-    }
-  };
+  const theme = useCurrentTheme();
 
   return (
-    <Animated.View
-      style={{
-        transform: [{ scale: scaleAnim }],
-        opacity: opacityAnim,
-      }}
-    >
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
-          styles.featureCard,
-          getCardStyle(),
+        styles.locationInput,
           {
-            backgroundColor: color,
-            transform: [{ scale: pressed ? 0.97 : 1 }],
+          backgroundColor: theme.cardBackground,
+          borderColor: theme.border,
+          opacity: pressed ? 0.8 : 1,
           },
         ]}
       >
-        <View
-          style={[
-            styles.featureIconContainer,
-            size === "large" && styles.largeIconContainer,
-          ]}
-        >
-          <Ionicons name={icon as any} size={getIconSize()} color="white" />
-        </View>
-
-        <View style={styles.featureTextContainer}>
-          <Text style={[styles.featureTitle, { fontSize: getTitleSize() }]}>
-            {title}
-          </Text>
-          <Text
-            style={[
-              styles.featureSubtitle,
-              size === "small" && styles.smallSubtitle,
-            ]}
-          >
-            {subtitle}
-          </Text>
-        </View>
-
-        <View style={styles.featureArrow}>
-          <Ionicons name="chevron-forward" size={16} color="white" />
-        </View>
-      </Pressable>
-    </Animated.View>
+      <View style={[styles.locationIcon, { backgroundColor: `${theme.primary}15` }]}>
+        <Ionicons name={icon as any} size={20} color={theme.primary} />
+      </View>
+      <TextInput
+        style={[styles.locationText, { color: theme.text }]}
+        placeholder={placeholder}
+        placeholderTextColor={theme.inputPlaceholder}
+        value={value}
+        onChangeText={onChangeText}
+        editable={editable}
+      />
+    </Pressable>
   );
 };
 
-export default function Feed() {
+interface VehicleTypeCardProps {
+  vehicle: typeof VEHICLE_TYPES[0];
+  selected: boolean;
+  onSelect: () => void;
+}
+
+const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
+  vehicle,
+  selected,
+  onSelect,
+}) => {
+  const theme = useCurrentTheme();
+
+  return (
+    <Pressable
+      onPress={onSelect}
+      style={({ pressed }) => [
+        styles.vehicleCard,
+        {
+          backgroundColor: selected ? `${theme.primary}15` : theme.cardBackground,
+          borderColor: selected ? theme.primary : theme.border,
+          borderWidth: selected ? 2 : 1,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
+    >
+      <View style={[styles.vehicleIcon, { backgroundColor: `${theme.primary}10` }]}>
+        <Ionicons name={vehicle.icon as any} size={24} color={theme.primary} />
+        </View>
+      <View style={styles.vehicleInfo}>
+        <Text style={[styles.vehicleName, { color: theme.text }]}>{vehicle.name}</Text>
+        <Text style={[styles.vehicleDescription, { color: theme.subtleText }]}>
+          {vehicle.description}
+        </Text>
+        <View style={styles.vehicleMeta}>
+          <View style={styles.vehicleMetaItem}>
+            <Ionicons name="time-outline" size={14} color={theme.mutedText} />
+            <Text style={[styles.vehicleMetaText, { color: theme.mutedText }]}>
+              {vehicle.eta}
+          </Text>
+          </View>
+          <Text style={[styles.vehiclePrice, { color: theme.primary }]}>
+            {vehicle.price}
+          </Text>
+        </View>
+      </View>
+      {selected && (
+        <View style={[styles.selectedIndicator, { backgroundColor: theme.primary }]}>
+          <Ionicons name="checkmark" size={16} color="white" />
+        </View>
+      )}
+      </Pressable>
+  );
+};
+
+export default function RideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [pickupLocation, setPickupLocation] = useState("Current Location");
+  const [destination, setDestination] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [activeRide, setActiveRide] = useState<any>(null);
 
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const flipAnim = React.useRef(new Animated.Value(0)).current;
-  const pulseAnim = React.useRef(new Animated.Value(1)).current;
-  const [isFlipped, setIsFlipped] = React.useState(false);
+  // Map animation
+  const mapScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
+    // Simulate map loading animation
+    Animated.spring(mapScale, {
       toValue: 1,
-      duration: 800,
       useNativeDriver: true,
+      tension: 50,
+      friction: 7,
     }).start();
-
-    // Subtle pulse animation to hint at interactivity
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
   }, []);
 
-  const handleFlip = () => {
-    haptics.medium(); // Provide haptic feedback for the flip
-    const toValue = isFlipped ? 0 : 1;
-    Animated.timing(flipAnim, {
-      toValue,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
-    setIsFlipped(!isFlipped);
-  };
+  const snapPoints = ["25%", "50%", "85%"];
 
-  const handleSettingsPress = () => {
+  const handleSheetChange = useCallback((index: number) => {
+    if (index === 2) {
+      haptics.medium();
+    }
+  }, []);
+
+  const handleSelectVehicle = (vehicleId: string) => {
     haptics.selection();
-    router.push("/(core)/settings" as any);
+    setSelectedVehicle(vehicleId);
+    bottomSheetRef.current?.snapToIndex(2);
   };
 
-  const features = [
-    {
-      title: "Create",
-      subtitle: "Share audio",
-      icon: "mic",
-      color: "#FF6B6B",
-      route: "/(core)/posts/create",
-      size: "large" as const,
-    },
-    {
-      title: "Feed",
-      subtitle: "Discover",
-      icon: "infinite",
-      color: "#4ECDC4",
-      route: "/(core)/scroll/infinite",
-      size: "small" as const,
-    },
-    {
-      title: "Podcasts",
-      subtitle: "Latest shows",
-      icon: "radio",
-      color: "#45B7D1",
-      route: "/(core)/podcasts",
-      size: "medium" as const,
-    },
-    {
-      title: "Music",
-      subtitle: "Audio clips",
-      icon: "musical-notes",
-      color: "#96CEB4",
-      route: "/(core)/scroll/infinite",
-      size: "small" as const,
-    },
-    {
-      title: "Audiobooks",
-      subtitle: "Stories",
-      icon: "book",
-      color: "#6C5CE7",
-      route: "/(core)/audiobooks",
-      size: "xLarge" as const,
-    },
-    {
-      title: "Voice Notes",
-      subtitle: "Quick thoughts",
-      icon: "chatbubble",
-      color: "#FFA726",
-      route: "/(core)/scroll/infinite",
-      size: "large" as const,
-    },
-  ];
-
-  const organizeColumns = () => {
-    const leftColumn: typeof features = [];
-    const rightColumn: typeof features = [];
-
-    let leftHeight = 0;
-    let rightHeight = 0;
-
-    // Card heights including gap
-    const cardHeights = {
-      small: 120 + 12, // height + gap
-      medium: 160 + 12,
-      large: 200 + 12,
-      xLarge: 240 + 12,
-    };
-
-    features.forEach((feature) => {
-      const featureHeight = cardHeights[feature.size];
-
-      // I Assign to column with less total height to balance columns
-      if (leftHeight <= rightHeight) {
-        leftColumn.push(feature);
-        leftHeight += featureHeight;
-      } else {
-        rightColumn.push(feature);
-        rightHeight += featureHeight;
-      }
-    });
-
-    return { leftColumn, rightColumn };
+  const handleBookRide = () => {
+    if (!selectedVehicle || !destination) {
+      haptics.error();
+      return;
+    }
+    haptics.success();
+    setIsBooking(true);
+    // Simulate booking process
+    setTimeout(() => {
+      setActiveRide({
+        id: "1",
+        vehicle: VEHICLE_TYPES.find((v) => v.id === selectedVehicle),
+        pickup: pickupLocation,
+        destination: destination,
+        driver: {
+          name: "John Doe",
+          rating: 4.8,
+          vehicle: "Toyota Camry",
+          plate: "ABC-123",
+        },
+        eta: "5 min",
+      });
+      setIsBooking(false);
+      router.push("/(core)/ride/active");
+    }, 2000);
   };
 
-  const { leftColumn, rightColumn } = organizeColumns();
+  const handleLocationSelect = (location: typeof RECENT_LOCATIONS[0]) => {
+    setDestination(location.address);
+    setShowLocationPicker(false);
+    bottomSheetRef.current?.snapToIndex(1);
+  };
 
   return (
     <ScreenLayout>
-      <View style={[styles.container]}>
-        <ScrollView
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
+      <View style={styles.container}>
+        {/* Map View */}
+        <Animated.View
+          style={[
+            styles.mapContainer,
+            {
+              transform: [{ scale: mapScale }],
+            },
+          ]}
         >
-          <Animated.View
-            style={[styles.headerContainer, { opacity: fadeAnim }]}
-          >
-            {/* Hero Section */}
-            <View style={styles.heroSection}>
-              <View style={styles.heroContent}>
-                <View style={styles.titleRow}>
-                  <Text style={[styles.title, { color: theme.text }]}>
-                    Listen
-                  </Text>
-                  <View
-                    style={[
-                      styles.statusIndicator,
-                      { backgroundColor: theme.primary },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.subtitle, { color: theme.subtleText }]}>
-                  Audio Social Network
-                </Text>
-                <Text style={[styles.description, { color: theme.mutedText }]}>
-                  Share and discover voice notes, podcasts, music, and
-                  audiobooks
-                </Text>
-                {!isFlipped && (
-                  <Text style={[styles.hint, { color: theme.mutedText }]}>
-                    Tap the icon to access settings →
-                  </Text>
-                )}
+          {/* Placeholder Map - In production, use react-native-maps or expo-maps */}
+          <View style={[styles.mapPlaceholder, { backgroundColor: theme.surface }]}>
+            <Image
+              source={{
+                uri: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-122.4194,37.7749,12,0/600x400?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+              }}
+              style={styles.mapImage}
+              resizeMode="cover"
+            />
+            <View style={styles.mapOverlay}>
+              <View style={[styles.mapMarker, { backgroundColor: theme.primary }]}>
+                <Ionicons name="location" size={24} color="white" />
               </View>
-              <Animated.View
-                style={{
-                  transform: [{ scale: pulseAnim }],
+            </View>
+          </View>
+
+          {/* Top Controls */}
+          <View style={styles.topControls}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.controlButton,
+                {
+                  backgroundColor: theme.cardBackground,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+              onPress={() => router.push("/(core)/ride/history")}
+            >
+              <Ionicons name="menu" size={24} color={theme.text} />
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.controlButton,
+                {
+                  backgroundColor: theme.cardBackground,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+              onPress={() => router.push("/(core)/(tabs)/profile" as any)}
+            >
+              <Ionicons name="person-circle-outline" size={24} color={theme.text} />
+            </Pressable>
+          </View>
+
+          {/* Location Inputs Overlay */}
+          <View style={styles.locationInputsContainer}>
+            <View style={styles.locationInputWrapper}>
+              <LocationInput
+                placeholder="Pickup location"
+                value={pickupLocation}
+                onChangeText={setPickupLocation}
+                icon="radio-button-on"
+                editable={false}
+              />
+              <View style={[styles.locationConnector, { backgroundColor: theme.border }]} />
+              <LocationInput
+                placeholder="Where to?"
+                value={destination}
+                onChangeText={setDestination}
+                icon="location-outline"
+                onPress={() => {
+                  setShowLocationPicker(true);
+                  bottomSheetRef.current?.snapToIndex(1);
                 }}
-              >
+              />
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Bottom Sheet */}
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          enablePanDownToClose={false}
+          onChange={handleSheetChange}
+          backgroundStyle={{ backgroundColor: theme.cardBackground }}
+          handleIndicatorStyle={{ backgroundColor: theme.mutedText }}
+        >
+          <BottomSheetScrollView
+            style={styles.bottomSheetContent}
+            contentContainerStyle={styles.bottomSheetScrollContent}
+          >
+            {!selectedVehicle ? (
+              <>
+                {/* Recent Locations */}
+                {showLocationPicker && (
+                  <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                      Recent Locations
+                  </Text>
+                    {RECENT_LOCATIONS.map((location) => (
+                      <Pressable
+                        key={location.id}
+                        style={({ pressed }) => [
+                          styles.locationItem,
+                          {
+                            backgroundColor: theme.cardBackground,
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
+                        onPress={() => handleLocationSelect(location)}
+                      >
+                        <View style={[styles.locationItemIcon, { backgroundColor: `${theme.primary}15` }]}>
+                          <Ionicons name={location.icon as any} size={20} color={theme.primary} />
+                        </View>
+                        <View style={styles.locationItemInfo}>
+                          <Text style={[styles.locationItemName, { color: theme.text }]}>
+                            {location.name}
+                          </Text>
+                          <Text style={[styles.locationItemAddress, { color: theme.subtleText }]}>
+                            {location.address}
+                          </Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
+                {/* Vehicle Selection */}
+                {!showLocationPicker && destination && (
+                  <>
+                    <View style={styles.section}>
+                      <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                        Choose a ride
+                      </Text>
+                      <Text style={[styles.sectionSubtitle, { color: theme.subtleText }]}>
+                        Select your preferred vehicle type
+                      </Text>
+                    </View>
+
+                    <View style={styles.vehicleList}>
+                      {VEHICLE_TYPES.map((vehicle) => (
+                        <VehicleTypeCard
+                          key={vehicle.id}
+                          vehicle={vehicle}
+                          selected={selectedVehicle === vehicle.id}
+                          onSelect={() => handleSelectVehicle(vehicle.id)}
+                        />
+                      ))}
+                </View>
+                  </>
+                )}
+
+                {/* Quick Actions */}
+                {!destination && (
+                  <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                      Quick Actions
+                </Text>
+                    <View style={styles.quickActions}>
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.quickActionButton,
+                          {
+                            backgroundColor: `${theme.primary}15`,
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
+                        onPress={() => router.push("/(core)/ride/history")}
+                      >
+                        <Ionicons name="time-outline" size={24} color={theme.primary} />
+                        <Text style={[styles.quickActionText, { color: theme.text }]}>
+                          Ride History
+                </Text>
+                      </Pressable>
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.quickActionButton,
+                          {
+                            backgroundColor: `${theme.primary}15`,
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
+                        onPress={() => router.push("/(core)/ride/payment")}
+                      >
+                        <Ionicons name="card-outline" size={24} color={theme.primary} />
+                        <Text style={[styles.quickActionText, { color: theme.text }]}>
+                          Payment
+                  </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Booking Summary */}
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                    Trip Summary
+                  </Text>
+                  <View style={styles.tripSummary}>
+                    <View style={styles.tripLocation}>
+                      <View style={[styles.tripDot, { backgroundColor: theme.primary }]} />
+                      <View style={styles.tripLocationInfo}>
+                        <Text style={[styles.tripLocationLabel, { color: theme.subtleText }]}>
+                          From
+                        </Text>
+                        <Text style={[styles.tripLocationValue, { color: theme.text }]}>
+                          {pickupLocation}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={[styles.tripLine, { backgroundColor: theme.border }]} />
+                    <View style={styles.tripLocation}>
+                      <View style={[styles.tripDot, { backgroundColor: theme.success }]} />
+                      <View style={styles.tripLocationInfo}>
+                        <Text style={[styles.tripLocationLabel, { color: theme.subtleText }]}>
+                          To
+                        </Text>
+                        <Text style={[styles.tripLocationValue, { color: theme.text }]}>
+                          {destination}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View style={[styles.tripDetails, { backgroundColor: theme.surface }]}>
+                    <View style={styles.tripDetailRow}>
+                      <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
+                        Vehicle
+                      </Text>
+                      <Text style={[styles.tripDetailValue, { color: theme.text }]}>
+                        {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.name}
+                      </Text>
+                    </View>
+                    <View style={styles.tripDetailRow}>
+                      <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
+                        Estimated Time
+                      </Text>
+                      <Text style={[styles.tripDetailValue, { color: theme.text }]}>
+                        {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.eta}
+                      </Text>
+                    </View>
+                    <View style={styles.tripDetailRow}>
+                      <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
+                        Price
+                      </Text>
+                      <Text style={[styles.tripDetailPrice, { color: theme.primary }]}>
+                        {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.price}
+                      </Text>
+                    </View>
+                  </View>
+              </View>
+
+                {/* Book Ride Button */}
                 <Pressable
                   style={({ pressed }) => [
-                    styles.heroGraphic,
+                    styles.bookButton,
                     {
-                      backgroundColor: `${theme.primary}15`,
-                      transform: [{ scale: pressed ? 0.95 : 1 }],
+                      backgroundColor: theme.primary,
+                      opacity: pressed || isBooking ? 0.8 : 1,
                     },
                   ]}
-                  onPress={handleFlip}
+                  onPress={handleBookRide}
+                  disabled={isBooking}
                 >
-                  {/* Front Side - App Icon */}
-                  <Animated.View
-                    style={[
-                      styles.flipSide,
-                      {
-                        opacity: flipAnim.interpolate({
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [1, 0, 0],
-                        }),
-                        transform: [
-                          { perspective: 1000 },
-                          {
-                            rotateY: flipAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ["0deg", "180deg"],
-                            }),
-                          },
-                        ],
-                      },
-                    ]}
-                    pointerEvents={isFlipped ? "none" : "auto"}
-                  >
-                    <Image
-                      style={{ width: 64, height: 64, borderRadius: 12 }}
-                      source={require("@/assets/images/icon.png")}
-                    />
-                  </Animated.View>
-
-                  {/* Back Side - Settings Icon */}
-                  <Animated.View
-                    style={[
-                      styles.flipSide,
-                      {
-                        opacity: flipAnim.interpolate({
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [0, 0, 1],
-                        }),
-                        transform: [
-                          { perspective: 1000 },
-                          {
-                            rotateY: flipAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ["-180deg", "0deg"],
-                            }),
-                          },
-                        ],
-                      },
-                    ]}
-                    pointerEvents={isFlipped ? "auto" : "none"}
-                  >
-                    <Pressable
-                      style={styles.settingsButton}
-                      onPress={handleSettingsPress}
-                    >
-                      <Ionicons
-                        name="settings-outline"
-                        size={64}
-                        color={theme.primary}
-                      />
-                    </Pressable>
-                  </Animated.View>
+                  {isBooking ? (
+                    <Text style={styles.bookButtonText}>Booking...</Text>
+                  ) : (
+                    <>
+                      <Text style={styles.bookButtonText}>Book Ride</Text>
+                      <Ionicons name="arrow-forward" size={20} color="white" />
+                    </>
+                  )}
                 </Pressable>
-              </Animated.View>
-            </View>
 
-            <View style={styles.featuresSection}>
-              <View style={styles.masonryGrid}>
-                {/* Left Column */}
-                <View style={styles.masonryColumn}>
-                  {leftColumn.map((feature, index) => (
-                    <FeatureCard
-                      key={feature.title}
-                      title={feature.title}
-                      subtitle={feature.subtitle}
-                      icon={feature.icon}
-                      color={feature.color}
-                      onPress={() => router.push(feature.route as any)}
-                      index={index}
-                      size={feature.size}
-                    />
-                  ))}
-                </View>
-
-                {/* Right Column */}
-                <View style={styles.masonryColumn}>
-                  {rightColumn.map((feature, index) => (
-                    <FeatureCard
-                      key={feature.title}
-                      title={feature.title}
-                      subtitle={feature.subtitle}
-                      icon={feature.icon}
-                      color={feature.color}
-                      onPress={() => router.push(feature.route as any)}
-                      index={index + leftColumn.length} // Continue animation sequence
-                      size={feature.size}
-                    />
-                  ))}
-                </View>
-              </View>
-            </View>
-          </Animated.View>
-        </ScrollView>
-
-        <FloatingActionButton
-          icon="mic"
-          onPress={() => router.push("/(core)/posts/create")}
-        />
+                    <Pressable
+                  style={styles.changeVehicleButton}
+                  onPress={() => {
+                    setSelectedVehicle(null);
+                    bottomSheetRef.current?.snapToIndex(1);
+                  }}
+                >
+                  <Text style={[styles.changeVehicleText, { color: theme.primary }]}>
+                    Change Vehicle
+                  </Text>
+                </Pressable>
+              </>
+            )}
+          </BottomSheetScrollView>
+        </BottomSheet>
       </View>
     </ScreenLayout>
   );
@@ -449,140 +539,301 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
-    paddingBottom: 20,
-  },
-  headerContainer: {
-    paddingTop: 8,
-  },
-  heroSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  heroContent: {
+  mapContainer: {
     flex: 1,
-    marginRight: 16,
   },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    marginRight: 12,
-  },
-  statusIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  hint: {
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 8,
-    fontStyle: "italic",
-    opacity: 0.7,
-  },
-  heroGraphic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  mapPlaceholder: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  featuresSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+  mapImage: {
+    width: "100%",
+    height: "100%",
   },
-  masonryGrid: {
-    flexDirection: "row",
-    gap: 12,
+  mapOverlay: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginLeft: -20,
+    marginTop: -20,
   },
-  masonryColumn: {
-    flex: 1,
-    gap: 12,
-  },
-  featureCard: {
-    borderRadius: 20,
-    borderWidth: 0.25,
-    padding: 16,
-    justifyContent: "space-between",
-    overflow: "hidden",
-  },
-  smallCard: {
-    height: 120,
-  },
-  mediumCard: {
-    height: 160,
-  },
-  largeCard: {
-    height: 200,
-  },
-  xLargeCard: {
-    height: 240,
-  },
-  featureIconContainer: {
+  mapMarker: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  largeIconContainer: {
+  topControls: {
+    position: "absolute",
+    top: 50,
+    left: 16,
+    right: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    zIndex: 10,
+  },
+  controlButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  locationInputsContainer: {
+    position: "absolute",
+    top: 110,
+    left: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  locationInputWrapper: {
+    gap: 8,
+  },
+  locationInput: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  locationIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  locationText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  locationConnector: {
+    width: 2,
+    height: 20,
+    marginLeft: 16,
+    marginVertical: 4,
+  },
+  bottomSheetContent: {
+    flex: 1,
+  },
+  bottomSheetScrollContent: {
+    paddingBottom: 32,
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  locationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  locationItemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  locationItemInfo: {
+    flex: 1,
+  },
+  locationItemName: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  locationItemAddress: {
+    fontSize: 14,
+  },
+  vehicleList: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  vehicleCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    position: "relative",
+  },
+  vehicleIcon: {
     width: 56,
     height: 56,
     borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
   },
-  featureTextContainer: {
+  vehicleInfo: {
     flex: 1,
-    justifyContent: "flex-end",
   },
-  featureTitle: {
+  vehicleName: {
+    fontSize: 18,
     fontWeight: "bold",
-    color: "white",
     marginBottom: 4,
   },
-  featureSubtitle: {
+  vehicleDescription: {
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  vehicleMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  vehicleMetaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  vehicleMetaText: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.8)",
   },
-  smallSubtitle: {
-    fontSize: 10,
+  vehiclePrice: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
-  featureArrow: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-  },
-  flipSide: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    backfaceVisibility: "hidden",
+    position: "absolute",
+    top: 12,
+    right: 12,
   },
-  settingsButton: {
-    width: 64,
-    height: 64,
-    justifyContent: "center",
+  quickActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 12,
+  },
+  quickActionButton: {
+    flex: 1,
+    padding: 20,
+    borderRadius: 12,
     alignItems: "center",
-    borderRadius: 32,
+    gap: 8,
+  },
+  quickActionText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  tripSummary: {
+    marginBottom: 16,
+  },
+  tripLocation: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  tripDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 12,
+    marginTop: 4,
+  },
+  tripLocationInfo: {
+    flex: 1,
+  },
+  tripLocationLabel: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  tripLocationValue: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  tripLine: {
+    width: 2,
+    height: 20,
+    marginLeft: 5,
+    marginBottom: 12,
+  },
+  tripDetails: {
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+  },
+  tripDetailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  tripDetailLabel: {
+    fontSize: 14,
+  },
+  tripDetailValue: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  tripDetailPrice: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  bookButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 8,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  bookButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  changeVehicleButton: {
+    padding: 16,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  changeVehicleText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

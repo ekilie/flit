@@ -35,7 +35,7 @@ function RootNavigator() {
       </Stack.Protected>
 
       <Stack.Protected guard={!session}>
-        <Stack.Protected guard={true}>
+        <Stack.Protected guard={!isOnboarded}>
           <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         </Stack.Protected>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />

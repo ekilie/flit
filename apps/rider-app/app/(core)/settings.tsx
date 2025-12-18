@@ -535,6 +535,71 @@ export default function Settings() {
           />
         </View>
 
+        {/* Ride Settings */}
+        <View
+          style={[styles.section, { backgroundColor: theme.cardBackground }]}
+        >
+          <SectionHeader
+            title="Ride Preferences"
+            subtitle="Customize your ride experience"
+          />
+
+          <SettingItem
+            title="Default Vehicle Type"
+            subtitle="Economy"
+            icon="car"
+            onPress={() => {
+              const types = ["Economy", "Comfort", "Premium", "XL"];
+              Alert.alert("Default Vehicle", "Select your preferred vehicle type", [
+                ...types.map((type) => ({
+                  text: type,
+                  onPress: () => toast.success(`Default vehicle set to ${type}`),
+                })),
+                { text: "Cancel", style: "cancel" },
+              ]);
+            }}
+            showChevron
+          />
+
+          <SettingItem
+            title="Auto-Request Ride"
+            subtitle="Automatically request ride when opening app"
+            icon="flash"
+            rightElement={
+              <Switch
+                value={false}
+                onValueChange={(value) => {
+                  if (hapticsEnabled) {
+                    Haptics.selectionAsync();
+                  }
+                  toast.info(value ? "Auto-request enabled" : "Auto-request disabled");
+                }}
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor="white"
+              />
+            }
+          />
+
+          <SettingItem
+            title="Share ETA"
+            subtitle="Automatically share arrival time with contacts"
+            icon="share-social"
+            rightElement={
+              <Switch
+                value={false}
+                onValueChange={(value) => {
+                  if (hapticsEnabled) {
+                    Haptics.selectionAsync();
+                  }
+                  toast.info(value ? "ETA sharing enabled" : "ETA sharing disabled");
+                }}
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor="white"
+              />
+            }
+          />
+        </View>
+
         {/* Privacy & Data */}
         <View
           style={[styles.section, { backgroundColor: theme.cardBackground }]}
@@ -690,7 +755,7 @@ export default function Settings() {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: theme.mutedText }]}>
-            Listen • ekilie © 2024
+            FLIT • Special Hire Vehicle Platform © 2024
           </Text>
         </View>
       </ScrollView>
