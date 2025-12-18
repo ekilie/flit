@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  {
   "scripts": {
     "dev:admin": "pnpm --filter admin dev",
     "dev:backend": "pnpm --filter backend start:dev",
@@ -12,8 +11,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-  }
-},
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
