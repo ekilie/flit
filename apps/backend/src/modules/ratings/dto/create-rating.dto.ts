@@ -2,16 +2,19 @@ import { IsInt, IsString, IsEnum, IsOptional, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RatingType } from '../entities/rating.entity';
 
+const MIN_RATING = 1;
+const MAX_RATING = 5;
+
 export class CreateRatingDto {
   @ApiProperty({
-    example: 5,
-    description: 'Rating value (1-5)',
-    minimum: 1,
-    maximum: 5,
+    example: MAX_RATING,
+    description: `Rating value (${MIN_RATING}-${MAX_RATING})`,
+    minimum: MIN_RATING,
+    maximum: MAX_RATING,
   })
   @IsInt()
-  @Min(1)
-  @Max(5)
+  @Min(MIN_RATING)
+  @Max(MAX_RATING)
   rating: number;
 
   @ApiPropertyOptional({ description: 'Review text' })

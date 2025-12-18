@@ -40,7 +40,7 @@ export class LocationsController {
   @Get('user/:userId')
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findByUser(@Param('userId') userId: string, @Query('limit') limit?: string) {
-    return this.locationsService.findByUser(+userId, limit ? +limit : 100);
+    return this.locationsService.findByUser(+userId, limit ? +limit : 50);
   }
 
   @Get('user/:userId/latest')

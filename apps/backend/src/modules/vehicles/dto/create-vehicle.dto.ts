@@ -14,7 +14,7 @@ export class CreateVehicleDto {
   @ApiProperty({ example: 2022, description: 'Vehicle year' })
   @IsInt()
   @Min(1900)
-  @Max(new Date().getFullYear() + 1)
+  @Max(2100)
   year: number;
 
   @ApiProperty({ example: 'ABC123', description: 'License plate number' })

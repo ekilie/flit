@@ -27,7 +27,7 @@ export class Vehicle extends BasicEntity {
   @Column({ type: 'int' })
   year: number;
 
-  @Column({ length: 20, unique: true })
+  @Column({ length: 50, unique: true })
   licensePlate: string;
 
   @Column({ length: 30 })

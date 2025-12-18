@@ -68,6 +68,11 @@ export class RidesService {
   async update(id: number, updateRideDto: UpdateRideDto): Promise<Ride> {
     const ride = await this.findOne(id);
 
+    // Validate status transitions
+    if (updateRideDto.status && updateRideDto.status !== ride.status) {
+      this.validateStatusTransition(ride.status, updateRideDto.status);
+    }
+
     // Update timestamps based on status changes
     if (updateRideDto.status) {
       switch (updateRideDto.status) {
@@ -90,6 +95,26 @@ export class RidesService {
 
     Object.assign(ride, updateRideDto);
     return await this.rideRepository.save(ride);
+  }
+
+  private validateStatusTransition(
+    currentStatus: RideStatus,
+    newStatus: RideStatus,
+  ): void {
+    const validTransitions: Record<RideStatus, RideStatus[]> = {
+      [RideStatus.REQUESTED]: [RideStatus.ACCEPTED, RideStatus.CANCELLED],
+      [RideStatus.ACCEPTED]: [RideStatus.ARRIVED, RideStatus.CANCELLED],
+      [RideStatus.ARRIVED]: [RideStatus.IN_PROGRESS, RideStatus.CANCELLED],
+      [RideStatus.IN_PROGRESS]: [RideStatus.COMPLETED, RideStatus.CANCELLED],
+      [RideStatus.COMPLETED]: [],
+      [RideStatus.CANCELLED]: [],
+    };
+
+    if (!validTransitions[currentStatus]?.includes(newStatus)) {
+      throw new BadRequestException(
+        `Invalid status transition from ${currentStatus} to ${newStatus}`,
+      );
+    }
   }
 
   async acceptRide(

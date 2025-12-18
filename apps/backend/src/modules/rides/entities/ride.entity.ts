@@ -63,7 +63,7 @@ export class Ride extends BasicEntity {
   @Column({ type: 'text', nullable: true })
   notes?: string;
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'riderId' })
   rider: User;
 

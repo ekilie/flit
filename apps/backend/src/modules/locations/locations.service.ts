@@ -37,7 +37,7 @@ export class LocationsService {
     return location;
   }
 
-  async findByUser(userId: number, limit: number = 100): Promise<Location[]> {
+  async findByUser(userId: number, limit: number = 50): Promise<Location[]> {
     return await this.locationRepository.find({
       where: { userId },
       relations: ['user', 'ride'],
