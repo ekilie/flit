@@ -1,5 +1,6 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { ThemedText, ThemedView } from "@/components/Themed";
+import { Entypo } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -8,18 +9,19 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
+  View,
+  StatusBar,
 } from "react-native";
 import { toast } from "yooo-native";
-import { useCurrentTheme } from "../../context/CentralTheme";
 import { useAuth } from "../../context/ctx";
 import { Colors } from "@/constants/Colors";
 
 export default function ForgotPassword() {
   const router = useRouter();
   const { resetPassword, isLoading } = useAuth();
-  const theme = useCurrentTheme();
 
   const [email, setEmail] = useState("");
 
@@ -56,7 +58,16 @@ export default function ForgotPassword() {
   };
 
   return (
-    <ScreenLayout styles={{ backgroundColor: Colors.light.background }}>
+    <ScreenLayout>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      {/* Background Pattern */}
+      <View style={styles.backgroundPattern}>
+        <View style={styles.patternCircle1} />
+        <View style={styles.patternCircle2} />
+        <View style={styles.patternCircle3} />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -64,42 +75,40 @@ export default function ForgotPassword() {
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ThemedView style={styles.content}>
+          <View style={styles.content}>
             {/* Header */}
-            <ThemedView style={styles.header}>
-              <Image
-                style={styles.logoCircle}
-                source={require("@/assets/images/icon-black-and-white.png")}
-              />
-              <ThemedText style={[styles.title, { color: theme.text }]}>
-                Reset Your Password
-              </ThemedText>
-              <ThemedText
-                style={[styles.subtitle, { color: theme.subtleText }]}
-              >
-                We'll help you get back on the road. Enter your email to receive reset instructions
-              </ThemedText>
-            </ThemedView>
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <LinearGradient
+                  colors={["#00000003", "#53535306"]}
+                  style={styles.logoCircle}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+                <Image
+                  style={styles.iconImage}
+                  source={require("@/assets/images/icon.png")}
+                />
+                <Text style={styles.logoText}>flit</Text>
+              </View>
+
+              <Text style={styles.title}>Reset Password</Text>
+              <Text style={styles.subtitle}>
+                We'll help you get back on the road
+              </Text>
+            </View>
 
             {/* Form */}
-            <ThemedView style={styles.form}>
+            <View style={styles.form}>
               {/* Email Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Email Address
-                </ThemedText>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email Address</Text>
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.inputBackground,
-                      borderColor: theme.inputBorder,
-                      color: theme.inputText,
-                    },
-                  ]}
+                  style={styles.input}
                   placeholder="Enter your email address"
-                  placeholderTextColor={theme.inputPlaceholder}
+                  placeholderTextColor="#999999"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -107,44 +116,40 @@ export default function ForgotPassword() {
                   autoCorrect={false}
                   editable={!isLoading}
                 />
-              </ThemedView>
+              </View>
 
               {/* Info Text */}
-              <ThemedView style={styles.infoContainer}>
-                <ThemedText
-                  style={[styles.infoText, { color: theme.subtleText }]}
-                >
-                  We'll send you a link to reset your password. Make sure to
-                  check your spam folder if you don't see it in your inbox.
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
+              <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>
+                  We'll send you a link to reset your password. Check your spam folder if you don't see it in your inbox.
+                </Text>
+              </View>
+            </View>
 
             {/* Actions */}
-            <ThemedView style={styles.actions}>
+            <View style={styles.actions}>
               {/* Send Instructions Button */}
               <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: theme.buttonBackground,
-                    shadowColor: theme.shadowColor,
-                    shadowOpacity: theme.shadowOpacity,
-                  },
-                  isLoading && styles.disabledButton,
-                ]}
+                style={styles.primaryButton}
                 onPress={handleResetPassword}
                 disabled={isLoading}
                 activeOpacity={0.8}
               >
-                <ThemedText
-                  style={[
-                    styles.primaryButtonText,
-                    { color: theme.buttonText },
-                  ]}
+                <LinearGradient
+                  colors={[Colors.light.primary, Colors.light.buttonBackground]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
                 >
-                  {isLoading ? "Sending..." : "Send Reset Instructions"}
-                </ThemedText>
+                  <Text style={styles.primaryButtonText}>
+                    {isLoading ? "Sending..." : "Send Reset Link"}
+                  </Text>
+                  {!isLoading && (
+                    <View style={styles.buttonArrow}>
+                      <Entypo name="chevron-right" size={20} color="#000" />
+                    </View>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
 
               {/* Back to Login Link */}
@@ -152,17 +157,14 @@ export default function ForgotPassword() {
                 style={styles.secondaryButton}
                 onPress={handleBackToLogin}
                 disabled={isLoading}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <ThemedText
-                  style={[styles.secondaryButtonText, { color: theme.text }]}
-                >
-                  Back to{" "}
-                  <ThemedText style={[styles.linkText]}>Sign In</ThemedText>
-                </ThemedText>
+                <Text style={styles.secondaryButtonText}>
+                  Back to <Text style={styles.linkText}>Sign In</Text>
+                </Text>
               </TouchableOpacity>
-            </ThemedView>
-          </ThemedView>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenLayout>
@@ -170,36 +172,93 @@ export default function ForgotPassword() {
 }
 
 const styles = StyleSheet.create({
+  backgroundPattern: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  patternCircle1: {
+    position: "absolute",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "#f5f5f5",
+    top: -100,
+    right: -50,
+  },
+  patternCircle2: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#f5f5f5",
+    bottom: 100,
+    left: -75,
+  },
+  patternCircle3: {
+    position: "absolute",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#fafafa",
+    top: "40%",
+    right: 30,
+  },
   container: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingVertical: 40,
   },
   content: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 48,
   },
-  logoCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  logoContainer: {
+    alignItems: "center",
     marginBottom: 24,
   },
+  logoCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  iconImage: {
+    position: "absolute",
+    width: 64,
+    height: 64,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "200",
+    letterSpacing: 6,
+    color: "#1a1a1a",
+    textTransform: "uppercase",
+  },
   title: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1a1a1a",
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
+    color: "#666666",
     textAlign: "center",
+    fontWeight: "400",
   },
   form: {
     marginBottom: 32,
@@ -208,46 +267,69 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   input: {
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
+    borderColor: "#e0e0e0",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     fontSize: 16,
+    color: "#1a1a1a",
   },
   infoContainer: {
     marginTop: 16,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: "rgba(0, 0, 0, 0.03)",
+    backgroundColor: "rgba(245, 199, 36, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 199, 36, 0.2)",
   },
   infoText: {
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
+    color: "#666666",
   },
   actions: {
-    gap: 16,
+    gap: 20,
   },
   primaryButton: {
-    backgroundColor: "#000",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  buttonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
     borderRadius: 12,
-    paddingVertical: 16,
+    flexDirection: "row",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    justifyContent: "center",
   },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#000",
+    letterSpacing: 1,
+    marginRight: 12,
   },
-  disabledButton: {
-    opacity: 0.6,
+  buttonArrow: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   secondaryButton: {
     paddingVertical: 12,
@@ -255,8 +337,10 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 14,
+    color: "#666666",
   },
   linkText: {
+    color: "#1a1a1a",
     fontWeight: "600",
     textDecorationLine: "underline",
   },

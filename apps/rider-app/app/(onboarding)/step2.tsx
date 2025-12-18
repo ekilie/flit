@@ -101,8 +101,8 @@ export default function Step2() {
               <View style={styles.featureIcon}>
                 <View style={styles.iconHeart} />
               </View>
-              <Text style={styles.featureLabel}>Creator Tools</Text>
-              <Text style={styles.featureDesc}>Record, edit, publish fast</Text>
+              <Text style={styles.featureLabel}>Easy Payment</Text>
+              <Text style={styles.featureDesc}>Secure, cashless payments</Text>
             </View>
           </View>
         </View>
