@@ -20,7 +20,7 @@ import Colors from "@/constants/Colors";
 
 export default function Login() {
   const router = useRouter();
-  const { signIn, isLoading } = useAuth();
+  const { signIn, isLoading, signInWithDummyUser } = useAuth();
   const theme = useCurrentTheme();
 
   const [email, setEmail] = useState("");
@@ -220,6 +220,23 @@ export default function Login() {
                   <ThemedText style={[styles.linkText]}>Sign Up</ThemedText>
                 </ThemedText>
               </TouchableOpacity>
+
+              {/* Development: Dummy User Link */}
+              <TouchableOpacity
+                style={styles.dummyUserButton}
+                onPress={() => {
+                  signInWithDummyUser();
+                  toast.success("Signed in as demo user");
+                }}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                <ThemedText
+                  style={[styles.dummyUserText, { color: theme.subtleText }]}
+                >
+                  Continue as Demo User (Development)
+                </ThemedText>
+              </TouchableOpacity>
             </ThemedView>
           </ThemedView>
         </ScrollView>
@@ -343,6 +360,16 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+  dummyUserButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  dummyUserText: {
+    fontSize: 13,
+    fontStyle: "italic",
     textDecorationLine: "underline",
   },
 });

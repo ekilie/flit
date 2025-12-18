@@ -50,6 +50,9 @@ interface AuthContextType {
 
   // Utility
   refreshUserData: () => Promise<void>;
+  
+  // Development helper
+  signInWithDummyUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -69,6 +72,7 @@ const AuthContext = createContext<AuthContextType>({
   verifyResetCode: async () => {},
   resetPassword: async () => {},
   refreshUserData: async () => {},
+  signInWithDummyUser: () => {},
 });
 
 // Use this hook to access the user info.
@@ -247,6 +251,38 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
   };
 
+  const signInWithDummyUser = () => {
+    // Create a dummy user object
+    const now = new Date().toISOString();
+    const dummyUser: User = {
+      id: 1,
+      name: "Demo User",
+      email: "demo@flit.com",
+      display_name: "Demo User",
+      role: "rider",
+      is_active: true,
+      created_at: now,
+      updated_at: now,
+      metadata: {
+        id: 1,
+        created_at: now,
+        updated_at: now,
+        user_id: 1,
+        total_listens: 0,
+        total_likes: 0,
+        total_uploads: 0,
+      },
+    };
+
+    setUser(dummyUser);
+    setIsAuthenticated(true);
+    setSession("authenticated");
+    setOnboardingComplete();
+    
+    // Navigate to main app
+    router.replace("/");
+  };
+
   const contextValue: AuthContextType = {
     user,
     session,
@@ -264,6 +300,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     verifyResetCode,
     resetPassword,
     refreshUserData,
+    signInWithDummyUser,
   };
 
   return (
