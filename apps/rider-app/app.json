@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tach.flit",
+      "bundleIdentifier": "com.ekilie.flit",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
