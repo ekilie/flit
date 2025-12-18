@@ -12,16 +12,22 @@ export class UsersService {
     private readonly logger: LoggerService,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    const user = this.entityManager.create(User, createUserDto);
+    await this.entityManager.save(user);
+    return user;
   }
 
   async findAll() {
     return await this.entityManager.find(User);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user = await this.entityManager.findOneBy(User, { id: Equal(id) });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -32,12 +38,17 @@ export class UsersService {
     return await this.entityManager.findOneBy(User, { id: Equal(id) });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+    Object.assign(user, updateUserDto);
+    await this.entityManager.save(user);
+    return user;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this.findOne(id);
+    await this.entityManager.remove(user);
+    return { message: 'User deleted successfully' };
   }
 
   async updatePassword(userId: number, newPassword: string) {

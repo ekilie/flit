@@ -5,8 +5,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
 } from 'typeorm';
 import { Role } from 'src/modules/roles/entities/role.entity';
+import { UserMetadata } from './user-metadata.entity';
 import { BasicEntity } from 'src/common/entities/base.entity';
 import * as crypto from 'crypto';
 
@@ -14,6 +16,9 @@ import * as crypto from 'crypto';
 export class User extends BasicEntity {
   @Column({ length: 100 })
   fullName: string;
+
+  @Column({ length: 100, nullable: true })
+  displayName?: string;
 
   @Column({ length: 100 })
   phoneNumber: string;
@@ -24,11 +29,26 @@ export class User extends BasicEntity {
   @Column({ length: 255 })
   password: string;
 
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column({ nullable: true })
+  lastLogin?: Date;
+
   @ManyToOne(() => Role, role => role.users, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'roleId' })
   role: Role;
+
+  @OneToOne(() => UserMetadata, metadata => metadata.user, {
+    cascade: true,
+    eager: true,
+  })
+  metadata?: UserMetadata;
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -38,14 +38,14 @@ export default function TabsLayout() {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: theme.colorScheme === "dark" ? "#000" : "#fff",
+            backgroundColor: theme.isDark ? "#000" : "#fff",
             borderTopWidth: 0.5,
             borderTopColor: "rgba(0, 0, 0, 0.16)",
-            paddingVertical: 20,
-            height: 85,
+            paddingVertical: 18,
+            height: 82,
           },
           tabBarActiveTintColor:
-            Colors.tabColors[route.name as keyof typeof Colors.tabColors] ||
+            Colors.tabColors[route.name as keyof typeof Colors.tabColors] ??
             theme.primary,
           tabBarInactiveTintColor: theme.isDark ? "#666666" : "#999999",
           tabBarLabelStyle: {
@@ -54,48 +54,24 @@ export default function TabsLayout() {
           },
         })}
       >
+        {/* MAIN RIDE TAB */}
         <Tabs.Screen
-          name="feed"
+          name="ride"
           options={{
-            title: "flit",
+            title: "Ride",
             tabBarIcon: ({ focused }) => (
-              <TabBarIcon name="headphones" tabName="feed" focused={focused} />
+              <TabBarIcon name="map-marker" tabName="ride" focused={focused} />
             ),
           }}
         />
 
+        {/* PROFILE / ACCOUNT TAB */}
         <Tabs.Screen
-          name="insights"
+          name="profile"
           options={{
-            title: "Insights",
+            title: "Account",
             tabBarIcon: ({ focused }) => (
-              <TabBarIcon
-                name="align-left"
-                tabName="insights"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="voice-memory"
-          options={{
-            title: "Memories",
-            tabBarIcon: ({ focused }) => (
-              <TabBarIcon
-                name="microphone"
-                tabName="voice-memory"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="me"
-          options={{
-            title: "Me",
-            tabBarIcon: ({ focused }) => (
-              <TabBarIcon name="user" tabName="me" focused={focused} />
+              <TabBarIcon name="user" tabName="profile" focused={focused} />
             ),
           }}
         />

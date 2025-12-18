@@ -8,6 +8,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { LoggerModule } from 'src/lib/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MediaModule } from './modules/media/media.module';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 
@@ -20,6 +21,7 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
     SeederModule,
     LoggerModule,
     AuthModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],
