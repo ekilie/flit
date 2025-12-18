@@ -33,7 +33,7 @@ export default function Terms() {
             Terms of Service
           </ThemedText>
           <ThemedText style={[styles.subtitle, { color: theme.subtleText }]}>
-            Please read our terms and conditions
+            flit Special Hire Vehicle Platform - Terms and Conditions
           </ThemedText>
         </View>
 

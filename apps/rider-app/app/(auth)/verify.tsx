@@ -80,8 +80,7 @@ export default function Verify() {
               Verify Your Account
             </ThemedText>
             <ThemedText style={[styles.subtitle, { color: colors.subtleText }]}>
-              We've sent a verification code to your email address. Please enter
-              it below to verify your account.
+              We've sent a verification code to your email. Verify your account to start booking rides on flit.
             </ThemedText>
           </ThemedView>
 

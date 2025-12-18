@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/ctx";
 import { useHaptics } from "@/hooks/useHaptics";
+import Colors from "@/constants/Colors";
 
 const { width, height } = Dimensions.get("window");
 
@@ -57,23 +58,23 @@ export default function Step2() {
           </View>
 
           <Text style={styles.headerTitle}>
-            Built for <Text style={styles.titleBold}>voices</Text>
+            Built for <Text style={styles.titleBold}>convenience</Text>
             {"\n"}
-            not visuals
+            not complications
           </Text>
         </View>
 
         {/* Feature Grid */}
         <View style={styles.featuresSection}>
-          <Text style={styles.featuresTitle}>What you'll unlock</Text>
+          <Text style={styles.featuresTitle}>What you'll experience</Text>
 
           <View style={styles.featuresGrid}>
             <View style={styles.featureCard}>
               <View style={styles.featureIcon}>
                 <View style={styles.iconWave} />
               </View>
-              <Text style={styles.featureLabel}>High Quality Audio</Text>
-              <Text style={styles.featureDesc}>Your sound stays crisp</Text>
+              <Text style={styles.featureLabel}>Instant Booking</Text>
+              <Text style={styles.featureDesc}>Get a ride in seconds</Text>
             </View>
 
             <View style={styles.featureCard}>
@@ -81,8 +82,8 @@ export default function Step2() {
                 <View style={styles.iconCircle} />
                 <View style={styles.iconCircleSmall} />
               </View>
-              <Text style={styles.featureLabel}>Global Audience</Text>
-              <Text style={styles.featureDesc}>Reach listeners anywhere</Text>
+              <Text style={styles.featureLabel}>Safe & Reliable</Text>
+              <Text style={styles.featureDesc}>Verified drivers, secure rides</Text>
             </View>
 
             <View style={styles.featureCard}>
@@ -90,9 +91,9 @@ export default function Step2() {
                 <View style={styles.iconSpark} />
                 <View style={styles.iconSparkSmall} />
               </View>
-              <Text style={styles.featureLabel}>Smart Discovery</Text>
+              <Text style={styles.featureLabel}>Real-time Tracking</Text>
               <Text style={styles.featureDesc}>
-                Matched with listeners who care
+                Know exactly where your ride is
               </Text>
             </View>
 
@@ -114,7 +115,7 @@ export default function Step2() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={["#000000", "#2a2a2a"]}
+              colors={[Colors.light.primary, Colors.light.buttonBackground]}
               style={styles.primaryGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -330,7 +331,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#000",
     letterSpacing: 0.8,
     marginRight: 12,
   },

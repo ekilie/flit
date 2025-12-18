@@ -1,4 +1,5 @@
 import ScreenLayout from "@/components/ScreenLayout";
+import Colors from "@/constants/Colors";
 import { useHaptics } from "@/hooks/useHaptics";
 import { Entypo } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -35,7 +36,7 @@ export default function Step1() {
         <View style={styles.headerSection}>
           <View style={styles.logoContainer}>
             <LinearGradient
-              colors={["#000000", "#535353ff"]}
+              colors={["#00000003", "#53535306"]}
               style={styles.logoCircle}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -45,7 +46,7 @@ export default function Step1() {
               source={require("@/assets/images/icon.png")}
               // source={require("@/assets/images/icon-black-and-white.png")}
             />
-            <Text style={styles.logoText}>L!sten</Text>
+            <Text style={styles.logoText}>flit</Text>
           </View>
 
           <View style={styles.decorativeLines}>
@@ -58,14 +59,13 @@ export default function Step1() {
         {/* Main Content */}
         <View style={styles.mainContent}>
           <Text style={styles.title}>
-            Step into the{"\n"}
-            <Text style={styles.titleAccent}>new era</Text> of{"\n"}
-            audio creation
+            Your Journey{"\n"}
+            <Text style={styles.titleAccent}>Starts Here</Text>{"\n"}
+            with flit
           </Text>
 
           <Text style={styles.subtitle}>
-            Record. Share. Discover. Join a global community where creators and
-            listeners connect through powerful audio moments.
+            Book rides seamlessly. Whether you're a guest, visitor, or need special hire vehicles - flit connects you with reliable drivers instantly.
           </Text>
         </View>
 
@@ -80,7 +80,7 @@ export default function Step1() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={["#000000", "#1a1a1a"]}
+              colors={[Colors.light.primary, Colors.light.buttonBackground]}
               style={styles.buttonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -254,12 +254,12 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#000",
     letterSpacing: 1,
     marginRight: 12,
   },
   buttonArrow: {
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255, 255, 255, 0.32)",
     width: 38,
     height: 38,
     borderRadius: 14,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   arrowText: {
     fontSize: 24,
-    color: "#ffffff",
+    color: "#000",
     fontWeight: "600",
   },
   pagination: {

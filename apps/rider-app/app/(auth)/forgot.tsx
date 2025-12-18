@@ -73,12 +73,12 @@ export default function ForgotPassword() {
                 source={require("@/assets/images/icon-black-and-white.png")}
               />
               <ThemedText style={[styles.title, { color: theme.text }]}>
-                Forgot Password
+                Reset Your Password
               </ThemedText>
               <ThemedText
                 style={[styles.subtitle, { color: theme.subtleText }]}
               >
-                Enter your email to receive reset instructions
+                We'll help you get back on the road. Enter your email to receive reset instructions
               </ThemedText>
             </ThemedView>
 

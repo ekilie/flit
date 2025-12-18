@@ -72,12 +72,12 @@ export default function Login() {
                 source={require("@/assets/images/icon-black-and-white.png")}
               />
               <ThemedText style={[styles.title, { color: theme.text }]}>
-                Welcome Back
+                Welcome Back to flit
               </ThemedText>
               <ThemedText
                 style={[styles.subtitle, { color: theme.subtleText }]}
               >
-                Sign in to your account
+                Your ride awaits - Sign in to continue
               </ThemedText>
             </ThemedView>
 

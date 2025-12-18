@@ -83,7 +83,7 @@ export default function Register() {
 
       // Show success message and navigate to verification
       toast.success(
-        "Registration successful! Please check your email for verification instructions"
+        "Welcome to flit! Please check your email for verification instructions"
       );
 
       // Navigate to login after a brief delay
