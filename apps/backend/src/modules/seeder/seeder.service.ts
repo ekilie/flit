@@ -68,17 +68,17 @@ export class SeederService {
 
     const users = [
       {
-        fullName: 'Admin User',
-        phoneNumber: '1234567890',
-        email: 'admin@ipfsoftwares.com',
-        password: 'admin@ipfsoftwares',
+        fullName: 'Tachera Sasi',
+        phoneNumber: '+255686477074',
+        email: 'tachera@ekilie.com',
+        password: 'tachera@ekilie',
         role: roleMap['Admin'],
       },
       {
         fullName: 'Manager User',
         phoneNumber: '0987654321',
-        email: 'manager@ipfsoftwares.com',
-        password: 'manager@ipfsoftwares',
+        email: 'support@ekilie.com',
+        password: 'supprt@ekilie',
         role: roleMap['Manager'],
       },
     ];
