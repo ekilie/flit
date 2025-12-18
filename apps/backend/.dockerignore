@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Node / PNPM
+node_modules
+pnpm-debug.log
+
+# Build artifacts (handled within Docker stages)
+dist
+coverage
+
+# Environment files
+.env
+*.env
+
+# OS / IDE specific
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker
+Dockerfile
