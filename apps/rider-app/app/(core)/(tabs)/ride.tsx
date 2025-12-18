@@ -1,21 +1,23 @@
 import ScreenLayout from "@/components/ScreenLayout";
+import { Colors } from "@/constants/Colors";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import BottomSheet, { BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { Ionicons } from "@expo/vector-icons";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
-  Image,
+  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 
 const { width, height } = Dimensions.get("window");
 
@@ -56,10 +58,34 @@ const VEHICLE_TYPES = [
 ];
 
 const RECENT_LOCATIONS = [
-  { id: "1", name: "Home", address: "123 Main Street, City", icon: "home" },
-  { id: "2", name: "Work", address: "456 Business Ave, City", icon: "briefcase" },
-  { id: "3", name: "Airport", address: "789 Airport Road", icon: "airplane" },
+  { 
+    id: "1", 
+    name: "Home", 
+    address: "123 Main Street, City", 
+    icon: "home", 
+    coordinates: { latitude: 37.7749, longitude: -122.4194 } 
+  },
+  { 
+    id: "2", 
+    name: "Work", 
+    address: "456 Business Ave, City", 
+    icon: "briefcase", 
+    coordinates: { latitude: 37.7849, longitude: -122.4094 } 
+  },
+  { 
+    id: "3", 
+    name: "Airport", 
+    address: "789 Airport Road", 
+    icon: "airplane", 
+    coordinates: { latitude: 37.6213, longitude: -122.3790 } 
+  },
 ];
+
+// Default map center (San Francisco)
+const DEFAULT_COORDINATES = {
+  latitude: 37.7749,
+  longitude: -122.4194,
+};
 
 interface LocationInputProps {
   placeholder: string;
@@ -81,17 +107,17 @@ const LocationInput: React.FC<LocationInputProps> = ({
   const theme = useCurrentTheme();
 
   return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
         styles.locationInput,
-          {
+        {
           backgroundColor: theme.cardBackground,
           borderColor: theme.border,
           opacity: pressed ? 0.8 : 1,
-          },
-        ]}
-      >
+        },
+      ]}
+    >
       <View style={[styles.locationIcon, { backgroundColor: `${theme.primary}15` }]}>
         <Ionicons name={icon as any} size={20} color={theme.primary} />
       </View>
@@ -135,7 +161,7 @@ const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
     >
       <View style={[styles.vehicleIcon, { backgroundColor: `${theme.primary}10` }]}>
         <Ionicons name={vehicle.icon as any} size={24} color={theme.primary} />
-        </View>
+      </View>
       <View style={styles.vehicleInfo}>
         <Text style={[styles.vehicleName, { color: theme.text }]}>{vehicle.name}</Text>
         <Text style={[styles.vehicleDescription, { color: theme.subtleText }]}>
@@ -146,7 +172,7 @@ const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
             <Ionicons name="time-outline" size={14} color={theme.mutedText} />
             <Text style={[styles.vehicleMetaText, { color: theme.mutedText }]}>
               {vehicle.eta}
-          </Text>
+            </Text>
           </View>
           <Text style={[styles.vehiclePrice, { color: theme.primary }]}>
             {vehicle.price}
@@ -158,7 +184,7 @@ const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
           <Ionicons name="checkmark" size={16} color="white" />
         </View>
       )}
-      </Pressable>
+    </Pressable>
   );
 };
 
@@ -167,12 +193,15 @@ export default function RideScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const mapRef = useRef<MapView>(null);
+  
   const [pickupLocation, setPickupLocation] = useState("Current Location");
+  const [pickupCoordinates, setPickupCoordinates] = useState(DEFAULT_COORDINATES);
   const [destination, setDestination] = useState("");
+  const [destinationCoordinates, setDestinationCoordinates] = useState<typeof DEFAULT_COORDINATES | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
-  const [activeRide, setActiveRide] = useState<any>(null);
 
   // Map animation
   const mapScale = useRef(new Animated.Value(1)).current;
@@ -186,6 +215,18 @@ export default function RideScreen() {
       friction: 7,
     }).start();
   }, []);
+
+  // Update camera when destination is selected
+  useEffect(() => {
+    if (destinationCoordinates && mapRef.current) {
+      // Fit map to show both markers
+      const coordinates = [pickupCoordinates, destinationCoordinates];
+      mapRef.current.fitToCoordinates(coordinates, {
+        edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
+        animated: true,
+      });
+    }
+  }, [destinationCoordinates]);
 
   const snapPoints = ["25%", "50%", "85%"];
 
@@ -210,19 +251,6 @@ export default function RideScreen() {
     setIsBooking(true);
     // Simulate booking process
     setTimeout(() => {
-      setActiveRide({
-        id: "1",
-        vehicle: VEHICLE_TYPES.find((v) => v.id === selectedVehicle),
-        pickup: pickupLocation,
-        destination: destination,
-        driver: {
-          name: "John Doe",
-          rating: 4.8,
-          vehicle: "Toyota Camry",
-          plate: "ABC-123",
-        },
-        eta: "5 min",
-      });
       setIsBooking(false);
       router.push("/(core)/ride/active");
     }, 2000);
@@ -230,12 +258,14 @@ export default function RideScreen() {
 
   const handleLocationSelect = (location: typeof RECENT_LOCATIONS[0]) => {
     setDestination(location.address);
+    setDestinationCoordinates(location.coordinates);
     setShowLocationPicker(false);
     bottomSheetRef.current?.snapToIndex(1);
   };
 
   return (
-    <ScreenLayout>
+    <ScreenLayout styles={{ backgroundColor: Colors.light.background }} fullScreen>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
       <View style={styles.container}>
         {/* Map View */}
         <Animated.View
@@ -246,21 +276,49 @@ export default function RideScreen() {
             },
           ]}
         >
-          {/* Placeholder Map - In production, use react-native-maps or expo-maps */}
-          <View style={[styles.mapPlaceholder, { backgroundColor: theme.surface }]}>
-            <Image
-              source={{
-                uri: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-122.4194,37.7749,12,0/600x400?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
-              }}
-              style={styles.mapImage}
-              resizeMode="cover"
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={{
+              ...pickupCoordinates,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            showsUserLocation
+            showsMyLocationButton
+            showsCompass
+            showsTraffic
+            toolbarEnabled={false}
+          >
+            {/* Pickup Marker */}
+            <Marker
+              coordinate={pickupCoordinates}
+              title="Pickup Location"
+              description={pickupLocation}
+              pinColor={theme.primary}
             />
-            <View style={styles.mapOverlay}>
-              <View style={[styles.mapMarker, { backgroundColor: theme.primary }]}>
-                <Ionicons name="location" size={24} color="white" />
-              </View>
-            </View>
-          </View>
+
+            {/* Destination Marker */}
+            {destinationCoordinates && (
+              <Marker
+                coordinate={destinationCoordinates}
+                title="Destination"
+                description={destination}
+                pinColor={theme.success || '#10b981'}
+              />
+            )}
+
+            {/* Route Line */}
+            {destinationCoordinates && (
+              <Polyline
+                coordinates={[pickupCoordinates, destinationCoordinates]}
+                strokeColor={theme.primary}
+                strokeWidth={3}
+                lineDashPattern={[1]}
+              />
+            )}
+          </MapView>
 
           {/* Top Controls */}
           <View style={styles.topControls}>
@@ -336,7 +394,7 @@ export default function RideScreen() {
                   <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>
                       Recent Locations
-                  </Text>
+                    </Text>
                     {RECENT_LOCATIONS.map((location) => (
                       <Pressable
                         key={location.id}
@@ -387,7 +445,7 @@ export default function RideScreen() {
                           onSelect={() => handleSelectVehicle(vehicle.id)}
                         />
                       ))}
-                </View>
+                    </View>
                   </>
                 )}
 
@@ -396,7 +454,7 @@ export default function RideScreen() {
                   <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>
                       Quick Actions
-                </Text>
+                    </Text>
                     <View style={styles.quickActions}>
                       <Pressable
                         style={({ pressed }) => [
@@ -411,7 +469,7 @@ export default function RideScreen() {
                         <Ionicons name="time-outline" size={24} color={theme.primary} />
                         <Text style={[styles.quickActionText, { color: theme.text }]}>
                           Ride History
-                </Text>
+                        </Text>
                       </Pressable>
                       <Pressable
                         style={({ pressed }) => [
@@ -426,7 +484,7 @@ export default function RideScreen() {
                         <Ionicons name="card-outline" size={24} color={theme.primary} />
                         <Text style={[styles.quickActionText, { color: theme.text }]}>
                           Payment
-                  </Text>
+                        </Text>
                       </Pressable>
                     </View>
                   </View>
@@ -453,7 +511,7 @@ export default function RideScreen() {
                     </View>
                     <View style={[styles.tripLine, { backgroundColor: theme.border }]} />
                     <View style={styles.tripLocation}>
-                      <View style={[styles.tripDot, { backgroundColor: theme.success }]} />
+                      <View style={[styles.tripDot, { backgroundColor: theme.success || '#10b981' }]} />
                       <View style={styles.tripLocationInfo}>
                         <Text style={[styles.tripLocationLabel, { color: theme.subtleText }]}>
                           To
@@ -491,7 +549,7 @@ export default function RideScreen() {
                       </Text>
                     </View>
                   </View>
-              </View>
+                </View>
 
                 {/* Book Ride Button */}
                 <Pressable
@@ -515,7 +573,7 @@ export default function RideScreen() {
                   )}
                 </Pressable>
 
-                    <Pressable
+                <Pressable
                   style={styles.changeVehicleButton}
                   onPress={() => {
                     setSelectedVehicle(null);
@@ -542,37 +600,13 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
   },
-  mapPlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mapImage: {
-    width: "100%",
-    height: "100%",
-  },
-  mapOverlay: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    marginLeft: -20,
-    marginTop: -20,
-  },
-  mapMarker: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+  map: {
+    width: '100%',
+    height: '100%',
   },
   topControls: {
     position: "absolute",
-    top: 50,
+    top: Platform.OS === 'ios' ? 60 : 50,
     left: 16,
     right: 16,
     flexDirection: "row",

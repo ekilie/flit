@@ -93,7 +93,6 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
       style={({ pressed }) => [
         styles.rideItem,
         {
-          backgroundColor: theme.cardBackground,
           opacity: pressed ? 0.8 : 1,
         },
       ]}

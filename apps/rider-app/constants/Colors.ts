@@ -5,7 +5,7 @@ const tintColorDark = "#fff";
 
 export const Colors = {
   tabColors: {
-    ride: "#f5c724", // Flit yellow accent for ride booking
+    ride: "#178764ff", // Flit yellow accent for ride booking
     profile: "#f5c724", // Flit yellow accent for profile
     feed: "#178764ff", // Spotify-like green for listening/audio
     insights: "#6366f1", // Purple for analytics/data

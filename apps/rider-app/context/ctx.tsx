@@ -279,8 +279,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setSession("authenticated");
     setOnboardingComplete();
     
-    // Navigate to main app
-    router.replace("/");
+    router.replace("/(core)/(tabs)/ride");
   };
 
   const contextValue: AuthContextType = {
