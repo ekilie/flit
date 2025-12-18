@@ -475,7 +475,7 @@ export default function Settings() {
 
           <SettingItem
             title="Push Notifications"
-            subtitle="Enable notifications from Listen"
+            subtitle="Enable notifications from flit"
             icon="notifications"
             rightElement={
               <Switch
