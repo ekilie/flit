@@ -1,27 +1,28 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { ThemedText, ThemedView } from "@/components/Themed";
+import { Entypo } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
+  View,
+  StatusBar,
 } from "react-native";
-import { useAdaptiveColors } from "../../constants/Colors";
 import { useAuth } from "../../context/ctx";
-import { useContextualAdaptiveColors } from "../../context/ThemeProvider";
 import { alert } from "yooo-native";
+import Colors from "@/constants/Colors";
 
 export default function Verify() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { verifyAccount, sendVerificationEmail, isLoading } = useAuth();
-  const colors = useAdaptiveColors();
-  const contextColors = useContextualAdaptiveColors();
 
   const [email, setEmail] = useState((params.email as string) || "");
   const [otp, setOtp] = useState("");
@@ -65,163 +66,221 @@ export default function Verify() {
 
   return (
     <ScreenLayout>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      {/* Background Pattern */}
+      <View style={styles.backgroundPattern}>
+        <View style={styles.patternCircle1} />
+        <View style={styles.patternCircle2} />
+        <View style={styles.patternCircle3} />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        <ThemedView style={styles.content}>
-          {/* Header */}
-          <ThemedView style={styles.header}>
-            <ThemedText style={[styles.title, { color: colors.text }]}>
-              Verify Your Account
-            </ThemedText>
-            <ThemedText style={[styles.subtitle, { color: colors.subtleText }]}>
-              We've sent a verification code to your email. Verify your account to start booking rides on flit.
-            </ThemedText>
-          </ThemedView>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <LinearGradient
+                  colors={["#00000003", "#53535306"]}
+                  style={styles.logoCircle}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+                <Image
+                  style={{ position: "absolute", width: 64, height: 64 }}
+                  source={require("@/assets/images/icon.png")}
+                />
+                <Text style={styles.logoText}>flit</Text>
+              </View>
 
-          {/* Form */}
-          <ThemedView style={styles.form}>
-            {/* Email Input */}
-            <ThemedView style={styles.inputContainer}>
-              <ThemedText style={[styles.label, { color: colors.text }]}>
-                Email Address
-              </ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: colors.inputBackground,
-                    borderColor: colors.inputBorder,
-                    color: colors.inputText,
-                  },
-                ]}
-                placeholder="Enter your email address"
-                placeholderTextColor={colors.inputPlaceholder}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </ThemedView>
+              <Text style={styles.title}>Verify Account</Text>
+              <Text style={styles.subtitle}>
+                Enter the code sent to your email to start booking rides
+              </Text>
+            </View>
 
-            {/* OTP Input */}
-            <ThemedView style={styles.inputContainer}>
-              <ThemedText style={[styles.label, { color: colors.text }]}>
-                Verification Code
-              </ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.otpInput,
-                  {
-                    backgroundColor: colors.inputBackground,
-                    borderColor: colors.inputBorder,
-                    color: colors.inputText,
-                  },
-                ]}
-                placeholder="Enter 6-digit code"
-                placeholderTextColor={colors.inputPlaceholder}
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="number-pad"
-                maxLength={6}
-                editable={!isLoading}
-                textAlign="center"
-              />
-            </ThemedView>
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email Address</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email address"
+                  placeholderTextColor="#999999"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
 
-            {/* Resend Code */}
-            <TouchableOpacity
-              style={styles.resendContainer}
-              onPress={handleResendCode}
-              disabled={isLoading}
-            >
-              <ThemedText style={[styles.resendText, { color: colors.accent }]}>
-                Didn't receive the code? Resend
-              </ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
+              {/* OTP Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Verification Code</Text>
+                <TextInput
+                  style={[styles.input, styles.otpInput]}
+                  placeholder="Enter 6-digit code"
+                  placeholderTextColor="#999999"
+                  value={otp}
+                  onChangeText={setOtp}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                  editable={!isLoading}
+                  textAlign="center"
+                />
+              </View>
 
-          {/* Actions */}
-          <ThemedView style={styles.actions}>
-            {/* Verify Button */}
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                {
-                  backgroundColor: colors.buttonBackground,
-                  shadowColor: contextColors.shadowColor,
-                  shadowOpacity: contextColors.shadowOpacity,
-                },
-                isLoading && styles.disabledButton,
-              ]}
-              onPress={handleVerify}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              <ThemedText
-                style={[styles.primaryButtonText, { color: colors.buttonText }]}
+              {/* Resend Code */}
+              <TouchableOpacity
+                style={styles.resendContainer}
+                onPress={handleResendCode}
+                disabled={isLoading}
               >
-                {isLoading ? "Verifying..." : "Verify Account"}
-              </ThemedText>
-            </TouchableOpacity>
+                <Text style={styles.resendText}>
+                  Didn't receive the code? Resend
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-            {/* Back to Login */}
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={handleBackToLogin}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              <ThemedText
-                style={[
-                  styles.secondaryButtonText,
-                  { color: colors.subtleText },
-                ]}
+            {/* Actions */}
+            <View style={styles.actions}>
+              {/* Verify Button */}
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={handleVerify}
+                disabled={isLoading}
+                activeOpacity={0.8}
               >
-                Back to Sign In
-              </ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </ThemedView>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                <LinearGradient
+                  colors={[Colors.light.primary, Colors.light.buttonBackground]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {isLoading ? "Verifying..." : "Verify Account"}
+                  </Text>
+                  {!isLoading && (
+                    <View style={styles.buttonArrow}>
+                      <Entypo name="chevron-right" size={20} color="#000" />
+                    </View>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {/* Back to Login */}
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={handleBackToLogin}
+                disabled={isLoading}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  Back to Sign In
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundPattern: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  patternCircle1: {
+    position: "absolute",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "#f5f5f5",
+    top: -100,
+    right: -50,
+  },
+  patternCircle2: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#f5f5f5",
+    bottom: 100,
+    left: -75,
+  },
+  patternCircle3: {
+    position: "absolute",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#fafafa",
+    top: "40%",
+    right: 30,
+  },
   container: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingVertical: 40,
   },
   content: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 48,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  logoCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "200",
+    letterSpacing: 6,
+    color: "#1a1a1a",
+    textTransform: "uppercase",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "600",
-    marginBottom: 16,
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
+    color: "#666666",
     textAlign: "center",
+    fontWeight: "400",
     lineHeight: 22,
   },
   form: {
@@ -231,21 +290,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   input: {
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
+    borderColor: "#e0e0e0",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     fontSize: 16,
+    color: "#1a1a1a",
   },
   otpInput: {
     fontSize: 24,
     fontWeight: "600",
-    letterSpacing: 4,
+    letterSpacing: 8,
   },
   resendContainer: {
     alignItems: "center",
@@ -253,26 +317,43 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
+    color: "#1a1a1a",
+    textDecorationLine: "underline",
   },
   actions: {
-    gap: 16,
+    gap: 20,
   },
   primaryButton: {
-    backgroundColor: "#000",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  buttonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
     borderRadius: 12,
-    paddingVertical: 16,
+    flexDirection: "row",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    justifyContent: "center",
   },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#000",
+    letterSpacing: 1,
+    marginRight: 12,
   },
-  disabledButton: {
-    opacity: 0.6,
+  buttonArrow: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   secondaryButton: {
     paddingVertical: 12,
@@ -280,6 +361,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 14,
+    color: "#666666",
     textDecorationLine: "underline",
   },
 });
