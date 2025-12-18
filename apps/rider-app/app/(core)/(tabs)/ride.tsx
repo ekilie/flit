@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   Platform,
   Pressable,
   StyleSheet,
@@ -332,7 +333,15 @@ export default function RideScreen() {
               ]}
               onPress={() => router.push("/(core)/ride/history")}
             >
-              <Ionicons name="menu" size={24} color={theme.text} />
+              <Image
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 30,
+                  marginBottom: 24,
+                }}
+                source={require("@/assets/images/icon-black-and-white.png")}
+              />
             </Pressable>
             <Pressable
               style={({ pressed }) => [
