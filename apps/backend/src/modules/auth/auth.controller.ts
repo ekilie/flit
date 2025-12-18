@@ -32,8 +32,8 @@ export class AuthController {
 
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  async logout(@Req() req: any) {
-    return this.authService.logout(req.user?.userId);
+  async logout() {
+    return this.authService.logout();
   }
 
   @Post('auth/refresh')

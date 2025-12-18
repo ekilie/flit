@@ -33,8 +33,14 @@ export class UsersController {
 
   @Put('me/edit')
   @ApiOperation({ summary: 'Update current authenticated user' })
-  async updateCurrentUser(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.usersService.update(req.user?.userId, updateUserDto);
+  async updateCurrentUser(
+    @Req() req: any,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.usersService.update(
+      req.user?.userId,
+      updateUserDto,
+    );
     return {
       success: true,
       data: ExcludeFromObject(user, ['password']),

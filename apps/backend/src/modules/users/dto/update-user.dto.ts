@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  ValidateNested,
+  IsBoolean,
+  IsDate,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class UserMetadataDto {
@@ -44,4 +51,13 @@ export class UpdateUserDto {
   @ValidateNested()
   @Type(() => UserMetadataDto)
   metadata?: UserMetadataDto;
+
+  @IsOptional()
+  @IsBoolean()
+  emailVerified?: boolean;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  lastLogin?: Date;
 }
