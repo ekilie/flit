@@ -108,7 +108,7 @@ export default function ResetPassword() {
                   end={{ x: 1, y: 1 }}
                 />
                 <Image
-                  style={{ position: "absolute", width: 64, height: 64 }}
+                  style={styles.iconImage}
                   source={require("@/assets/images/icon.png")}
                 />
                 <Text style={styles.logoText}>flit</Text>
@@ -309,6 +309,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  iconImage: {
+    position: "absolute",
+    width: 64,
+    height: 64,
   },
   logoText: {
     fontSize: 24,
