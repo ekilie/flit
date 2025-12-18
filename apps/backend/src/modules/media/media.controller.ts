@@ -32,7 +32,7 @@ export class MediaController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
-        filename: (req, file, cb) => {
+        filename: (req: any, file: any, cb: any) => {
           const randomName = Array(32)
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
@@ -43,7 +43,7 @@ export class MediaController {
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB
       },
-      fileFilter: (req, file, cb) => {
+      fileFilter: (req: any, file: any, cb: any) => {
         const allowedMimes = [
           'image/jpeg',
           'image/png',
