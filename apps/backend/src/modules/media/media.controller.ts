@@ -6,7 +6,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
@@ -68,7 +74,7 @@ export class MediaController {
     }
 
     const baseUrl = process.env.APP_URL || 'http://localhost:3000';
-    
+
     return {
       status: 'success',
       message: 'File uploaded successfully',

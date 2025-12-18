@@ -18,7 +18,10 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 
 // In-memory OTP storage (In production, use Redis or database)
-const otpStorage = new Map<string, { otp: string; expiresAt: Date; type: string }>();
+const otpStorage = new Map<
+  string,
+  { otp: string; expiresAt: Date; type: string }
+>();
 
 @Injectable()
 export class AuthService {
@@ -32,7 +35,7 @@ export class AuthService {
     if (!user || !(await user.comparePassword(pass))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return ExcludeFromObject(user, ['password']);
+    return ExcludeFromObject(user, ['password']) as User;
   }
 
   private generateOTP(): string {
@@ -87,7 +90,8 @@ export class AuthService {
     console.log(`Verification OTP for ${registerDto.email}: ${otp}`);
 
     return {
-      message: 'Registration successful! Please check your email for verification code.',
+      message:
+        'Registration successful! Please check your email for verification code.',
       user: ExcludeFromObject(user, ['password']),
     };
   }
@@ -114,7 +118,7 @@ export class AuthService {
     };
   }
 
-  async logout(userId: number) {
+  async logout() {
     // In production, invalidate tokens (use Redis blacklist)
     return {
       message: 'Logout successful',
@@ -163,7 +167,7 @@ export class AuthService {
 
   async verifyAccount(verifyOtpDto: VerifyOtpDto) {
     const { email, otp } = verifyOtpDto;
-    
+
     if (!this.verifyOTP(email, otp, 'verification')) {
       throw new BadRequestException('Invalid or expired verification code');
     }

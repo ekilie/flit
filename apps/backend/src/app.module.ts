@@ -9,6 +9,12 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { LoggerModule } from 'src/lib/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MediaModule } from './modules/media/media.module';
+import { VehiclesModule } from './modules/vehicles/vehicles.module';
+import { RidesModule } from './modules/rides/rides.module';
+import { RatingsModule } from './modules/ratings/ratings.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { LocationsModule } from './modules/locations/locations.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 
@@ -22,6 +28,12 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
     LoggerModule,
     AuthModule,
     MediaModule,
+    VehiclesModule,
+    RidesModule,
+    RatingsModule,
+    PaymentsModule,
+    LocationsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],
