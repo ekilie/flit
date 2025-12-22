@@ -341,7 +341,7 @@ export default function RideScreen() {
               style={({ pressed }) => [
                 styles.controlButton,
                 {
-                  backgroundColor: theme.cardBackground,
+                  // backgroundColor: theme.cardBackground,
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
@@ -634,6 +634,7 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     zIndex: 10,
   },
   controlButton: {
