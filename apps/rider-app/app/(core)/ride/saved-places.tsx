@@ -17,14 +17,14 @@ import {
 const SAVED_PLACES = [
   {
     id: "1",
-    name: "Nyumbani",
+    name: "Home",
     address: "Mikocheni B, Plot 123, Dar es Salaam",
     icon: "home",
     color: "#4CAF50",
   },
   {
     id: "2",
-    name: "Kazini",
+    name: "Work",
     address: "Posta Road, Kariakoo, Dar es Salaam",
     icon: "briefcase",
     color: "#2196F3",
@@ -39,14 +39,14 @@ const SAVED_PLACES = [
 ];
 
 const PLACE_ICONS = [
-  { id: "home", icon: "home", label: "Nyumbani", color: "#4CAF50" },
-  { id: "work", icon: "briefcase", label: "Kazini", color: "#2196F3" },
+  { id: "home", icon: "home", label: "Home", color: "#4CAF50" },
+  { id: "work", icon: "briefcase", label: "Work", color: "#2196F3" },
   { id: "gym", icon: "fitness", label: "Gym", color: "#FF9800" },
-  { id: "restaurant", icon: "restaurant", label: "Mkahawa", color: "#F44336" },
-  { id: "shopping", icon: "cart", label: "Duka", color: "#9C27B0" },
-  { id: "school", icon: "school", label: "Shule", color: "#00BCD4" },
-  { id: "hospital", icon: "medical", label: "Hospitali", color: "#E91E63" },
-  { id: "other", icon: "location", label: "Nyingine", color: "#607D8B" },
+  { id: "restaurant", icon: "restaurant", label: "Restaurant", color: "#F44336" },
+  { id: "shopping", icon: "cart", label: "Store", color: "#9C27B0" },
+  { id: "school", icon: "school", label: "School", color: "#00BCD4" },
+  { id: "hospital", icon: "medical", label: "Hospital", color: "#E91E63" },
+  { id: "other", icon: "location", label: "Other", color: "#607D8B" },
 ];
 
 interface SavedPlaceItemProps {
@@ -162,7 +162,7 @@ export default function SavedPlacesScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>
-            Maeneo Yaliyohifadhiwa
+            Saved Places
           </Text>
           <View style={{ width: 44 }} />
         </View>
@@ -176,7 +176,7 @@ export default function SavedPlacesScreen() {
           <View style={[styles.infoBanner, { backgroundColor: `${theme.primary}10` }]}>
             <Ionicons name="information-circle" size={20} color={theme.primary} />
             <Text style={[styles.infoText, { color: theme.primary }]}>
-              Hifadhi maeneo unayotembelea mara kwa mara kwa urahisi zaidi
+              Save frequently visited places for easier bookings
             </Text>
           </View>
 
@@ -198,10 +198,10 @@ export default function SavedPlacesScreen() {
                 <Ionicons name="location-outline" size={48} color={theme.primary} />
               </View>
               <Text style={[styles.emptyTitle, { color: theme.text }]}>
-                Hakuna Maeneo Yaliyohifadhiwa
+                Hakuna Saved Places
               </Text>
               <Text style={[styles.emptyText, { color: theme.subtleText }]}>
-                Ongeza maeneo unayotembelea mara kwa mara ili kuokoa muda
+                Add places you visit frequently to save time
               </Text>
             </View>
           )}
@@ -211,7 +211,7 @@ export default function SavedPlacesScreen() {
             <View style={[styles.addForm, { backgroundColor: theme.cardBackground }]}>
               <View style={styles.formHeader}>
                 <Text style={[styles.formTitle, { color: theme.text }]}>
-                  Ongeza Eneo Jipya
+                  Add New Place
                 </Text>
                 <Pressable
                   onPress={() => {
@@ -233,7 +233,7 @@ export default function SavedPlacesScreen() {
                     color: theme.text,
                   },
                 ]}
-                placeholder="Jina la eneo (mfano: Nyumbani)"
+                placeholder="Place name (e.g: Home)"
                 placeholderTextColor={theme.inputPlaceholder}
                 value={newPlaceName}
                 onChangeText={setNewPlaceName}
@@ -248,7 +248,7 @@ export default function SavedPlacesScreen() {
                     color: theme.text,
                   },
                 ]}
-                placeholder="Anwani kamili"
+                placeholder="Full address"
                 placeholderTextColor={theme.inputPlaceholder}
                 value={newPlaceAddress}
                 onChangeText={setNewPlaceAddress}
@@ -257,7 +257,7 @@ export default function SavedPlacesScreen() {
               />
 
               <Text style={[styles.label, { color: theme.text }]}>
-                Chagua Ikoni:
+                Select Icon:
               </Text>
               <ScrollView
                 horizontal
@@ -328,7 +328,7 @@ export default function SavedPlacesScreen() {
                   }}
                 >
                   <Text style={[styles.cancelButtonText, { color: theme.text }]}>
-                    Ghairi
+                    Cancel
                   </Text>
                 </Pressable>
                 <Pressable
@@ -341,7 +341,7 @@ export default function SavedPlacesScreen() {
                   ]}
                   onPress={handleAddPlace}
                 >
-                  <Text style={styles.saveButtonText}>Hifadhi</Text>
+                  <Text style={styles.saveButtonText}>Save</Text>
                 </Pressable>
               </View>
             </View>
@@ -360,7 +360,7 @@ export default function SavedPlacesScreen() {
               }}
             >
               <Ionicons name="add" size={24} color="white" />
-              <Text style={styles.addButtonText}>Ongeza Eneo Jipya</Text>
+              <Text style={styles.addButtonText}>Add New Place</Text>
             </Pressable>
           )}
         </ScrollView>

@@ -48,10 +48,10 @@ const RIDE_DETAILS = {
     currency: "TSh",
   },
   rating: 5,
-  feedback: "Safari nzuri sana! Dereva alikuwa mkarimu na gari lilikuwa safi.",
+  feedback: "trips nzuri sana! Dereva alikuwa mkarimu na gari lilikuwa safi.",
   status: "imekamilika",
   distance: "8.5 km",
-  duration: "15 dakika",
+  duration: "15 min",
   paymentMethod: "Kadi ya Benki •••• 1234",
   bookingId: "FLT-2024-001-15678",
 };
@@ -113,7 +113,7 @@ export default function RideDetailsScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>
-            Maelezo ya Safari
+            Trip Details
           </Text>
           <Pressable
             style={({ pressed }) => [
@@ -140,14 +140,14 @@ export default function RideDetailsScreen() {
               <Ionicons name="checkmark-circle" size={48} color={theme.success} />
             </View>
             <Text style={[styles.statusTitle, { color: theme.text }]}>
-              Safari Imekamilika
+              Trip Completed
             </Text>
             <Text style={[styles.statusDate, { color: theme.subtleText }]}>
               {formatDate(RIDE_DETAILS.date, RIDE_DETAILS.time)}
             </Text>
             <View style={[styles.bookingIdContainer, { backgroundColor: theme.surface }]}>
               <Text style={[styles.bookingIdLabel, { color: theme.mutedText }]}>
-                Namba ya Oda:
+                Order Number:
               </Text>
               <Text style={[styles.bookingId, { color: theme.text }]}>
                 {RIDE_DETAILS.bookingId}
@@ -158,14 +158,14 @@ export default function RideDetailsScreen() {
           {/* Trip Route */}
           <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Njia ya Safari
+              Trip Route
             </Text>
             <View style={styles.route}>
               <View style={styles.routePoint}>
                 <View style={[styles.routeDot, { backgroundColor: theme.primary }]} />
                 <View style={styles.routeDetails}>
                   <Text style={[styles.routeLabel, { color: theme.subtleText }]}>
-                    Kutoka
+                    From
                   </Text>
                   <Text style={[styles.routeAddress, { color: theme.text }]}>
                     {RIDE_DETAILS.pickup.address}
@@ -177,7 +177,7 @@ export default function RideDetailsScreen() {
                 <View style={[styles.routeDot, { backgroundColor: theme.success }]} />
                 <View style={styles.routeDetails}>
                   <Text style={[styles.routeLabel, { color: theme.subtleText }]}>
-                    Kwenda
+                    To
                   </Text>
                   <Text style={[styles.routeAddress, { color: theme.text }]}>
                     {RIDE_DETAILS.destination.address}
@@ -194,7 +194,7 @@ export default function RideDetailsScreen() {
                     {RIDE_DETAILS.distance}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>
-                    Umbali
+                    Distance
                   </Text>
                 </View>
               </View>
@@ -206,7 +206,7 @@ export default function RideDetailsScreen() {
                     {RIDE_DETAILS.duration}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>
-                    Muda
+                    Duration
                   </Text>
                 </View>
               </View>
@@ -216,7 +216,7 @@ export default function RideDetailsScreen() {
           {/* Driver Info */}
           <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Maelezo ya Dereva
+              Driver Details
             </Text>
             <View style={styles.driverInfo}>
               <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
@@ -240,7 +240,7 @@ export default function RideDetailsScreen() {
                   </View>
                   <View style={[styles.metaDot, { backgroundColor: theme.border }]} />
                   <Text style={[styles.driverTrips, { color: theme.subtleText }]}>
-                    Safari {RIDE_DETAILS.driver.totalTrips}+
+                    trips {RIDE_DETAILS.driver.totalTrips}+
                   </Text>
                 </View>
               </View>
@@ -265,12 +265,12 @@ export default function RideDetailsScreen() {
           {/* Price Breakdown */}
           <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Muhtasari wa Gharama
+              Price Breakdown
             </Text>
             <View style={styles.priceBreakdown}>
               <View style={styles.priceRow}>
                 <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
-                  Nauli
+                  Fare
                 </Text>
                 <Text style={[styles.priceValue, { color: theme.text }]}>
                   {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.subtotal.toLocaleString()}
@@ -279,7 +279,7 @@ export default function RideDetailsScreen() {
               {RIDE_DETAILS.price.discount > 0 && (
                 <View style={styles.priceRow}>
                   <Text style={[styles.priceLabel, { color: theme.success }]}>
-                    Punguzo
+                    Discount
                   </Text>
                   <Text style={[styles.priceValue, { color: theme.success }]}>
                     -{RIDE_DETAILS.price.currency}{" "}
@@ -290,7 +290,7 @@ export default function RideDetailsScreen() {
               {RIDE_DETAILS.price.tip > 0 && (
                 <View style={styles.priceRow}>
                   <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
-                    Bakshishi
+                    Tip
                   </Text>
                   <Text style={[styles.priceValue, { color: theme.text }]}>
                     {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.tip.toLocaleString()}
@@ -300,7 +300,7 @@ export default function RideDetailsScreen() {
               <View style={[styles.priceDivider, { backgroundColor: theme.border }]} />
               <View style={styles.priceRow}>
                 <Text style={[styles.priceLabelTotal, { color: theme.text }]}>
-                  Jumla
+                  Total
                 </Text>
                 <Text style={[styles.priceValueTotal, { color: theme.primary }]}>
                   {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.total.toLocaleString()}
@@ -319,7 +319,7 @@ export default function RideDetailsScreen() {
           {RIDE_DETAILS.rating > 0 && (
             <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Ukadiriaji Wako
+                Your Rating
               </Text>
               <View style={styles.ratingStars}>
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -352,7 +352,7 @@ export default function RideDetailsScreen() {
               onPress={handleBookAgain}
             >
               <Ionicons name="refresh" size={20} color="white" />
-              <Text style={styles.actionButtonText}>Agiza Tena</Text>
+              <Text style={styles.actionButtonText}>Book Again</Text>
             </Pressable>
 
             <View style={styles.secondaryActions}>
@@ -368,7 +368,7 @@ export default function RideDetailsScreen() {
               >
                 <Ionicons name="download-outline" size={20} color={theme.primary} />
                 <Text style={[styles.secondaryButtonText, { color: theme.primary }]}>
-                  Pakua Risiti
+                  Download Receipt
                 </Text>
               </Pressable>
               <Pressable
@@ -383,7 +383,7 @@ export default function RideDetailsScreen() {
               >
                 <Ionicons name="alert-circle-outline" size={20} color={theme.error} />
                 <Text style={[styles.secondaryButtonText, { color: theme.error }]}>
-                  Ripoti Tatizo
+                  Report Issue
                 </Text>
               </Pressable>
             </View>

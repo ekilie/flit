@@ -116,13 +116,13 @@ const PromoCard: React.FC<PromoCardProps> = ({ promo, onApply, expired = false }
         {!expired && (
           <View style={[styles.validBadge, { backgroundColor: `${theme.success}15` }]}>
             <Ionicons name="checkmark-circle" size={14} color={theme.success} />
-            <Text style={[styles.validText, { color: theme.success }]}>Inatumika</Text>
+            <Text style={[styles.validText, { color: theme.success }]}>Active</Text>
           </View>
         )}
         {expired && (
           <View style={[styles.expiredBadge, { backgroundColor: `${theme.error}15` }]}>
             <Ionicons name="close-circle" size={14} color={theme.error} />
-            <Text style={[styles.expiredText, { color: theme.error }]}>Imeisha</Text>
+            <Text style={[styles.expiredText, { color: theme.error }]}>Expired</Text>
           </View>
         )}
       </View>
@@ -155,7 +155,7 @@ const PromoCard: React.FC<PromoCardProps> = ({ promo, onApply, expired = false }
             color={theme.primary}
           />
           <Text style={[styles.copyText, { color: theme.primary }]}>
-            {copied ? "Imenakiliwa" : "Nakili"}
+            {copied ? "Copied" : "Copy"}
           </Text>
         </Pressable>
       </View>
@@ -167,7 +167,7 @@ const PromoCard: React.FC<PromoCardProps> = ({ promo, onApply, expired = false }
             <View style={styles.termRow}>
               <Ionicons name="information-circle-outline" size={14} color={theme.mutedText} />
               <Text style={[styles.termText, { color: theme.mutedText }]}>
-                Kima cha chini: {promo.minAmount}
+                Min amount: {promo.minAmount}
               </Text>
             </View>
           )}
@@ -175,14 +175,14 @@ const PromoCard: React.FC<PromoCardProps> = ({ promo, onApply, expired = false }
             <View style={styles.termRow}>
               <Ionicons name="information-circle-outline" size={14} color={theme.mutedText} />
               <Text style={[styles.termText, { color: theme.mutedText }]}>
-                Punguzo la juu: {promo.maxDiscount}
+                Max discount: {promo.maxDiscount}
               </Text>
             </View>
           )}
           <View style={styles.termRow}>
             <Ionicons name="calendar-outline" size={14} color={theme.mutedText} />
             <Text style={[styles.termText, { color: theme.mutedText }]}>
-              Inaisha: {formatDate(promo.expiresAt)}
+              Expires: {formatDate(promo.expiresAt)}
             </Text>
           </View>
         </View>
@@ -200,7 +200,7 @@ const PromoCard: React.FC<PromoCardProps> = ({ promo, onApply, expired = false }
           ]}
           onPress={onApply}
         >
-          <Text style={styles.applyButtonText}>Tumia Sasa</Text>
+          <Text style={styles.applyButtonText}>Apply Sasa</Text>
         </Pressable>
       )}
     </View>
@@ -247,7 +247,7 @@ export default function PromotionsScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>
-            Matoleo na Punguzo
+            Promotions & Discounts
           </Text>
           <View style={{ width: 44 }} />
         </View>
@@ -260,7 +260,7 @@ export default function PromotionsScreen() {
           {/* Manual Code Entry */}
           <View style={[styles.manualEntry, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Una Msimbo wa Punguzo?
+              Have a Promo Code?
             </Text>
             <View style={styles.inputContainer}>
               <TextInput
@@ -272,7 +272,7 @@ export default function PromotionsScreen() {
                     color: theme.text,
                   },
                 ]}
-                placeholder="Ingiza msimbo hapa"
+                placeholder="Enter code here"
                 placeholderTextColor={theme.inputPlaceholder}
                 value={promoCode}
                 onChangeText={setPromoCode}
@@ -289,7 +289,7 @@ export default function PromotionsScreen() {
                 onPress={handleManualApply}
                 disabled={!promoCode.trim()}
               >
-                <Text style={styles.applyManualText}>Tumia</Text>
+                <Text style={styles.applyManualText}>Apply</Text>
               </Pressable>
             </View>
           </View>
@@ -298,7 +298,7 @@ export default function PromotionsScreen() {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Matoleo Yanayotumika
+                Active Promotions
               </Text>
               <View style={[styles.countBadge, { backgroundColor: `${theme.primary}15` }]}>
                 <Text style={[styles.countText, { color: theme.primary }]}>
@@ -337,7 +337,7 @@ export default function PromotionsScreen() {
                 color={theme.mutedText}
               />
               <Text style={[styles.toggleText, { color: theme.text }]}>
-                Matoleo Yaliyoisha ({EXPIRED_PROMOS.length})
+                Expired Promotions ({EXPIRED_PROMOS.length})
               </Text>
             </View>
             <Ionicons
@@ -366,10 +366,10 @@ export default function PromotionsScreen() {
             <Ionicons name="bulb" size={24} color={theme.primary} />
             <View style={styles.infoContent}>
               <Text style={[styles.infoTitle, { color: theme.primary }]}>
-                Vidokezo
+                Tips
               </Text>
               <Text style={[styles.infoText, { color: theme.primary }]}>
-                Angalia barua pepe zako mara kwa mara kwa matoleo mapya na punguzo maalum!
+                Check your email regularly for new promotions and special discounts!
               </Text>
             </View>
           </View>

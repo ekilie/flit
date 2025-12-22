@@ -16,7 +16,7 @@ import {
 const HELP_CATEGORIES = [
   {
     id: "rides",
-    title: "Safari na Matoleo",
+    title: "Rides & Promotions",
     icon: "car",
     color: "#4CAF50",
     topics: [
@@ -28,7 +28,7 @@ const HELP_CATEGORIES = [
   },
   {
     id: "account",
-    title: "Akaunti Yangu",
+    title: "My Account",
     icon: "person",
     color: "#2196F3",
     topics: [
@@ -40,7 +40,7 @@ const HELP_CATEGORIES = [
   },
   {
     id: "safety",
-    title: "Usalama",
+    title: "Safety",
     icon: "shield-checkmark",
     color: "#FF9800",
     topics: [
@@ -52,12 +52,12 @@ const HELP_CATEGORIES = [
   },
   {
     id: "payment",
-    title: "Malipo",
+    title: "Payment",
     icon: "card",
     color: "#9C27B0",
     topics: [
       "Njia za malipo",
-      "Malipo ya ziada",
+      "Payment ya ziada",
       "Rejea fedha",
       "Risiti na historia",
     ],
@@ -90,29 +90,29 @@ const FAQ_ITEMS = [
 const QUICK_ACTIONS = [
   {
     id: "lost-items",
-    title: "Ripoti Mali Iliyopotea",
-    description: "Nisaidie kupata kitu nilichopoteza",
+    title: "Report Lost Item",
+    description: "Help me find something I lost",
     icon: "cube-outline",
     color: "#FF5722",
   },
   {
     id: "safety-issue",
-    title: "Ripoti Tatizo la Usalama",
-    description: "Ripoti tukio la usalama",
+    title: "Report Safety Issue",
+    description: "Report a safety incident",
     icon: "warning-outline",
     color: "#F44336",
   },
   {
     id: "feedback",
-    title: "Toa Maoni",
-    description: "Nisaidie kuboresha huduma",
+    title: "Give Feedback",
+    description: "Help us improve our service",
     icon: "chatbubble-outline",
     color: "#2196F3",
   },
   {
     id: "contact",
-    title: "Wasiliana Nasi",
-    description: "Ongea na timu yetu ya usaidizi",
+    title: "Contact Us",
+    description: "Talk to our support team",
     icon: "call-outline",
     color: "#4CAF50",
   },
@@ -145,7 +145,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
           {category.title}
         </Text>
         <Text style={[styles.topicCount, { color: theme.subtleText }]}>
-          {category.topics.length} mada
+          {category.topics.length} topics
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
@@ -255,7 +255,7 @@ export default function HelpSupportScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <Text style={[styles.headerTitle, { color: theme.text }]}>
-            Msaada na Usaidizi
+            Help & Support
           </Text>
           <View style={{ width: 44 }} />
         </View>
@@ -270,7 +270,7 @@ export default function HelpSupportScreen() {
             <Ionicons name="search" size={20} color={theme.mutedText} />
             <TextInput
               style={[styles.searchInput, { color: theme.text }]}
-              placeholder="Tafuta msaada..."
+              placeholder="Search for help..."
               placeholderTextColor={theme.inputPlaceholder}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -285,7 +285,7 @@ export default function HelpSupportScreen() {
           {/* Quick Actions */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Vitendo vya Haraka
+              Quick Actions
             </Text>
             <View style={styles.quickActions}>
               {QUICK_ACTIONS.map((action) => (
@@ -301,7 +301,7 @@ export default function HelpSupportScreen() {
           {/* Help Categories */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Kategoria za Msaada
+              Help Categories
             </Text>
             <View style={styles.categories}>
               {HELP_CATEGORIES.map((category) => (
@@ -317,7 +317,7 @@ export default function HelpSupportScreen() {
           {/* FAQ Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Maswali Yanayoulizwa Mara kwa Mara
+              Frequently Asked Questions
             </Text>
             <View style={styles.faqList}>
               {FAQ_ITEMS.map((item) => (
@@ -332,10 +332,10 @@ export default function HelpSupportScreen() {
               <Ionicons name="headset" size={32} color={theme.primary} />
             </View>
             <Text style={[styles.contactTitle, { color: theme.text }]}>
-              Bado unahitaji msaada?
+              Still need help?
             </Text>
             <Text style={[styles.contactText, { color: theme.subtleText }]}>
-              Timu yetu ya usaidizi iko tayari kukusaidia 24/7
+              Our support team is ready to help you 24/7
             </Text>
             <View style={styles.contactButtons}>
               <Pressable
@@ -350,7 +350,7 @@ export default function HelpSupportScreen() {
               >
                 <Ionicons name="call" size={20} color={theme.primary} />
                 <Text style={[styles.contactButtonText, { color: theme.primary }]}>
-                  Piga Simu
+                  Call
                 </Text>
               </Pressable>
               <Pressable
@@ -365,7 +365,7 @@ export default function HelpSupportScreen() {
               >
                 <Ionicons name="mail" size={20} color={theme.primary} />
                 <Text style={[styles.contactButtonText, { color: theme.primary }]}>
-                  Barua Pepe
+                  Email
                 </Text>
               </Pressable>
             </View>

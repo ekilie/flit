@@ -17,7 +17,7 @@ const NOTIFICATIONS = [
   {
     id: "1",
     type: "ride",
-    title: "Safari Imekamilika",
+    title: "Trip Completed",
     message: "Safari yako kwenda Julius Nyerere Airport imekamilika. Karibia dereva wako!",
     timestamp: "2024-01-15T14:30:00",
     read: false,
@@ -27,7 +27,7 @@ const NOTIFICATIONS = [
   {
     id: "2",
     type: "promo",
-    title: "Punguzo Jipya la 30%!",
+    title: "New 30% Discount!",
     message: "Tumia msimbo WEEKEND30 na upate punguzo la 30% kwa safari zako za wikendi.",
     timestamp: "2024-01-15T10:00:00",
     read: false,
@@ -37,7 +37,7 @@ const NOTIFICATIONS = [
   {
     id: "3",
     type: "payment",
-    title: "Malipo Yamekamilika",
+    title: "Payment Completed",
     message: "Malipo yako ya TSh 25,000 kwa safari #1234 yamefanikiwa.",
     timestamp: "2024-01-15T09:15:00",
     read: true,
@@ -47,7 +47,7 @@ const NOTIFICATIONS = [
   {
     id: "4",
     type: "ride",
-    title: "Dereva Anakuja",
+    title: "Driver Arriving",
     message: "Juma Mwangi anakuja kwa gari Toyota Corolla (T 123 ABC). ETA: 5 dakika.",
     timestamp: "2024-01-14T18:45:00",
     read: true,
@@ -57,7 +57,7 @@ const NOTIFICATIONS = [
   {
     id: "5",
     type: "system",
-    title: "Maboresho ya Programu",
+    title: "App Update",
     message: "Toleo jipya la programu lipo. Sasisha ili upate vipengele vipya na maboresho.",
     timestamp: "2024-01-14T08:00:00",
     read: true,
@@ -67,7 +67,7 @@ const NOTIFICATIONS = [
   {
     id: "6",
     type: "promo",
-    title: "Karibu Flit!",
+    title: "Welcome to Flit!",
     message: "Asante kwa kujiunga na Flit. Tumia msimbo WELCOME50 kwa punguzo la kwanza!",
     timestamp: "2024-01-13T12:00:00",
     read: true,
@@ -97,10 +97,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Sasa hivi";
-    if (diffMins < 60) return `Dakika ${diffMins} zilizopita`;
-    if (diffHours < 24) return `Saa ${diffHours} zilizopita`;
-    if (diffDays < 7) return `Siku ${diffDays} zilizopita`;
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `min ${diffMins} ago`;
+    if (diffHours < 24) return `hr ${diffHours} ago`;
+    if (diffDays < 7) return `days ${diffDays} ago`;
     
     return date.toLocaleDateString("sw-TZ", {
       month: "short",
@@ -224,11 +224,11 @@ export default function NotificationsScreen() {
             </Pressable>
             <View>
               <Text style={[styles.headerTitle, { color: theme.text }]}>
-                Arifa
+                Notifications
               </Text>
               {unreadCount > 0 && (
                 <Text style={[styles.unreadCount, { color: theme.subtleText }]}>
-                  {unreadCount} mpya
+                  {unreadCount} new
                 </Text>
               )}
             </View>
@@ -278,7 +278,7 @@ export default function NotificationsScreen() {
                   },
                 ]}
               >
-                Zote ({notifications.length})
+                All ({notifications.length})
               </Text>
             </Pressable>
             <Pressable
@@ -303,7 +303,7 @@ export default function NotificationsScreen() {
                   },
                 ]}
               >
-                Hazijasomwa ({unreadCount})
+                Unread ({unreadCount})
               </Text>
             </Pressable>
           </View>
@@ -326,7 +326,7 @@ export default function NotificationsScreen() {
                 >
                   <Ionicons name="checkmark-done" size={18} color={theme.primary} />
                   <Text style={[styles.actionText, { color: theme.primary }]}>
-                    Weka zote zimesomaaa
+                    Mark all as read
                   </Text>
                 </Pressable>
               </View>
@@ -361,7 +361,7 @@ export default function NotificationsScreen() {
               />
             </View>
             <Text style={[styles.emptyTitle, { color: theme.text }]}>
-              {filter === "unread" ? "Zote zimesomwa!" : "Hakuna Arifa"}
+              {filter === "unread" ? "All zimesomwa!" : "Hakuna Notifications"}
             </Text>
             <Text style={[styles.emptyText, { color: theme.subtleText }]}>
               {filter === "unread"
@@ -379,7 +379,7 @@ export default function NotificationsScreen() {
                 ]}
                 onPress={() => setFilter("all")}
               >
-                <Text style={styles.viewAllText}>Ona Zote</Text>
+                <Text style={styles.viewAllText}>Ona All</Text>
               </Pressable>
             )}
           </View>
