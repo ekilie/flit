@@ -1,0 +1,588 @@
+import ScreenLayout from "@/components/ScreenLayout";
+import { useCurrentTheme } from "@/context/CentralTheme";
+import { useHaptics } from "@/hooks/useHaptics";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+
+const { width } = Dimensions.get("window");
+
+// Dummy trip data
+const COMPLETED_TRIP = {
+  id: "1",
+  driver: {
+    name: "Juma Mwangi",
+    rating: 4.8,
+    vehicle: "Toyota Corolla",
+    plate: "T 123 ABC",
+  },
+  pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
+  destination: "Julius Nyerere International Airport, Dar es Salaam",
+  distance: "8.5 km",
+  duration: "15 dakika",
+  price: "TSh 25,000",
+  paymentMethod: "Kadi ya Benki •••• 1234",
+  date: "2024-01-15T14:30:00",
+};
+
+const TIP_OPTIONS = [
+  { id: "no-tip", label: "Hapana", amount: 0 },
+  { id: "small", label: "TSh 2,000", amount: 2000 },
+  { id: "medium", label: "TSh 5,000", amount: 5000 },
+  { id: "large", label: "TSh 10,000", amount: 10000 },
+];
+
+const FEEDBACK_OPTIONS = [
+  { id: "clean", label: "Safi", icon: "sparkles-outline" },
+  { id: "professional", label: "Mtaalamu", icon: "shield-checkmark-outline" },
+  { id: "friendly", label: "Mkarimu", icon: "happy-outline" },
+  { id: "safe", label: "Salama", icon: "checkmark-circle-outline" },
+  { id: "ontime", label: "Kwa Wakati", icon: "time-outline" },
+];
+
+export default function RideRatingScreen() {
+  const theme = useCurrentTheme();
+  const router = useRouter();
+  const haptics = useHaptics();
+  
+  const [rating, setRating] = useState(0);
+  const [selectedTip, setSelectedTip] = useState("no-tip");
+  const [selectedFeedback, setSelectedFeedback] = useState<string[]>([]);
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleStarPress = (star: number) => {
+    haptics.selection();
+    setRating(star);
+  };
+
+  const handleFeedbackToggle = (feedbackId: string) => {
+    haptics.selection();
+    setSelectedFeedback((prev) =>
+      prev.includes(feedbackId)
+        ? prev.filter((id) => id !== feedbackId)
+        : [...prev, feedbackId]
+    );
+  };
+
+  const handleSubmit = () => {
+    if (rating === 0) {
+      haptics.error();
+      return;
+    }
+    
+    haptics.success();
+    setIsSubmitting(true);
+    
+    // Simulate submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      router.replace("/(core)/(tabs)/ride");
+    }, 1500);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("sw-TZ", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <ScreenLayout>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.closeButton,
+              {
+                backgroundColor: theme.cardBackground,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="close" size={24} color={theme.text} />
+          </Pressable>
+        </View>
+
+        {/* Trip Summary Card */}
+        <View style={[styles.tripCard, { backgroundColor: theme.cardBackground }]}>
+          <View style={styles.successIcon}>
+            <View style={[styles.successIconCircle, { backgroundColor: `${theme.success}15` }]}>
+              <Ionicons name="checkmark-circle" size={48} color={theme.success} />
+            </View>
+          </View>
+
+          <Text style={[styles.title, { color: theme.text }]}>
+            Safari Imekamilika!
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.subtleText }]}>
+            {formatDate(COMPLETED_TRIP.date)}
+          </Text>
+
+          <View style={styles.tripDetails}>
+            <View style={styles.tripRoute}>
+              <View style={[styles.routeDot, { backgroundColor: theme.primary }]} />
+              <Text style={[styles.routeText, { color: theme.text }]} numberOfLines={1}>
+                {COMPLETED_TRIP.pickup.split(",")[0]}
+              </Text>
+            </View>
+            <View style={[styles.routeLine, { backgroundColor: theme.border }]} />
+            <View style={styles.tripRoute}>
+              <View style={[styles.routeDot, { backgroundColor: theme.success }]} />
+              <Text style={[styles.routeText, { color: theme.text }]} numberOfLines={1}>
+                {COMPLETED_TRIP.destination.split(",")[0]}
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.priceRow, { borderTopColor: theme.border }]}>
+            <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
+              Jumla ya Malipo
+            </Text>
+            <Text style={[styles.priceValue, { color: theme.text }]}>
+              {COMPLETED_TRIP.price}
+            </Text>
+          </View>
+        </View>
+
+        {/* Driver Rating */}
+        <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+          <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
+            <Text style={styles.driverInitials}>
+              {COMPLETED_TRIP.driver.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </Text>
+          </View>
+
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Kadiria {COMPLETED_TRIP.driver.name}
+          </Text>
+
+          <View style={styles.starsContainer}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Pressable
+                key={star}
+                onPress={() => handleStarPress(star)}
+                style={({ pressed }) => [
+                  {
+                    opacity: pressed ? 0.7 : 1,
+                    transform: [{ scale: pressed ? 0.95 : 1 }],
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={star <= rating ? "star" : "star-outline"}
+                  size={48}
+                  color={star <= rating ? "#FFD700" : theme.mutedText}
+                  style={styles.star}
+                />
+              </Pressable>
+            ))}
+          </View>
+
+          {rating > 0 && (
+            <Text style={[styles.ratingText, { color: theme.subtleText }]}>
+              {rating === 5
+                ? "Bora sana!"
+                : rating === 4
+                ? "Nzuri"
+                : rating === 3
+                ? "Wastani"
+                : "Inahitaji kuboresha"}
+            </Text>
+          )}
+        </View>
+
+        {/* Feedback Tags */}
+        {rating >= 4 && (
+          <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Ni nini ulichopenda?
+            </Text>
+            <View style={styles.feedbackGrid}>
+              {FEEDBACK_OPTIONS.map((option) => (
+                <Pressable
+                  key={option.id}
+                  style={({ pressed }) => [
+                    styles.feedbackChip,
+                    {
+                      backgroundColor: selectedFeedback.includes(option.id)
+                        ? `${theme.primary}15`
+                        : theme.surface,
+                      borderColor: selectedFeedback.includes(option.id)
+                        ? theme.primary
+                        : theme.border,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                  onPress={() => handleFeedbackToggle(option.id)}
+                >
+                  <Ionicons
+                    name={option.icon as any}
+                    size={20}
+                    color={
+                      selectedFeedback.includes(option.id)
+                        ? theme.primary
+                        : theme.mutedText
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.feedbackLabel,
+                      {
+                        color: selectedFeedback.includes(option.id)
+                          ? theme.primary
+                          : theme.text,
+                      },
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Comment Section */}
+        <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Maoni ya Ziada (si lazima)
+          </Text>
+          <TextInput
+            style={[
+              styles.commentInput,
+              {
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+                color: theme.text,
+              },
+            ]}
+            placeholder="Andika maoni yako hapa..."
+            placeholderTextColor={theme.inputPlaceholder}
+            multiline
+            numberOfLines={4}
+            value={comment}
+            onChangeText={setComment}
+            textAlignVertical="top"
+          />
+        </View>
+
+        {/* Tip Section */}
+        <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+          <View style={styles.tipHeader}>
+            <Ionicons name="cash-outline" size={24} color={theme.primary} />
+            <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 0 }]}>
+              Toa Bakshishi
+            </Text>
+          </View>
+          <Text style={[styles.tipSubtitle, { color: theme.subtleText }]}>
+            Dereva wako atashukuru!
+          </Text>
+          <View style={styles.tipOptions}>
+            {TIP_OPTIONS.map((tip) => (
+              <Pressable
+                key={tip.id}
+                style={({ pressed }) => [
+                  styles.tipButton,
+                  {
+                    backgroundColor:
+                      selectedTip === tip.id ? `${theme.primary}15` : theme.surface,
+                    borderColor: selectedTip === tip.id ? theme.primary : theme.border,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+                onPress={() => {
+                  haptics.selection();
+                  setSelectedTip(tip.id);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.tipLabel,
+                    {
+                      color: selectedTip === tip.id ? theme.primary : theme.text,
+                      fontWeight: selectedTip === tip.id ? "700" : "600",
+                    },
+                  ]}
+                >
+                  {tip.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Submit Button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.submitButton,
+            {
+              backgroundColor: rating > 0 ? theme.primary : theme.mutedText,
+              opacity: pressed || isSubmitting ? 0.8 : 1,
+            },
+          ]}
+          onPress={handleSubmit}
+          disabled={rating === 0 || isSubmitting}
+        >
+          <Text style={styles.submitButtonText}>
+            {isSubmitting ? "Inatuma..." : "Tuma Ukadiriaji"}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.skipButton}
+          onPress={() => router.replace("/(core)/(tabs)/ride")}
+        >
+          <Text style={[styles.skipButtonText, { color: theme.mutedText }]}>
+            Ruka kwa sasa
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </ScreenLayout>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 20,
+  },
+  closeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tripCard: {
+    padding: 24,
+    borderRadius: 20,
+    marginBottom: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  successIcon: {
+    marginBottom: 16,
+  },
+  successIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 14,
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  tripDetails: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  tripRoute: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  routeDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  routeText: {
+    fontSize: 15,
+    fontWeight: "500",
+    flex: 1,
+  },
+  routeLine: {
+    width: 2,
+    height: 20,
+    marginLeft: 4,
+    marginVertical: 4,
+  },
+  priceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingTop: 20,
+    borderTopWidth: 1,
+  },
+  priceLabel: {
+    fontSize: 14,
+  },
+  priceValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  section: {
+    padding: 24,
+    borderRadius: 16,
+    marginBottom: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  driverAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  driverInitials: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 12,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  starsContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  star: {
+    marginHorizontal: 4,
+  },
+  ratingText: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 8,
+  },
+  feedbackGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    width: "100%",
+  },
+  feedbackChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    gap: 6,
+  },
+  feedbackLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  commentInput: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 15,
+    minHeight: 100,
+  },
+  tipHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  tipSubtitle: {
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  tipOptions: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+  },
+  tipButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    alignItems: "center",
+  },
+  tipLabel: {
+    fontSize: 14,
+  },
+  submitButton: {
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  skipButton: {
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});

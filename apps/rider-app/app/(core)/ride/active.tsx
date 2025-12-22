@@ -16,28 +16,28 @@ import {
 
 const { width } = Dimensions.get("window");
 
-// Dummy ride data
+// Dummy ride data - Tanzania locations
 const ACTIVE_RIDE = {
   id: "1",
   vehicle: {
     name: "Comfort",
     icon: "car-sport-outline",
   },
-  pickup: "123 Main Street, City",
-  destination: "456 Business Ave, City",
+  pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
+  destination: "Julius Nyerere International Airport, Dar es Salaam",
   driver: {
-    name: "John Doe",
+    name: "Juma Mwangi",
     rating: 4.8,
-    vehicle: "Toyota Camry",
-    plate: "ABC-123",
-    phone: "+1 234-567-8900",
+    vehicle: "Toyota Corolla",
+    plate: "T 123 ABC",
+    phone: "+255 712 345 678",
     avatar: null,
   },
-  eta: "5 min",
-  price: "$18.00",
+  eta: "5 dakika",
+  price: "TSh 25,000",
   status: "arriving", // arriving, in-ride, completed
-  distance: "2.5 km",
-  duration: "8 min",
+  distance: "8.5 km",
+  duration: "15 dakika",
 };
 
 export default function ActiveRideScreen() {
@@ -84,6 +84,21 @@ export default function ActiveRideScreen() {
   const handleCancelRide = () => {
     haptics.medium();
     router.back();
+  };
+
+  const handleEmergency = () => {
+    haptics.error();
+    // In production, trigger emergency protocol
+  };
+
+  const handleShareETA = () => {
+    haptics.selection();
+    // In production, use Share API
+  };
+
+  const handleMessageDriver = () => {
+    haptics.selection();
+    // In production, open messaging interface
   };
 
   const getStatusText = () => {
@@ -191,18 +206,32 @@ export default function ActiveRideScreen() {
                   </View>
                 </View>
               </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.callButton,
-                  {
-                    backgroundColor: `${theme.primary}15`,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-                onPress={handleCallDriver}
-              >
-                <Ionicons name="call" size={24} color={theme.primary} />
-              </Pressable>
+              <View style={styles.contactButtons}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.contactButton,
+                    {
+                      backgroundColor: `${theme.primary}15`,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                  onPress={handleMessageDriver}
+                >
+                  <Ionicons name="chatbubble-outline" size={20} color={theme.primary} />
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.contactButton,
+                    {
+                      backgroundColor: `${theme.primary}15`,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                  onPress={handleCallDriver}
+                >
+                  <Ionicons name="call" size={20} color={theme.primary} />
+                </Pressable>
+              </View>
             </View>
 
             {/* Vehicle Info */}
@@ -285,6 +314,40 @@ export default function ActiveRideScreen() {
             </View>
 
             {/* Action Buttons */}
+            <View style={styles.actionButtons}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  {
+                    backgroundColor: `${theme.primary}15`,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+                onPress={handleShareETA}
+              >
+                <Ionicons name="share-outline" size={20} color={theme.primary} />
+                <Text style={[styles.actionButtonText, { color: theme.primary }]}>
+                  Shiriki ETA
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  {
+                    backgroundColor: `${theme.error}15`,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+                onPress={handleEmergency}
+              >
+                <Ionicons name="alert-circle-outline" size={20} color={theme.error} />
+                <Text style={[styles.actionButtonText, { color: theme.error }]}>
+                  Dharura
+                </Text>
+              </Pressable>
+            </View>
+
             {rideStatus === "arriving" && (
               <Pressable
                 style={({ pressed }) => [
@@ -296,7 +359,7 @@ export default function ActiveRideScreen() {
                 ]}
                 onPress={handleCancelRide}
               >
-                <Text style={styles.cancelButtonText}>Cancel Ride</Text>
+                <Text style={styles.cancelButtonText}>Ghairi Safari</Text>
               </Pressable>
             )}
           </ScrollView>
@@ -459,6 +522,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  contactButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  contactButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   vehicleSection: {
     padding: 16,
     borderRadius: 12,
@@ -538,6 +612,24 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
     marginHorizontal: 12,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 14,
+    borderRadius: 12,
+    gap: 8,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   cancelButton: {
     padding: 16,
