@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      husky:
+        specifier: ^8.0.3
+        version: 8.0.3
     devDependencies:
       concurrently:
         specifier: ^8.2.2
@@ -136,8 +140,8 @@ importers:
         specifier: ^5.0.0
         version: 5.5.4(@types/eslint@9.6.1)(eslint-config-prettier@9.1.2(eslint@8.57.1))(eslint@8.57.1)(prettier@3.7.4)
       husky:
-        specifier: ^9.1.6
-        version: 9.1.7
+        specifier: ^8.0.0
+        version: 8.0.3
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@20.19.27)(ts-node@10.9.2(@types/node@20.19.27)(typescript@5.9.3))
@@ -3784,9 +3788,9 @@ packages:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
 
-  husky@9.1.7:
-    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
-    engines: {node: '>=18'}
+  husky@8.0.3:
+    resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
+    engines: {node: '>=14'}
     hasBin: true
 
   hyphenate-style-name@1.1.0:
@@ -10557,7 +10561,7 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  husky@9.1.7: {}
+  husky@8.0.3: {}
 
   hyphenate-style-name@1.1.0: {}
 
