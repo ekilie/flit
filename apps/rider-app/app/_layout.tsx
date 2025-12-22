@@ -4,7 +4,7 @@ import { Toaster } from "yooo-native";
 import { ThemeStatusBar } from "../context/CentralTheme";
 import { SessionProvider, useSession } from "../context/ctx";
 import { ThemeProvider } from "../context/ThemeProvider";
-import { SplashScreenController } from "./splash";
+import { SplashScreenController } from "../components/splash";
 
 export default function Root() {
   return (

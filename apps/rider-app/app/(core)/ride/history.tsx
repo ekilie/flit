@@ -299,11 +299,8 @@ const styles = StyleSheet.create({
   rideItem: {
     padding: 16,
     borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderColor: "rgba(0,0,0,0.05)",
+    borderWidth: 1,
   },
   rideHeader: {
     flexDirection: "row",
