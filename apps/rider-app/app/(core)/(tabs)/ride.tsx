@@ -29,53 +29,53 @@ const VEHICLE_TYPES = [
     name: "Economy",
     icon: "car-outline",
     price: "TSh 15,000",
-    eta: "5 dakika",
-    description: "Bei nafuu kwa safari za kila siku",
+    eta: "5 min",
+    description: "Affordable rides for everyday trips",
   },
   {
     id: "comfort",
     name: "Comfort",
     icon: "car-sport-outline",
     price: "TSh 25,000",
-    eta: "7 dakika",
-    description: "Nafasi zaidi na starehe",
+    eta: "7 min",
+    description: "Extra legroom and comfort",
   },
   {
     id: "premium",
     name: "Premium",
     icon: "diamond-outline",
     price: "TSh 45,000",
-    eta: "10 dakika",
-    description: "Magari ya kifahari na huduma bora",
+    eta: "10 min",
+    description: "Luxury vehicles with premium features",
   },
   {
     id: "xl",
     name: "XL",
     icon: "car-sport",
     price: "TSh 35,000",
-    eta: "8 dakika",
-    description: "Magari makubwa kwa abiria 6",
+    eta: "8 min",
+    description: "Spacious rides for up to 6 passengers",
   },
 ];
 
 const RECENT_LOCATIONS = [
   { 
     id: "1", 
-    name: "Nyumbani", 
+    name: "Home", 
     address: "Mikocheni, Dar es Salaam", 
     icon: "home", 
     coordinates: { latitude: -6.7735, longitude: 39.2395 } 
   },
   { 
     id: "2", 
-    name: "Kazini", 
+    name: "Work", 
     address: "Posta Road, Dar es Salaam", 
     icon: "briefcase", 
     coordinates: { latitude: -6.8160, longitude: 39.2803 } 
   },
   { 
     id: "3", 
-    name: "Uwanja wa Ndege", 
+    name: "Airport", 
     address: "Julius Nyerere International Airport", 
     icon: "airplane", 
     coordinates: { latitude: -6.8781, longitude: 39.2026 } 
@@ -210,7 +210,7 @@ export default function RideScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
   
-  const [pickupLocation, setPickupLocation] = useState("Eneo la Sasa");
+  const [pickupLocation, setPickupLocation] = useState("Current Location");
   const [pickupCoordinates, setPickupCoordinates] = useState(DEFAULT_COORDINATES);
   const [destination, setDestination] = useState("");
   const [destinationCoordinates, setDestinationCoordinates] = useState<typeof DEFAULT_COORDINATES | null>(null);
@@ -375,7 +375,7 @@ export default function RideScreen() {
           <View style={styles.locationInputsContainer}>
             <View style={styles.locationInputWrapper}>
               <LocationInput
-                placeholder="Eneo la kuanza"
+                placeholder="Pickup location"
                 value={pickupLocation}
                 onChangeText={setPickupLocation}
                 icon="radio-button-on"
@@ -383,7 +383,7 @@ export default function RideScreen() {
               />
               <View style={[styles.locationConnector, { backgroundColor: theme.border }]} />
               <LocationInput
-                placeholder="Unaelekea wapi?"
+                placeholder="Where to?"
                 value={destination}
                 onChangeText={setDestination}
                 icon="location-outline"
@@ -416,7 +416,7 @@ export default function RideScreen() {
                 {showLocationPicker && (
                   <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                      Maeneo ya Hivi Karibuni
+                      Recent Locations
                     </Text>
                     {RECENT_LOCATIONS.map((location) => (
                       <Pressable
@@ -452,10 +452,10 @@ export default function RideScreen() {
                   <>
                     <View style={styles.section}>
                       <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                        Chagua Gari
+                        Choose a ride
                       </Text>
                       <Text style={[styles.sectionSubtitle, { color: theme.subtleText }]}>
-                        Chagua aina ya gari unayopendelea
+                        Select your preferred vehicle type
                       </Text>
                     </View>
 
@@ -476,7 +476,7 @@ export default function RideScreen() {
                 {!destination && (
                   <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                      Vitendo vya Haraka
+                      Quick Actions
                     </Text>
                     <View style={styles.quickActions}>
                       <Pressable
@@ -491,7 +491,7 @@ export default function RideScreen() {
                       >
                         <Ionicons name="time-outline" size={24} color={theme.primary} />
                         <Text style={[styles.quickActionText, { color: theme.text }]}>
-                          Historia ya Safari
+                          Ride History
                         </Text>
                       </Pressable>
                       <Pressable
@@ -506,7 +506,7 @@ export default function RideScreen() {
                       >
                         <Ionicons name="card-outline" size={24} color={theme.primary} />
                         <Text style={[styles.quickActionText, { color: theme.text }]}>
-                          Malipo
+                          Payment
                         </Text>
                       </Pressable>
                     </View>
@@ -518,14 +518,14 @@ export default function RideScreen() {
                 {/* Booking Summary */}
                 <View style={styles.section}>
                   <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                    Muhtasari wa Safari
+                    Trip Summary
                   </Text>
                   <View style={styles.tripSummary}>
                     <View style={styles.tripLocation}>
                       <View style={[styles.tripDot, { backgroundColor: theme.primary }]} />
                       <View style={styles.tripLocationInfo}>
                         <Text style={[styles.tripLocationLabel, { color: theme.subtleText }]}>
-                          Kutoka
+                          From
                         </Text>
                         <Text style={[styles.tripLocationValue, { color: theme.text }]}>
                           {pickupLocation}
@@ -537,7 +537,7 @@ export default function RideScreen() {
                       <View style={[styles.tripDot, { backgroundColor: theme.success || '#10b981' }]} />
                       <View style={styles.tripLocationInfo}>
                         <Text style={[styles.tripLocationLabel, { color: theme.subtleText }]}>
-                          Kwenda
+                          To
                         </Text>
                         <Text style={[styles.tripLocationValue, { color: theme.text }]}>
                           {destination}
@@ -549,7 +549,7 @@ export default function RideScreen() {
                   <View style={[styles.tripDetails, { backgroundColor: theme.surface }]}>
                     <View style={styles.tripDetailRow}>
                       <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
-                        Gari
+                        Vehicle
                       </Text>
                       <Text style={[styles.tripDetailValue, { color: theme.text }]}>
                         {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.name}
@@ -557,7 +557,7 @@ export default function RideScreen() {
                     </View>
                     <View style={styles.tripDetailRow}>
                       <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
-                        Muda wa Kufikia
+                        Estimated Time
                       </Text>
                       <Text style={[styles.tripDetailValue, { color: theme.text }]}>
                         {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.eta}
@@ -565,7 +565,7 @@ export default function RideScreen() {
                     </View>
                     <View style={styles.tripDetailRow}>
                       <Text style={[styles.tripDetailLabel, { color: theme.subtleText }]}>
-                        Bei
+                        Price
                       </Text>
                       <Text style={[styles.tripDetailPrice, { color: theme.primary }]}>
                         {VEHICLE_TYPES.find((v) => v.id === selectedVehicle)?.price}
@@ -587,10 +587,10 @@ export default function RideScreen() {
                   disabled={isBooking}
                 >
                   {isBooking ? (
-                    <Text style={styles.bookButtonText}>Inaagiza...</Text>
+                    <Text style={styles.bookButtonText}>Booking...</Text>
                   ) : (
                     <>
-                      <Text style={styles.bookButtonText}>Agiza Safari</Text>
+                      <Text style={styles.bookButtonText}>Book Ride</Text>
                       <Ionicons name="arrow-forward" size={20} color="white" />
                     </>
                   )}
@@ -604,7 +604,7 @@ export default function RideScreen() {
                   }}
                 >
                   <Text style={[styles.changeVehicleText, { color: theme.primary }]}>
-                    Badilisha Gari
+                    Change Vehicle
                   </Text>
                 </Pressable>
               </>

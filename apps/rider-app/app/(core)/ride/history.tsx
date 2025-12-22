@@ -26,10 +26,10 @@ const RIDE_HISTORY = [
     driver: "Juma Mwangi",
     driverRating: 4.8,
     rating: 5,
-    status: "imekamilika",
+    status: "completed",
     distance: "8.5 km",
-    duration: "15 dakika",
-    paymentMethod: "Kadi ya Benki",
+    duration: "15 min",
+    paymentMethod: "Bank Card",
   },
   {
     id: "2",
@@ -42,9 +42,9 @@ const RIDE_HISTORY = [
     driver: "Amina Hassan",
     driverRating: 4.6,
     rating: 4,
-    status: "imekamilika",
+    status: "completed",
     distance: "5.2 km",
-    duration: "12 dakika",
+    duration: "12 min",
     paymentMethod: "M-Pesa",
   },
   {
@@ -58,10 +58,10 @@ const RIDE_HISTORY = [
     driver: "Mohamed Ali",
     driverRating: 4.9,
     rating: 5,
-    status: "imekamilika",
+    status: "completed",
     distance: "7.8 km",
-    duration: "18 dakika",
-    paymentMethod: "Kadi ya Benki",
+    duration: "18 min",
+    paymentMethod: "Bank Card",
   },
   {
     id: "4",
@@ -74,9 +74,9 @@ const RIDE_HISTORY = [
     driver: "Grace Kimaro",
     driverRating: 4.7,
     rating: 4,
-    status: "imekamilika",
+    status: "completed",
     distance: "9.3 km",
-    duration: "20 dakika",
+    duration: "20 min",
     paymentMethod: "Airtel Money",
   },
 ];
@@ -96,11 +96,11 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Leo";
+      return "Today";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Jana";
+      return "Yesterday";
     } else {
-      return date.toLocaleDateString("sw-TZ", {
+      return date.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
@@ -211,9 +211,9 @@ export default function RideHistoryScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Historia ya Safari</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Ride History</Text>
             <Text style={[styles.headerSubtitle, { color: theme.subtleText }]}>
-              Safari {RIDE_HISTORY.length}
+              {RIDE_HISTORY.length} trips
             </Text>
           </View>
           <View style={styles.headerRight} />

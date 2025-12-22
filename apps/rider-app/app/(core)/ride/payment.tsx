@@ -93,7 +93,7 @@ const PaymentMethodItem: React.FC<PaymentMethodItemProps> = ({
           <Text style={[styles.paymentName, { color: theme.text }]}>{method.name}</Text>
           {method.expiry && (
             <Text style={[styles.paymentExpiry, { color: theme.subtleText }]}>
-              Inaisha {method.expiry}
+              Expires {method.expiry}
             </Text>
           )}
           {method.phone && (
@@ -108,7 +108,7 @@ const PaymentMethodItem: React.FC<PaymentMethodItemProps> = ({
           )}
           {method.isDefault && (
             <View style={[styles.defaultBadge, { backgroundColor: `${theme.primary}15` }]}>
-              <Text style={[styles.defaultText, { color: theme.primary }]}>Chaguo Kuu</Text>
+              <Text style={[styles.defaultText, { color: theme.primary }]}>Default</Text>
             </View>
           )}
         </View>
@@ -170,9 +170,9 @@ export default function PaymentScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Njia za Malipo</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Payment Methods</Text>
             <Text style={[styles.headerSubtitle, { color: theme.subtleText }]}>
-              Simamia chaguzi zako za malipo
+              Manage your payment options
             </Text>
           </View>
           <View style={styles.headerRight} />
@@ -189,10 +189,10 @@ export default function PaymentScreen() {
             <View style={styles.settingRow}>
               <View style={styles.settingInfo}>
                 <Text style={[styles.settingTitle, { color: theme.text }]}>
-                  Malipo Otomatiki
+                  Auto Pay
                 </Text>
                 <Text style={[styles.settingDescription, { color: theme.subtleText }]}>
-                  Lipa otomatiki kwa kutumia njia yako ya kawaida baada ya kila safari
+                  Automatically charge your default payment method after each ride
                 </Text>
               </View>
               <Switch
@@ -208,7 +208,7 @@ export default function PaymentScreen() {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Njia za Malipo
+                Payment Methods
               </Text>
               <Pressable
                 style={({ pressed }) => [
@@ -221,7 +221,7 @@ export default function PaymentScreen() {
                 onPress={handleAddPayment}
               >
                 <Ionicons name="add" size={20} color={theme.primary} />
-                <Text style={[styles.addButtonText, { color: theme.primary }]}>Ongeza</Text>
+                <Text style={[styles.addButtonText, { color: theme.primary }]}>Add</Text>
               </Pressable>
             </View>
 
@@ -241,7 +241,7 @@ export default function PaymentScreen() {
           <View style={[styles.infoSection, { backgroundColor: `${theme.primary}10` }]}>
             <Ionicons name="information-circle-outline" size={20} color={theme.primary} />
             <Text style={[styles.infoText, { color: theme.subtleText }]}>
-              Taarifa zako za malipo zimehifadhiwa kwa usalama. Hatuhifadhi maelezo kamili ya kadi yako.
+              Your payment information is encrypted and secure. We never store your full card details.
             </Text>
           </View>
         </ScrollView>

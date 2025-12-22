@@ -28,25 +28,25 @@ const COMPLETED_TRIP = {
   pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
   destination: "Julius Nyerere International Airport, Dar es Salaam",
   distance: "8.5 km",
-  duration: "15 dakika",
+  duration: "15 min",
   price: "TSh 25,000",
-  paymentMethod: "Kadi ya Benki •••• 1234",
+  paymentMethod: "Bank Card •••• 1234",
   date: "2024-01-15T14:30:00",
 };
 
 const TIP_OPTIONS = [
-  { id: "no-tip", label: "Hapana", amount: 0 },
+  { id: "no-tip", label: "No Tip", amount: 0 },
   { id: "small", label: "TSh 2,000", amount: 2000 },
   { id: "medium", label: "TSh 5,000", amount: 5000 },
   { id: "large", label: "TSh 10,000", amount: 10000 },
 ];
 
 const FEEDBACK_OPTIONS = [
-  { id: "clean", label: "Safi", icon: "sparkles-outline" },
-  { id: "professional", label: "Mtaalamu", icon: "shield-checkmark-outline" },
-  { id: "friendly", label: "Mkarimu", icon: "happy-outline" },
-  { id: "safe", label: "Salama", icon: "checkmark-circle-outline" },
-  { id: "ontime", label: "Kwa Wakati", icon: "time-outline" },
+  { id: "clean", label: "Clean", icon: "sparkles-outline" },
+  { id: "professional", label: "Professional", icon: "shield-checkmark-outline" },
+  { id: "friendly", label: "Friendly", icon: "happy-outline" },
+  { id: "safe", label: "Safe", icon: "checkmark-circle-outline" },
+  { id: "ontime", label: "On Time", icon: "time-outline" },
 ];
 
 export default function RideRatingScreen() {
@@ -92,7 +92,7 @@ export default function RideRatingScreen() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("sw-TZ", {
+    return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -133,7 +133,7 @@ export default function RideRatingScreen() {
           </View>
 
           <Text style={[styles.title, { color: theme.text }]}>
-            Safari Imekamilika!
+            Trip Completed!
           </Text>
           <Text style={[styles.subtitle, { color: theme.subtleText }]}>
             {formatDate(COMPLETED_TRIP.date)}
@@ -157,7 +157,7 @@ export default function RideRatingScreen() {
 
           <View style={[styles.priceRow, { borderTopColor: theme.border }]}>
             <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
-              Jumla ya Malipo
+              Total Fare
             </Text>
             <Text style={[styles.priceValue, { color: theme.text }]}>
               {COMPLETED_TRIP.price}
@@ -178,7 +178,7 @@ export default function RideRatingScreen() {
           </View>
 
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Kadiria {COMPLETED_TRIP.driver.name}
+            Rate {COMPLETED_TRIP.driver.name}
           </Text>
 
           <View style={styles.starsContainer}>
@@ -206,12 +206,12 @@ export default function RideRatingScreen() {
           {rating > 0 && (
             <Text style={[styles.ratingText, { color: theme.subtleText }]}>
               {rating === 5
-                ? "Bora sana!"
+                ? "Excellent!"
                 : rating === 4
-                ? "Nzuri"
+                ? "Good"
                 : rating === 3
-                ? "Wastani"
-                : "Inahitaji kuboresha"}
+                ? "Average"
+                : "Needs improvement"}
             </Text>
           )}
         </View>
@@ -220,7 +220,7 @@ export default function RideRatingScreen() {
         {rating >= 4 && (
           <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Ni nini ulichopenda?
+              What did you like?
             </Text>
             <View style={styles.feedbackGrid}>
               {FEEDBACK_OPTIONS.map((option) => (
@@ -270,7 +270,7 @@ export default function RideRatingScreen() {
         {/* Comment Section */}
         <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Maoni ya Ziada (si lazima)
+            Additional Comments (optional)
           </Text>
           <TextInput
             style={[
@@ -281,7 +281,7 @@ export default function RideRatingScreen() {
                 color: theme.text,
               },
             ]}
-            placeholder="Andika maoni yako hapa..."
+            placeholder="Write your comments here..."
             placeholderTextColor={theme.inputPlaceholder}
             multiline
             numberOfLines={4}
@@ -296,11 +296,11 @@ export default function RideRatingScreen() {
           <View style={styles.tipHeader}>
             <Ionicons name="cash-outline" size={24} color={theme.primary} />
             <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 0 }]}>
-              Toa Bakshishi
+              Add a Tip
             </Text>
           </View>
           <Text style={[styles.tipSubtitle, { color: theme.subtleText }]}>
-            Dereva wako atashukuru!
+            Your driver will appreciate it!
           </Text>
           <View style={styles.tipOptions}>
             {TIP_OPTIONS.map((tip) => (
@@ -349,7 +349,7 @@ export default function RideRatingScreen() {
           disabled={rating === 0 || isSubmitting}
         >
           <Text style={styles.submitButtonText}>
-            {isSubmitting ? "Inatuma..." : "Tuma Ukadiriaji"}
+            {isSubmitting ? "Submitting..." : "Submit Rating"}
           </Text>
         </Pressable>
 
@@ -358,7 +358,7 @@ export default function RideRatingScreen() {
           onPress={() => router.replace("/(core)/(tabs)/ride")}
         >
           <Text style={[styles.skipButtonText, { color: theme.mutedText }]}>
-            Ruka kwa sasa
+            Skip for now
           </Text>
         </Pressable>
       </ScrollView>

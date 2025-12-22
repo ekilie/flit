@@ -33,11 +33,11 @@ const ACTIVE_RIDE = {
     phone: "+255 712 345 678",
     avatar: null,
   },
-  eta: "5 dakika",
+  eta: "5 min",
   price: "TSh 25,000",
   status: "arriving", // arriving, in-ride, completed
   distance: "8.5 km",
-  duration: "15 dakika",
+  duration: "15 min",
 };
 
 export default function ActiveRideScreen() {
@@ -327,7 +327,7 @@ export default function ActiveRideScreen() {
               >
                 <Ionicons name="share-outline" size={20} color={theme.primary} />
                 <Text style={[styles.actionButtonText, { color: theme.primary }]}>
-                  Shiriki ETA
+                  Share ETA
                 </Text>
               </Pressable>
 
@@ -343,7 +343,7 @@ export default function ActiveRideScreen() {
               >
                 <Ionicons name="alert-circle-outline" size={20} color={theme.error} />
                 <Text style={[styles.actionButtonText, { color: theme.error }]}>
-                  Dharura
+                  Emergency
                 </Text>
               </Pressable>
             </View>
@@ -359,7 +359,7 @@ export default function ActiveRideScreen() {
                 ]}
                 onPress={handleCancelRide}
               >
-                <Text style={styles.cancelButtonText}>Ghairi Safari</Text>
+                <Text style={styles.cancelButtonText}>Cancel Ride</Text>
               </Pressable>
             )}
           </ScrollView>

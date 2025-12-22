@@ -454,36 +454,36 @@ export default function Profile() {
         <View style={styles.statsSection}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Takwimu za Safari
+              Ride Statistics
             </Text>
             <MaterialIcons name="directions-car" size={20} color={theme.mutedText} />
           </View>
           <View style={styles.statsGrid}>
             <StatCard
-              title="Jumla ya Safari"
+              title="Total Rides"
               value={24}
-              description="Safari zilizokamilika"
+              description="Completed trips"
               icon="car"
               color="#f5c724"
             />
             <StatCard
-              title="Mwezi Huu"
+              title="This Month"
               value={8}
-              description="Safari"
+              description="Rides"
               icon="calendar"
               color="#45B7D1"
             />
             <StatCard
-              title="Jumla Iliyotumika"
+              title="Total Spent"
               value="TSh 820,000"
-              description="Mwezi huu"
+              description="This month"
               icon="cash"
               color="#96CEB4"
             />
             <StatCard
-              title="Ukadiriaji"
+              title="Rating"
               value="4.9"
-              description="Wastani"
+              description="Average"
               icon="star"
               color="#FFA726"
             />
@@ -496,7 +496,7 @@ export default function Profile() {
         >
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Vitendo vya Haraka
+              Quick Actions
             </Text>
             <Ionicons name="flash" size={20} color={theme.mutedText} />
           </View>
@@ -518,9 +518,9 @@ export default function Profile() {
               <Ionicons name="time-outline" size={22} color={theme.primary} />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: theme.text }]}>Historia ya Safari</Text>
+              <Text style={[styles.actionTitle, { color: theme.text }]}>Ride History</Text>
               <Text style={[styles.actionSubtitle, { color: theme.subtleText }]}>
-                Angalia safari zako zilizopita
+                View your past trips
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
@@ -547,9 +547,9 @@ export default function Profile() {
               <Ionicons name="card-outline" size={22} color={theme.primary} />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: theme.text }]}>Njia za Malipo</Text>
+              <Text style={[styles.actionTitle, { color: theme.text }]}>Payment Methods</Text>
               <Text style={[styles.actionSubtitle, { color: theme.subtleText }]}>
-                Simamia chaguzi za malipo
+                Manage payment options
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
@@ -562,7 +562,7 @@ export default function Profile() {
         >
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Taarifa za Akaunti
+              Account Information
             </Text>
             <MaterialIcons
               name="verified-user"
@@ -572,17 +572,17 @@ export default function Profile() {
           </View>
 
           <View style={styles.infoContainer}>
-            <InfoRow icon="person" label="Jina Kamili" value={user.name} />
+            <InfoRow icon="person" label="Full Name" value={user.name} />
             <View
               style={[styles.separator, { backgroundColor: theme.border }]}
             />
-            <InfoRow icon="email" label="Barua Pepe" value={user.email} />
+            <InfoRow icon="email" label="Email Address" value={user.email} />
             <View
               style={[styles.separator, { backgroundColor: theme.border }]}
             />
             <InfoRow
               icon="calendar-today"
-              label="Mwanachama Tangu"
+              label="Member Since"
               value={formatDate(user.created_at)}
             />
             {user.last_login && (
@@ -592,7 +592,7 @@ export default function Profile() {
                 />
                 <InfoRow
                   icon="access-time"
-                  label="Mara ya Mwisho"
+                  label="Last Active"
                   value={formatDate(user.last_login)}
                 />
               </>
