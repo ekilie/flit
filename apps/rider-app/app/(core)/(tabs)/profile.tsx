@@ -469,13 +469,13 @@ export default function Profile() {
             <StatCard
               title="This Month"
               value={8}
-              description="Rides taken"
+              description="Rides"
               icon="calendar"
               color="#45B7D1"
             />
             <StatCard
               title="Total Spent"
-              value="$342"
+              value="TSh 820,000"
               description="This month"
               icon="cash"
               color="#96CEB4"

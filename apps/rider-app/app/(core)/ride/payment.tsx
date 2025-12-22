@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 
-// Dummy payment methods
+// Tanzania payment methods
 const PAYMENT_METHODS = [
   {
     id: "1",
@@ -22,27 +22,37 @@ const PAYMENT_METHODS = [
     icon: "card-outline",
     isDefault: true,
     expiry: "12/25",
+    provider: "CRDB Bank",
   },
   {
     id: "2",
-    type: "card",
-    name: "Mastercard •••• 5678",
-    icon: "card-outline",
+    type: "mobile",
+    name: "M-Pesa",
+    icon: "phone-portrait-outline",
     isDefault: false,
-    expiry: "06/26",
+    phone: "+255 712 345 678",
   },
   {
     id: "3",
-    type: "wallet",
-    name: "Apple Pay",
-    icon: "wallet-outline",
+    type: "mobile",
+    name: "Airtel Money",
+    icon: "phone-portrait-outline",
     isDefault: false,
+    phone: "+255 765 432 109",
   },
   {
     id: "4",
-    type: "wallet",
-    name: "Google Pay",
-    icon: "wallet-outline",
+    type: "mobile",
+    name: "Tigo Pesa",
+    icon: "phone-portrait-outline",
+    isDefault: false,
+    phone: "+255 654 321 098",
+  },
+  {
+    id: "5",
+    type: "cash",
+    name: "Malipo kwa Mkono",
+    icon: "cash-outline",
     isDefault: false,
   },
 ];
@@ -86,6 +96,16 @@ const PaymentMethodItem: React.FC<PaymentMethodItemProps> = ({
               Expires {method.expiry}
             </Text>
           )}
+          {method.phone && (
+            <Text style={[styles.paymentExpiry, { color: theme.subtleText }]}>
+              {method.phone}
+            </Text>
+          )}
+          {method.provider && (
+            <Text style={[styles.paymentExpiry, { color: theme.subtleText }]}>
+              {method.provider}
+            </Text>
+          )}
           {method.isDefault && (
             <View style={[styles.defaultBadge, { backgroundColor: `${theme.primary}15` }]}>
               <Text style={[styles.defaultText, { color: theme.primary }]}>Default</Text>
@@ -106,6 +126,7 @@ export default function PaymentScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const [paymentMethods, setPaymentMethods] = useState(PAYMENT_METHODS);
   const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0].id);
   const [autoPay, setAutoPay] = useState(true);
 
@@ -117,6 +138,19 @@ export default function PaymentScreen() {
   const handleAddPayment = () => {
     haptics.medium();
     // Navigate to add payment screen
+    router.push("/(core)/ride/add-payment" as any);
+  };
+
+  const handleSetDefault = (methodId: string) => {
+    haptics.success();
+    setPaymentMethods((prev) =>
+      prev.map((m) => ({ ...m, isDefault: m.id === methodId }))
+    );
+  };
+
+  const handleDeleteMethod = (methodId: string) => {
+    haptics.medium();
+    setPaymentMethods((prev) => prev.filter((m) => m.id !== methodId));
   };
 
   return (
@@ -192,7 +226,7 @@ export default function PaymentScreen() {
             </View>
 
             <View style={styles.paymentList}>
-              {PAYMENT_METHODS.map((method) => (
+              {paymentMethods.map((method) => (
                 <PaymentMethodItem
                   key={method.id}
                   method={method}
@@ -207,8 +241,7 @@ export default function PaymentScreen() {
           <View style={[styles.infoSection, { backgroundColor: `${theme.primary}10` }]}>
             <Ionicons name="information-circle-outline" size={20} color={theme.primary} />
             <Text style={[styles.infoText, { color: theme.subtleText }]}>
-              Your payment information is encrypted and secure. We never store your full card
-              details.
+              Your payment information is encrypted and secure. We never store your full card details.
             </Text>
           </View>
         </ScrollView>

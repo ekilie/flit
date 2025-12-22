@@ -22,13 +22,13 @@ import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 
 const { width, height } = Dimensions.get("window");
 
-// Dummy data
+// Tanzania locations
 const VEHICLE_TYPES = [
   {
     id: "economy",
     name: "Economy",
     icon: "car-outline",
-    price: "$12.50",
+    price: "TSh 15,000",
     eta: "5 min",
     description: "Affordable rides for everyday trips",
   },
@@ -36,7 +36,7 @@ const VEHICLE_TYPES = [
     id: "comfort",
     name: "Comfort",
     icon: "car-sport-outline",
-    price: "$18.00",
+    price: "TSh 25,000",
     eta: "7 min",
     description: "Extra legroom and comfort",
   },
@@ -44,7 +44,7 @@ const VEHICLE_TYPES = [
     id: "premium",
     name: "Premium",
     icon: "diamond-outline",
-    price: "$28.50",
+    price: "TSh 45,000",
     eta: "10 min",
     description: "Luxury vehicles with premium features",
   },
@@ -52,7 +52,7 @@ const VEHICLE_TYPES = [
     id: "xl",
     name: "XL",
     icon: "car-sport",
-    price: "$22.00",
+    price: "TSh 35,000",
     eta: "8 min",
     description: "Spacious rides for up to 6 passengers",
   },
@@ -62,30 +62,44 @@ const RECENT_LOCATIONS = [
   { 
     id: "1", 
     name: "Home", 
-    address: "123 Main Street, City", 
+    address: "Mikocheni, Dar es Salaam", 
     icon: "home", 
-    coordinates: { latitude: 37.7749, longitude: -122.4194 } 
+    coordinates: { latitude: -6.7735, longitude: 39.2395 } 
   },
   { 
     id: "2", 
     name: "Work", 
-    address: "456 Business Ave, City", 
+    address: "Posta Road, Dar es Salaam", 
     icon: "briefcase", 
-    coordinates: { latitude: 37.7849, longitude: -122.4094 } 
+    coordinates: { latitude: -6.8160, longitude: 39.2803 } 
   },
   { 
     id: "3", 
     name: "Airport", 
-    address: "789 Airport Road", 
+    address: "Julius Nyerere International Airport", 
     icon: "airplane", 
-    coordinates: { latitude: 37.6213, longitude: -122.3790 } 
+    coordinates: { latitude: -6.8781, longitude: 39.2026 } 
+  },
+  { 
+    id: "4", 
+    name: "Mlimani City", 
+    address: "Sam Nujoma Road, Dar es Salaam", 
+    icon: "cart", 
+    coordinates: { latitude: -6.7730, longitude: 39.2120 } 
+  },
+  { 
+    id: "5", 
+    name: "Coco Beach", 
+    address: "Msasani Peninsula, Dar es Salaam", 
+    icon: "water", 
+    coordinates: { latitude: -6.7583, longitude: 39.2738 } 
   },
 ];
 
-// Default map center (San Francisco)
+// Default map center (Dar es Salaam, Tanzania)
 const DEFAULT_COORDINATES = {
-  latitude: 37.7749,
-  longitude: -122.4194,
+  latitude: -6.7924,
+  longitude: 39.2083,
 };
 
 interface LocationInputProps {
