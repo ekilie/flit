@@ -13,51 +13,71 @@ import {
   View,
 } from "react-native";
 
-// Dummy ride history data
+// Dummy ride history data - Tanzania locations
 const RIDE_HISTORY = [
   {
     id: "1",
     date: "2024-01-15",
-    pickup: "123 Main Street, City",
-    destination: "456 Business Ave, City",
+    time: "14:30",
+    pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
+    destination: "Julius Nyerere International Airport, Dar es Salaam",
     vehicle: "Comfort",
-    price: "$18.50",
-    driver: "John Doe",
+    price: "TSh 25,000",
+    driver: "Juma Mwangi",
+    driverRating: 4.8,
     rating: 5,
-    status: "completed",
+    status: "imekamilika",
+    distance: "8.5 km",
+    duration: "15 dakika",
+    paymentMethod: "Kadi ya Benki",
   },
   {
     id: "2",
     date: "2024-01-14",
-    pickup: "789 Park Avenue",
-    destination: "321 Market Street",
+    time: "09:15",
+    pickup: "Coco Beach, Msasani, Dar es Salaam",
+    destination: "Kariakoo Market, Dar es Salaam",
     vehicle: "Economy",
-    price: "$12.00",
-    driver: "Jane Smith",
+    price: "TSh 15,000",
+    driver: "Amina Hassan",
+    driverRating: 4.6,
     rating: 4,
-    status: "completed",
+    status: "imekamilika",
+    distance: "5.2 km",
+    duration: "12 dakika",
+    paymentMethod: "M-Pesa",
   },
   {
     id: "3",
     date: "2024-01-13",
-    pickup: "555 Oak Road",
-    destination: "888 Pine Street",
+    time: "18:45",
+    pickup: "Posta Road, Dar es Salaam",
+    destination: "Mikocheni B, Dar es Salaam",
     vehicle: "Premium",
-    price: "$28.00",
-    driver: "Mike Johnson",
+    price: "TSh 35,000",
+    driver: "Mohamed Ali",
+    driverRating: 4.9,
     rating: 5,
-    status: "completed",
+    status: "imekamilika",
+    distance: "7.8 km",
+    duration: "18 dakika",
+    paymentMethod: "Kadi ya Benki",
   },
   {
     id: "4",
     date: "2024-01-12",
-    pickup: "111 Elm Avenue",
-    destination: "222 Maple Drive",
+    time: "12:00",
+    pickup: "Ubungo Plaza, Dar es Salaam",
+    destination: "Slipway, Msasani Peninsula",
     vehicle: "XL",
-    price: "$22.50",
-    driver: "Sarah Williams",
+    price: "TSh 28,000",
+    driver: "Grace Kimaro",
+    driverRating: 4.7,
     rating: 4,
-    status: "completed",
+    status: "imekamilika",
+    distance: "9.3 km",
+    duration: "20 dakika",
+    paymentMethod: "Airtel Money",
   },
 ];
 
@@ -76,11 +96,11 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return "Leo";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return "Jana";
     } else {
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString("sw-TZ", {
         month: "short",
         day: "numeric",
         year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
@@ -168,6 +188,10 @@ export default function RideHistoryScreen() {
   const handleRidePress = (ride: typeof RIDE_HISTORY[0]) => {
     haptics.selection();
     // Navigate to ride details
+    router.push({
+      pathname: "/(core)/ride/details",
+      params: { rideId: ride.id },
+    } as any);
   };
 
   return (
@@ -187,9 +211,9 @@ export default function RideHistoryScreen() {
             <Ionicons name="arrow-back" size={24} color={theme.text} />
           </Pressable>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Ride History</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>Historia ya Safari</Text>
             <Text style={[styles.headerSubtitle, { color: theme.subtleText }]}>
-              {RIDE_HISTORY.length} trips
+              Safari {RIDE_HISTORY.length}
             </Text>
           </View>
           <View style={styles.headerRight} />
