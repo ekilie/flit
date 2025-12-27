@@ -3,14 +3,19 @@ import { Alert } from "react-native";
 import {
   ApiResponse,
   AuthResponse,
+  CreateRideDto,
   ForgotPasswordDto,
   LoginDto,
   RefreshTokenResponse,
   RegisterDto,
   ResetPasswordDto,
+  Ride,
+  RideStatus,
+  UpdateRideDto,
   UpdateUserDto,
   UploadResponse,
   User,
+  Vehicle,
   VerifyOtpDto,
   VerifyResetCodeDto,
 } from "@/lib/api/types";
@@ -470,6 +475,153 @@ class Api {
         message:
           err.message || err.code || "Failed to upload file - network error",
       };
+    }
+  }
+
+  // Rides API
+  static async createRide(payload: CreateRideDto): Promise<Ride> {
+    try {
+      const res = await api(true).post("/rides", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to create ride";
+      throw new Error(message);
+    }
+  }
+
+  static async getRides(status?: RideStatus): Promise<Ride[]> {
+    try {
+      const url = status ? `/rides?status=${status}` : "/rides";
+      const res = await api(true).get(url);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch rides";
+      throw new Error(message);
+    }
+  }
+
+  static async getRide(id: number): Promise<Ride> {
+    try {
+      const res = await api(true).get(`/rides/${id}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch ride";
+      throw new Error(message);
+    }
+  }
+
+  static async getRidesByRider(riderId: number): Promise<Ride[]> {
+    try {
+      const res = await api(true).get(`/rides/rider/${riderId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch rider rides";
+      throw new Error(message);
+    }
+  }
+
+  static async updateRide(id: number, payload: UpdateRideDto): Promise<Ride> {
+    try {
+      const res = await api(true).patch(`/rides/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to update ride";
+      throw new Error(message);
+    }
+  }
+
+  static async cancelRide(id: number): Promise<Ride> {
+    try {
+      const res = await api(true).post(`/rides/${id}/cancel`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to cancel ride";
+      throw new Error(message);
+    }
+  }
+
+  // Vehicles API
+  static async getVehicles(): Promise<Vehicle[]> {
+    try {
+      const res = await api(true).get("/vehicles");
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch vehicles";
+      throw new Error(message);
+    }
+  }
+
+  static async getVehicle(id: number): Promise<Vehicle> {
+    try {
+      const res = await api(true).get(`/vehicles/${id}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch vehicle";
+      throw new Error(message);
+    }
+  }
+
+  static async getVehiclesByDriver(driverId: number): Promise<Vehicle[]> {
+    try {
+      const res = await api(true).get(`/vehicles/driver/${driverId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch driver vehicles";
+      throw new Error(message);
     }
   }
 }

@@ -116,3 +116,93 @@ export interface UploadResponse {
     upload_time: string;
   };
 }
+
+// Ride types
+export enum RideStatus {
+  REQUESTED = 'requested',
+  ACCEPTED = 'accepted',
+  ARRIVED = 'arrived',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+}
+
+export interface CreateRideDto {
+  pickupLatitude: number;
+  pickupLongitude: number;
+  pickupAddress: string;
+  dropoffLatitude: number;
+  dropoffLongitude: number;
+  dropoffAddress: string;
+  notes?: string;
+  riderId: number;
+}
+
+export interface UpdateRideDto {
+  status?: RideStatus;
+  driverId?: number;
+  vehicleId?: number;
+  fare?: number;
+  distance?: number;
+  estimatedDuration?: number;
+  notes?: string;
+}
+
+export interface Ride {
+  id: number;
+  pickupLatitude: number;
+  pickupLongitude: number;
+  pickupAddress: string;
+  dropoffLatitude: number;
+  dropoffLongitude: number;
+  dropoffAddress: string;
+  status: RideStatus;
+  fare?: number;
+  distance?: number;
+  estimatedDuration?: number;
+  actualDuration?: number;
+  acceptedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  notes?: string;
+  riderId: number;
+  driverId?: number;
+  vehicleId?: number;
+  rider?: User;
+  driver?: User;
+  vehicle?: Vehicle;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Vehicle types
+export enum VehicleType {
+  SEDAN = 'sedan',
+  SUV = 'suv',
+  VAN = 'van',
+  LUXURY = 'luxury',
+  ECONOMY = 'economy',
+}
+
+export enum VehicleStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  MAINTENANCE = 'maintenance',
+}
+
+export interface Vehicle {
+  id: number;
+  make: string;
+  model: string;
+  year: number;
+  licensePlate: string;
+  color: string;
+  capacity: number;
+  type: VehicleType;
+  status: VehicleStatus;
+  imageUrl?: string;
+  driverId: number;
+  driver?: User;
+  createdAt: string;
+  updatedAt: string;
+}
