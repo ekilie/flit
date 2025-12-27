@@ -252,34 +252,34 @@ const CardDecorator = ({ children }: { children: React.ReactNode }) => (
 )
 
 export default function FlitLanding() {
-  const gridItems = [
-    "/images/vackground-com-aguc-v-d1ii.jpeg",
-    "/images/barbara-zandoval-w0li3akd14a.jpeg",
-    "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
-    "/images/cash-macanaya-x9cemmq4yjm.jpeg",
-    "/images/luke-jones-ac6ugoesuse.jpeg",
-    "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
-    "/images/vackground-com-7iq4vehlngu.jpeg",
-    "/images/google-deepmind-tikhth3qrsq.jpeg",
-    "/images/immo-wegmann-vi1hxpw6hyw.jpeg",
-    "/images/luke-jones-tbvf46kmwbw.jpeg",
-    "/images/vackground-com-aguc-v-d1ii.jpeg",
-    "/images/barbara-zandoval-w0li3akd14a.jpeg",
-    "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
-    "/images/cash-macanaya-x9cemmq4yjm.jpeg",
-    "/images/luke-jones-ac6ugoesuse.jpeg",
-    "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
-    "/images/vackground-com-7iq4vehlngu.jpeg",
-    "/images/google-deepmind-tikhth3qrsq.jpeg",
-    "/images/immo-wegmann-vi1hxpw6hyw.jpeg",
-    "/images/luke-jones-tbvf46kmwbw.jpeg",
-    "/images/vackground-com-aguc-v-d1ii.jpeg",
-    "/images/barbara-zandoval-w0li3akd14a.jpeg",
-    "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
-    "/images/cash-macanaya-x9cemmq4yjm.jpeg",
-    "/images/luke-jones-ac6ugoesuse.jpeg",
-    "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
-  ]
+  // const gridItems = [
+  //   "/images/vackground-com-aguc-v-d1ii.jpeg",
+  //   "/images/barbara-zandoval-w0li3akd14a.jpeg",
+  //   "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
+  //   "/images/cash-macanaya-x9cemmq4yjm.jpeg",
+  //   "/images/luke-jones-ac6ugoesuse.jpeg",
+  //   "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
+  //   "/images/vackground-com-7iq4vehlngu.jpeg",
+  //   "/images/google-deepmind-tikhth3qrsq.jpeg",
+  //   "/images/immo-wegmann-vi1hxpw6hyw.jpeg",
+  //   "/images/luke-jones-tbvf46kmwbw.jpeg",
+  //   "/images/vackground-com-aguc-v-d1ii.jpeg",
+  //   "/images/barbara-zandoval-w0li3akd14a.jpeg",
+  //   "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
+  //   "/images/cash-macanaya-x9cemmq4yjm.jpeg",
+  //   "/images/luke-jones-ac6ugoesuse.jpeg",
+  //   "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
+  //   "/images/vackground-com-7iq4vehlngu.jpeg",
+  //   "/images/google-deepmind-tikhth3qrsq.jpeg",
+  //   "/images/immo-wegmann-vi1hxpw6hyw.jpeg",
+  //   "/images/luke-jones-tbvf46kmwbw.jpeg",
+  //   "/images/vackground-com-aguc-v-d1ii.jpeg",
+  //   "/images/barbara-zandoval-w0li3akd14a.jpeg",
+  //   "/images/nahrizul-kadri-oasf0qmrwla.jpeg",
+  //   "/images/cash-macanaya-x9cemmq4yjm.jpeg",
+  //   "/images/luke-jones-ac6ugoesuse.jpeg",
+  //   "/images/zhenyu-luo-ke0jmtbvxxm.jpeg",
+  // ]
 
   return (
     <>
@@ -376,7 +376,7 @@ export default function FlitLanding() {
                       </div>
                     </Button>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 my-8">
                     <div className="bg-[#f5c724]/10 rounded-[14px] border border-[#f5c724]/30 p-0.5">
                       <Button
                         size="lg"
@@ -407,7 +407,7 @@ export default function FlitLanding() {
               }}
             >
               <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
-                <div
+                {/* <div
                   aria-hidden
                   className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                 />
@@ -415,57 +415,9 @@ export default function FlitLanding() {
                   <div className="bg-gradient-to-br from-[#f5c724]/10 to-[#f5c724]/5 dark:from-[#f5c724]/20 dark:to-[#f5c724]/10 aspect-15/8 relative rounded-2xl border border-[#f5c724]/30 overflow-hidden">
                     <GridMotion items={gridItems} gradientColor="rgba(245, 199, 36, 0.1)" className="h-full w-full" />
                   </div>
-                </div>
+                </div> */}
               </div>
 
-              <section className="bg-background pb-16 pt-16 md:pb-32">
-                <div className="@container mx-auto max-w-5xl px-6">
-                  <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
-                    <a href="#ride" className="block text-sm duration-150 hover:opacity-75 text-[#f5c724]">
-                      <span>Ready to Get Started?</span>
-                      <ChevronRight className="ml-1 inline-block size-3" />
-                    </a>
-                  </div>
-                  <div className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
-                    <div className="flex">
-                      <img
-                        className="max-h-12 w-auto object-contain grayscale opacity-60"
-                        src="/automotive-brand-logo.jpg"
-                        width={120}
-                        height={48}
-                        alt="Partner 1"
-                      />
-                    </div>
-                    <div className="flex">
-                      <img
-                        className="max-h-12 w-auto object-contain grayscale opacity-60"
-                        src="/generic-tech-logo.png"
-                        width={120}
-                        height={48}
-                        alt="Partner 2"
-                      />
-                    </div>
-                    <div className="flex">
-                      <img
-                        className="max-h-12 w-auto object-contain grayscale opacity-60"
-                        src="/insurance-provider-logo.jpg"
-                        width={120}
-                        height={48}
-                        alt="Partner 3"
-                      />
-                    </div>
-                    <div className="flex">
-                      <img
-                        className="max-h-12 w-auto object-contain grayscale opacity-60"
-                        src="/payment-platform-logo.jpg"
-                        width={120}
-                        height={48}
-                        alt="Partner 4"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
             </AnimatedGroup>
           </div>
         </section>
