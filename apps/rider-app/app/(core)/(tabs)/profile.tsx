@@ -122,6 +122,12 @@ export default function Profile() {
     followers_count: number;
     following_count: number;
   } | null>(null);
+  const [rideStats, setRideStats] = useState<{
+    totalRides: number;
+    thisMonth: number;
+    totalSpent: number;
+    averageRating: number;
+  } | null>(null);
 
   const { signOut } = useSession();
 
@@ -138,10 +144,18 @@ export default function Profile() {
       // Fetch follow stats
       if (userData?.id) {
         try {
-          const stats = await Api.getFollowStats(userData.id.toString());
+          const stats = await Api.getFollowStats(userData.id);
           setFollowStats(stats);
         } catch (error) {
           console.error("Failed to fetch follow stats:", error);
+        }
+        
+        // Fetch ride statistics
+        try {
+          const rStats = await Api.getRideStatistics(userData.id);
+          setRideStats(rStats);
+        } catch (error) {
+          console.error("Failed to fetch ride statistics:", error);
         }
       }
     } catch (error) {
@@ -461,28 +475,28 @@ export default function Profile() {
           <View style={styles.statsGrid}>
             <StatCard
               title="Total Rides"
-              value={24}
+              value={rideStats?.totalRides || 0}
               description="Completed trips"
               icon="car"
               color="#f5c724"
             />
             <StatCard
               title="This Month"
-              value={8}
+              value={rideStats?.thisMonth || 0}
               description="Rides"
               icon="calendar"
               color="#45B7D1"
             />
             <StatCard
               title="Total Spent"
-              value="TSh 820,000"
-              description="This month"
+              value={`TSh ${(rideStats?.totalSpent || 0).toLocaleString()}`}
+              description="All time"
               icon="cash"
               color="#96CEB4"
             />
             <StatCard
               title="Rating"
-              value="4.9"
+              value={rideStats?.averageRating?.toFixed(1) || "0.0"}
               description="Average"
               icon="star"
               color="#FFA726"

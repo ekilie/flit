@@ -1,10 +1,13 @@
 import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
+import Api from "@/lib/api";
+import { Ride } from "@/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Pressable,
   ScrollView,
@@ -12,59 +15,43 @@ import {
   Text,
   View,
 } from "react-native";
+import { toast } from "yooo-native";
 
 const { width } = Dimensions.get("window");
-
-// Dummy ride data - in production, fetch based on rideId
-const RIDE_DETAILS = {
-  id: "1",
-  date: "2024-01-15",
-  time: "14:30",
-  pickup: {
-    address: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
-    coordinates: { latitude: -6.7730, longitude: 39.2120 },
-  },
-  destination: {
-    address: "Julius Nyerere International Airport, Dar es Salaam",
-    coordinates: { latitude: -6.8781, longitude: 39.2026 },
-  },
-  vehicle: {
-    type: "Comfort",
-    make: "Toyota Corolla",
-    plate: "T 123 ABC",
-    color: "Nyeupe",
-  },
-  driver: {
-    name: "Juma Mwangi",
-    rating: 4.8,
-    totalTrips: 1250,
-    phone: "+255 712 345 678",
-  },
-  price: {
-    subtotal: 23000,
-    discount: 0,
-    tip: 2000,
-    total: 25000,
-    currency: "TSh",
-  },
-  rating: 5,
-  feedback: "trips nzuri sana! Dereva alikuwa mkarimu na gari lilikuwa safi.",
-  status: "imekamilika",
-  distance: "8.5 km",
-  duration: "15 min",
-  paymentMethod: "Kadi ya Benki •••• 1234",
-  bookingId: "FLT-2024-001-15678",
-};
 
 export default function RideDetailsScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
   const params = useLocalSearchParams();
+  const rideId = params.rideId as string;
+  
+  const [ride, setRide] = useState<Ride | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const formatDate = (date: string, time: string) => {
-    const dateObj = new Date(`${date}T${time}`);
-    return dateObj.toLocaleDateString("sw-TZ", {
+  useEffect(() => {
+    if (rideId) {
+      fetchRideDetails();
+    }
+  }, [rideId]);
+
+  const fetchRideDetails = async () => {
+    try {
+      setLoading(true);
+      const rideDetails = await Api.getRide(parseInt(rideId));
+      setRide(rideDetails);
+    } catch (error) {
+      console.error("Failed to fetch ride details:", error);
+      toast.error("Failed to load ride details");
+      router.back();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -72,6 +59,11 @@ export default function RideDetailsScreen() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const formatPrice = (price?: number) => {
+    if (!price) return "TSh 0";
+    return `TSh ${price.toLocaleString()}`;
   };
 
   const handleShareReceipt = () => {
@@ -94,6 +86,47 @@ export default function RideDetailsScreen() {
     // In production, pre-fill booking with same locations
     router.push("/(core)/(tabs)/ride");
   };
+
+  if (loading) {
+    return (
+      <ScreenLayout>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+          <Text style={[styles.loadingText, { color: theme.subtleText }]}>
+            Loading ride details...
+          </Text>
+        </View>
+      </ScreenLayout>
+    );
+  }
+
+  if (!ride) {
+    return (
+      <ScreenLayout>
+        <View style={styles.centerContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color={theme.mutedText} />
+          <Text style={[styles.errorTitle, { color: theme.text }]}>
+            Ride Not Found
+          </Text>
+          <Text style={[styles.errorText, { color: theme.subtleText }]}>
+            Unable to load ride details
+          </Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.retryButton,
+              {
+                backgroundColor: theme.primary,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </Pressable>
+        </View>
+      </ScreenLayout>
+    );
+  }
 
   return (
     <ScreenLayout>
@@ -143,14 +176,14 @@ export default function RideDetailsScreen() {
               Trip Completed
             </Text>
             <Text style={[styles.statusDate, { color: theme.subtleText }]}>
-              {formatDate(RIDE_DETAILS.date, RIDE_DETAILS.time)}
+              {formatDate(ride.createdAt)}
             </Text>
             <View style={[styles.bookingIdContainer, { backgroundColor: theme.surface }]}>
               <Text style={[styles.bookingIdLabel, { color: theme.mutedText }]}>
                 Order Number:
               </Text>
               <Text style={[styles.bookingId, { color: theme.text }]}>
-                {RIDE_DETAILS.bookingId}
+                #{ride.id}
               </Text>
             </View>
           </View>
@@ -168,7 +201,7 @@ export default function RideDetailsScreen() {
                     From
                   </Text>
                   <Text style={[styles.routeAddress, { color: theme.text }]}>
-                    {RIDE_DETAILS.pickup.address}
+                    {ride.pickupAddress}
                   </Text>
                 </View>
               </View>
@@ -180,7 +213,7 @@ export default function RideDetailsScreen() {
                     To
                   </Text>
                   <Text style={[styles.routeAddress, { color: theme.text }]}>
-                    {RIDE_DETAILS.destination.address}
+                    {ride.dropoffAddress}
                   </Text>
                 </View>
               </View>
@@ -191,7 +224,7 @@ export default function RideDetailsScreen() {
                 <Ionicons name="speedometer-outline" size={20} color={theme.mutedText} />
                 <View>
                   <Text style={[styles.statValue, { color: theme.text }]}>
-                    {RIDE_DETAILS.distance}
+                    {ride.distance ? `${(ride.distance / 1000).toFixed(1)} km` : "N/A"}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>
                     Distance
@@ -203,7 +236,7 @@ export default function RideDetailsScreen() {
                 <Ionicons name="time-outline" size={20} color={theme.mutedText} />
                 <View>
                   <Text style={[styles.statValue, { color: theme.text }]}>
-                    {RIDE_DETAILS.duration}
+                    {ride.actualDuration ? `${Math.round(ride.actualDuration / 60)} min` : ride.estimatedDuration ? `${Math.round(ride.estimatedDuration / 60)} min` : "N/A"}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>
                     Duration
@@ -214,53 +247,56 @@ export default function RideDetailsScreen() {
           </View>
 
           {/* Driver Info */}
-          <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Driver Details
-            </Text>
-            <View style={styles.driverInfo}>
-              <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
-                <Text style={styles.driverInitials}>
-                  {RIDE_DETAILS.driver.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </Text>
-              </View>
-              <View style={styles.driverDetails}>
-                <Text style={[styles.driverName, { color: theme.text }]}>
-                  {RIDE_DETAILS.driver.name}
-                </Text>
-                <View style={styles.driverMeta}>
-                  <View style={styles.driverRating}>
-                    <Ionicons name="star" size={14} color="#FFD700" />
-                    <Text style={[styles.driverRatingText, { color: theme.subtleText }]}>
-                      {RIDE_DETAILS.driver.rating}
+          {ride.driver && (
+            <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Driver Details
+              </Text>
+              <View style={styles.driverInfo}>
+                <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
+                  <Text style={styles.driverInitials}>
+                    {ride.driver.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </Text>
+                </View>
+                <View style={styles.driverDetails}>
+                  <Text style={[styles.driverName, { color: theme.text }]}>
+                    {ride.driver.name}
+                  </Text>
+                  <View style={styles.driverMeta}>
+                    <Text style={[styles.driverEmail, { color: theme.subtleText }]}>
+                      {ride.driver.email}
                     </Text>
                   </View>
-                  <View style={[styles.metaDot, { backgroundColor: theme.border }]} />
-                  <Text style={[styles.driverTrips, { color: theme.subtleText }]}>
-                    trips {RIDE_DETAILS.driver.totalTrips}+
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Vehicle Info */}
+          {ride.vehicle && (
+            <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Vehicle Details
+              </Text>
+              <View style={[styles.vehicleInfo, { backgroundColor: theme.surface }]}>
+                <View style={styles.vehicleRow}>
+                  <Ionicons name="car-sport" size={20} color={theme.primary} />
+                  <Text style={[styles.vehicleText, { color: theme.text }]}>
+                    {ride.vehicle.make} {ride.vehicle.model} • {ride.vehicle.color}
+                  </Text>
+                </View>
+                <View style={styles.vehicleRow}>
+                  <Ionicons name="reader-outline" size={20} color={theme.primary} />
+                  <Text style={[styles.vehicleText, { color: theme.text }]}>
+                    {ride.vehicle.licensePlate}
                   </Text>
                 </View>
               </View>
             </View>
-
-            <View style={[styles.vehicleInfo, { backgroundColor: theme.surface }]}>
-              <View style={styles.vehicleRow}>
-                <Ionicons name="car-sport" size={20} color={theme.primary} />
-                <Text style={[styles.vehicleText, { color: theme.text }]}>
-                  {RIDE_DETAILS.vehicle.make} • {RIDE_DETAILS.vehicle.color}
-                </Text>
-              </View>
-              <View style={styles.vehicleRow}>
-                <Ionicons name="reader-outline" size={20} color={theme.primary} />
-                <Text style={[styles.vehicleText, { color: theme.text }]}>
-                  {RIDE_DETAILS.vehicle.plate}
-                </Text>
-              </View>
-            </View>
-          </View>
+          )}
 
           {/* Price Breakdown */}
           <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>

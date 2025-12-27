@@ -3,14 +3,23 @@ import { Alert } from "react-native";
 import {
   ApiResponse,
   AuthResponse,
+  CreateNotificationDto,
+  CreatePaymentDto,
+  CreateRatingDto,
   CreateRideDto,
   ForgotPasswordDto,
   LoginDto,
+  Notification,
+  Payment,
+  Rating,
   RefreshTokenResponse,
   RegisterDto,
   ResetPasswordDto,
   Ride,
   RideStatus,
+  UpdateNotificationDto,
+  UpdatePaymentDto,
+  UpdateRatingDto,
   UpdateRideDto,
   UpdateUserDto,
   UploadResponse,
@@ -622,6 +631,352 @@ class Api {
         err.response?.data?.message ||
         "Failed to fetch driver vehicles";
       throw new Error(message);
+    }
+  }
+
+  // Notifications API
+  static async getNotifications(): Promise<Notification[]> {
+    try {
+      const res = await api(true).get("/notifications");
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch notifications";
+      throw new Error(message);
+    }
+  }
+
+  static async getNotificationsByUser(userId: number): Promise<Notification[]> {
+    try {
+      const res = await api(true).get(`/notifications/user/${userId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch user notifications";
+      throw new Error(message);
+    }
+  }
+
+  static async getUnreadNotifications(userId: number): Promise<Notification[]> {
+    try {
+      const res = await api(true).get(`/notifications/user/${userId}/unread`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch unread notifications";
+      throw new Error(message);
+    }
+  }
+
+  static async markNotificationAsRead(id: number): Promise<Notification> {
+    try {
+      const res = await api(true).post(`/notifications/${id}/read`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to mark notification as read";
+      throw new Error(message);
+    }
+  }
+
+  static async markAllNotificationsAsRead(userId: number): Promise<ApiResponse> {
+    try {
+      const res = await api(true).post(`/notifications/user/${userId}/read-all`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to mark all notifications as read";
+      throw new Error(message);
+    }
+  }
+
+  static async createNotification(payload: CreateNotificationDto): Promise<Notification> {
+    try {
+      const res = await api(true).post("/notifications", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to create notification";
+      throw new Error(message);
+    }
+  }
+
+  static async deleteNotification(id: number): Promise<void> {
+    try {
+      await api(true).delete(`/notifications/${id}`);
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to delete notification";
+      throw new Error(message);
+    }
+  }
+
+  // Payments API
+  static async getPayments(): Promise<Payment[]> {
+    try {
+      const res = await api(true).get("/payments");
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch payments";
+      throw new Error(message);
+    }
+  }
+
+  static async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    try {
+      const res = await api(true).get(`/payments/user/${userId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch user payments";
+      throw new Error(message);
+    }
+  }
+
+  static async getPaymentsByRide(rideId: number): Promise<Payment[]> {
+    try {
+      const res = await api(true).get(`/payments/ride/${rideId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch ride payments";
+      throw new Error(message);
+    }
+  }
+
+  static async createPayment(payload: CreatePaymentDto): Promise<Payment> {
+    try {
+      const res = await api(true).post("/payments", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to create payment";
+      throw new Error(message);
+    }
+  }
+
+  static async updatePayment(id: number, payload: UpdatePaymentDto): Promise<Payment> {
+    try {
+      const res = await api(true).patch(`/payments/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to update payment";
+      throw new Error(message);
+    }
+  }
+
+  // Ratings API
+  static async getRatings(): Promise<Rating[]> {
+    try {
+      const res = await api(true).get("/ratings");
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch ratings";
+      throw new Error(message);
+    }
+  }
+
+  static async getRatingsByUser(userId: number): Promise<Rating[]> {
+    try {
+      const res = await api(true).get(`/ratings/user/${userId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch user ratings";
+      throw new Error(message);
+    }
+  }
+
+  static async getAverageRating(userId: number): Promise<{ average: number; count: number }> {
+    try {
+      const res = await api(true).get(`/ratings/user/${userId}/average`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch average rating";
+      throw new Error(message);
+    }
+  }
+
+  static async getRatingsByRide(rideId: number): Promise<Rating[]> {
+    try {
+      const res = await api(true).get(`/ratings/ride/${rideId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch ride ratings";
+      throw new Error(message);
+    }
+  }
+
+  static async createRating(payload: CreateRatingDto): Promise<Rating> {
+    try {
+      const res = await api(true).post("/ratings", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to create rating";
+      throw new Error(message);
+    }
+  }
+
+  static async updateRating(id: number, payload: UpdateRatingDto): Promise<Rating> {
+    try {
+      const res = await api(true).patch(`/ratings/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to update rating";
+      throw new Error(message);
+    }
+  }
+
+  // Additional helper methods
+  // TODO: Backend doesn't have follow/follower functionality yet
+  // This is a placeholder that returns default values
+  static async getFollowStats(userId: number): Promise<{ followers_count: number; following_count: number }> {
+    try {
+      // This is a placeholder - the backend doesn't have this endpoint yet
+      // Return default values for now
+      return { followers_count: 0, following_count: 0 };
+    } catch (error) {
+      console.error("Failed to fetch follow stats:", error);
+      return { followers_count: 0, following_count: 0 };
+    }
+  }
+
+  static async getRideStatistics(userId: number): Promise<{
+    totalRides: number;
+    thisMonth: number;
+    totalSpent: number;
+    averageRating: number;
+  }> {
+    try {
+      // Get all completed rides for the user
+      const rides = await Api.getRidesByRider(userId);
+      const completedRides = rides.filter((r) => r.status === RideStatus.COMPLETED);
+      
+      // Calculate this month's rides
+      const now = new Date();
+      const thisMonthRides = completedRides.filter((r) => {
+        const rideDate = new Date(r.completedAt || r.createdAt);
+        return rideDate.getMonth() === now.getMonth() && 
+               rideDate.getFullYear() === now.getFullYear();
+      });
+      
+      // Calculate total spent
+      const totalSpent = completedRides.reduce((sum, r) => sum + (r.fare || 0), 0);
+      
+      // Get average rating
+      const ratingData = await Api.getAverageRating(userId);
+      
+      return {
+        totalRides: completedRides.length,
+        thisMonth: thisMonthRides.length,
+        totalSpent,
+        averageRating: ratingData.average || 0,
+      };
+    } catch (error) {
+      console.error("Failed to fetch ride statistics:", error);
+      return {
+        totalRides: 0,
+        thisMonth: 0,
+        totalSpent: 0,
+        averageRating: 0,
+      };
     }
   }
 }
