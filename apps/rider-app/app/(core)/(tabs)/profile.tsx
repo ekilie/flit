@@ -144,7 +144,7 @@ export default function Profile() {
       // Fetch follow stats
       if (userData?.id) {
         try {
-          const stats = await Api.getFollowStats(userData.id.toString());
+          const stats = await Api.getFollowStats(userData.id);
           setFollowStats(stats);
         } catch (error) {
           console.error("Failed to fetch follow stats:", error);

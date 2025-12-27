@@ -699,7 +699,7 @@ class Api {
     }
   }
 
-  static async markAllNotificationsAsRead(userId: number): Promise<any> {
+  static async markAllNotificationsAsRead(userId: number): Promise<ApiResponse> {
     try {
       const res = await api(true).post(`/notifications/user/${userId}/read-all`);
       return res.data;
@@ -925,9 +925,11 @@ class Api {
   }
 
   // Additional helper methods
-  static async getFollowStats(userId: string): Promise<{ followers_count: number; following_count: number }> {
+  // TODO: Backend doesn't have follow/follower functionality yet
+  // This is a placeholder that returns default values
+  static async getFollowStats(userId: number): Promise<{ followers_count: number; following_count: number }> {
     try {
-      // This is a placeholder - the backend might not have this endpoint yet
+      // This is a placeholder - the backend doesn't have this endpoint yet
       // Return default values for now
       return { followers_count: 0, following_count: 0 };
     } catch (error) {
@@ -945,7 +947,7 @@ class Api {
     try {
       // Get all completed rides for the user
       const rides = await Api.getRidesByRider(userId);
-      const completedRides = rides.filter((r) => r.status === 'completed');
+      const completedRides = rides.filter((r) => r.status === RideStatus.COMPLETED);
       
       // Calculate this month's rides
       const now = new Date();

@@ -2,7 +2,7 @@ import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
 import Api from "@/lib/api";
-import { Ride } from "@/lib/api/types";
+import { Ride, RideStatus } from "@/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -152,7 +152,7 @@ export default function RideHistoryScreen() {
       
       // Filter for completed and cancelled rides (history)
       const historyRides = allRides.filter(
-        (ride) => ride.status === 'completed' || ride.status === 'cancelled'
+        (ride) => ride.status === RideStatus.COMPLETED || ride.status === RideStatus.CANCELLED
       );
       
       // Sort by most recent first
