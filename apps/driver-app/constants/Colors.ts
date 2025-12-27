@@ -1,10 +1,12 @@
 import { useColorScheme } from "react-native";
 
-const tintColorLight = "#2f95dc";
+const tintColorLight = "#f5c724";
 const tintColorDark = "#fff";
 
 export const Colors = {
   tabColors: {
+    ride: "#178764ff", // Flit yellow accent for ride booking
+    profile: "#f5c724", // Flit yellow accent for profile
     feed: "#178764ff", // Spotify-like green for listening/audio
     insights: "#6366f1", // Purple for analytics/data
     "voice-memory": "#FFA726", // Amber for memories/nostalgia
@@ -16,7 +18,7 @@ export const Colors = {
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
-    primary: "#000",
+    primary: "#f5c724",
     secondary: "#666666",
     surface: "#f5f5f5",
     border: "#e0e0e0",
@@ -26,8 +28,8 @@ export const Colors = {
     warning: "#ff9500",
     error: "#ff3b30",
     // Button colors
-    buttonBackground: "#000",
-    buttonText: "#fff",
+    buttonBackground: "#f5c724",
+    buttonText: "#000",
     // Input colors
     inputBackground: "#f9f9f9",
     inputBorder: "#ddd",
@@ -37,10 +39,10 @@ export const Colors = {
   dark: {
     text: "#ffffff",
     background: "#000000",
-    tint: "#ffffff",
+    tint: "#f5c724",
     tabIconDefault: "#cccccc",
-    tabIconSelected: "#ffffff",
-    primary: "#ffffff",
+    tabIconSelected: "#f5c724",
+    primary: "#f5c724",
     secondary: "#aaaaaa", // Lighter gray for secondary text
     surface: "#111111", // Slightly lighter than background for cards/surfaces
     border: "#333333",
@@ -49,8 +51,8 @@ export const Colors = {
     success: "#30d158",
     warning: "#ff9f0a",
     error: "#ff453a",
-    // Button colors - white buttons with dark text
-    buttonBackground: "#ffffff",
+    // Button colors - flit accent color
+    buttonBackground: "#ad8d19ff",
     buttonText: "#000000",
     // Input colors - dark inputs with white text
     inputBackground: "#111111",
@@ -58,7 +60,7 @@ export const Colors = {
     inputText: "#ffffff",
     inputPlaceholder: "#888888",
     // Link colors
-    link: "#2f95dc", // Blue link color like the email in the image
+    link: "#f5c724",
   },
 };
 
@@ -143,7 +145,7 @@ export function useAdaptiveColors() {
       : Colors.dark.background,
     subtleText: isDark ? "#cccccc" : "#666666",
     mutedText: isDark ? "#999999" : "#888888",
-    accent: isDark ? "#4dabf7" : "#1c7ed6",
+    accent: "#f5c724",
   };
 }
 

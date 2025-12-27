@@ -31,7 +31,7 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!session}>
-        <Stack.Screen name="(core)" />
+        <Stack.Screen name="(core)/" />
       </Stack.Protected>
 
       <Stack.Protected guard={!session}>

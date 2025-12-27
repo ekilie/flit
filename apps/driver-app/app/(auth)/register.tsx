@@ -1,6 +1,6 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { ThemedText, ThemedView } from "@/components/Themed";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Entypo } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -10,18 +10,19 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
+  View,
+  StatusBar,
 } from "react-native";
 import { toast } from "yooo-native";
-import { useCurrentTheme } from "../../context/CentralTheme";
 import { useAuth } from "../../context/ctx";
 import Colors from "@/constants/Colors";
 
 export default function Register() {
   const router = useRouter();
   const { signUp, isLoading } = useAuth();
-  const theme = useCurrentTheme();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -83,7 +84,7 @@ export default function Register() {
 
       // Show success message and navigate to verification
       toast.success(
-        "Registration successful! Please check your email for verification instructions"
+        "Welcome to flit! Please check your email for verification instructions"
       );
 
       // Navigate to login after a brief delay
@@ -102,7 +103,16 @@ export default function Register() {
   };
 
   return (
-    <ScreenLayout styles={{ backgroundColor: Colors.light.background }}>
+    <ScreenLayout>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      {/* Background Pattern */}
+      <View style={styles.backgroundPattern}>
+        <View style={styles.patternCircle1} />
+        <View style={styles.patternCircle2} />
+        <View style={styles.patternCircle3} />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -112,64 +122,52 @@ export default function Register() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <ThemedView style={styles.content}>
+          <View style={styles.content}>
             {/* Header */}
-            <ThemedView style={styles.header}>
-              <Image
-                style={[styles.logoCircle]}
-                source={require("@/assets/images/icon-black-and-white.png")}
-              />
-              <ThemedText style={[styles.title, { color: theme.text }]}>
-                Create Account
-              </ThemedText>
-              <ThemedText
-                style={[styles.subtitle, { color: theme.subtleText }]}
-              >
-                Join the audio sharing community
-              </ThemedText>
-            </ThemedView>
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <LinearGradient
+                  colors={["#00000003", "#53535306"]}
+                  style={styles.logoCircle}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+                <Image
+                  style={styles.iconImage}
+                  source={require("@/assets/images/icon.png")}
+                />
+                <Text style={styles.logoText}>flit</Text>
+              </View>
+
+              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.subtitle}>
+                Start booking rides in minutes
+              </Text>
+            </View>
 
             {/* Form */}
-            <ThemedView style={styles.form}>
+            <View style={styles.form}>
               {/* Name Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Full Name
-                </ThemedText>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Full Name</Text>
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.inputBackground,
-                      borderColor: theme.inputBorder,
-                      color: theme.inputText,
-                    },
-                  ]}
+                  style={styles.input}
                   placeholder="Enter your full name"
-                  placeholderTextColor={theme.inputPlaceholder}
+                  placeholderTextColor="#999999"
                   value={name}
                   onChangeText={setName}
                   autoCapitalize="words"
                   editable={!isLoading}
                 />
-              </ThemedView>
+              </View>
 
               {/* Email Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Email Address
-                </ThemedText>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email Address</Text>
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.inputBackground,
-                      borderColor: theme.inputBorder,
-                      color: theme.inputText,
-                    },
-                  ]}
+                  style={styles.input}
                   placeholder="Enter your email address"
-                  placeholderTextColor={theme.inputPlaceholder}
+                  placeholderTextColor="#999999"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -177,26 +175,16 @@ export default function Register() {
                   autoCorrect={false}
                   editable={!isLoading}
                 />
-              </ThemedView>
+              </View>
 
               {/* Password Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Password
-                </ThemedText>
-                <ThemedView style={styles.passwordContainer}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Password</Text>
+                <View style={styles.passwordContainer}>
                   <TextInput
-                    style={[
-                      styles.input,
-                      styles.passwordInput,
-                      {
-                        backgroundColor: theme.inputBackground,
-                        borderColor: theme.inputBorder,
-                        color: theme.inputText,
-                      },
-                    ]}
+                    style={[styles.input, styles.passwordInput]}
                     placeholder="Create a password (min. 6 characters)"
-                    placeholderTextColor={theme.inputPlaceholder}
+                    placeholderTextColor="#999999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
@@ -207,40 +195,23 @@ export default function Register() {
                     onPress={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    <ThemedText
-                      style={[
-                        styles.eyeButtonText,
-                        { color: theme.subtleText },
-                      ]}
-                    >
-                      {showPassword ? (
-                        <Feather name="eye-off" size={24} color="black" />
-                      ) : (
-                        <Feather name="eye" size={24} color="black" />
-                      )}
-                    </ThemedText>
+                    <Feather 
+                      name={showPassword ? "eye-off" : "eye"} 
+                      size={20} 
+                      color="#666666" 
+                    />
                   </TouchableOpacity>
-                </ThemedView>
-              </ThemedView>
+                </View>
+              </View>
 
               {/* Confirm Password Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Confirm Password
-                </ThemedText>
-                <ThemedView style={styles.passwordContainer}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Confirm Password</Text>
+                <View style={styles.passwordContainer}>
                   <TextInput
-                    style={[
-                      styles.input,
-                      styles.passwordInput,
-                      {
-                        backgroundColor: theme.inputBackground,
-                        borderColor: theme.inputBorder,
-                        color: theme.inputText,
-                      },
-                    ]}
+                    style={[styles.input, styles.passwordInput]}
                     placeholder="Confirm your password"
-                    placeholderTextColor={theme.inputPlaceholder}
+                    placeholderTextColor="#999999"
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showConfirmPassword}
@@ -251,21 +222,14 @@ export default function Register() {
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
                   >
-                    <ThemedText
-                      style={[
-                        styles.eyeButtonText,
-                        { color: theme.subtleText },
-                      ]}
-                    >
-                      {showConfirmPassword ? (
-                        <Feather name="eye-off" size={24} color="black" />
-                      ) : (
-                        <Feather name="eye" size={24} color="black" />
-                      )}
-                    </ThemedText>
+                    <Feather 
+                      name={showConfirmPassword ? "eye-off" : "eye"} 
+                      size={20} 
+                      color="#666666" 
+                    />
                   </TouchableOpacity>
-                </ThemedView>
-              </ThemedView>
+                </View>
+              </View>
 
               {/* Terms and Conditions Checkbox */}
               <TouchableOpacity
@@ -274,115 +238,85 @@ export default function Register() {
                 disabled={isLoading}
                 activeOpacity={0.7}
               >
-                <ThemedView
+                <View
                   style={[
                     styles.checkbox,
                     {
-                      borderColor: theme.inputBorder,
-                      backgroundColor: agreeToTerms
-                        ? theme.primary
-                        : "transparent",
+                      borderColor: "#e0e0e0",
+                      backgroundColor: agreeToTerms ? "#f5c724" : "transparent",
                     },
                   ]}
                 >
                   {agreeToTerms && (
-                    <ThemedText
-                      style={[styles.checkmark, { color: theme.background }]}
-                    >
-                      ✓
-                    </ThemedText>
+                    <Text style={styles.checkmark}>✓</Text>
                   )}
-                </ThemedView>
-                <ThemedView style={styles.checkboxTextContainer}>
-                  <ThemedText
-                    style={[styles.checkboxText, { color: theme.text }]}
-                  >
-                    I agree to the{" "}
-                  </ThemedText>
+                </View>
+                <View style={styles.checkboxTextContainer}>
+                  <Text style={styles.checkboxText}>I agree to the </Text>
                   <Pressable
                     onPress={() => router.push("/(auth)/terms")}
                     style={styles.linkPressable}
                   >
-                    <ThemedText style={[styles.linkText]}>
-                      Terms of Service
-                    </ThemedText>
+                    <Text style={styles.linkText}>Terms of Service</Text>
                   </Pressable>
-                  <ThemedText
-                    style={[styles.checkboxText, { color: theme.text }]}
-                  >
-                    {" "}
-                    and{" "}
-                  </ThemedText>
+                  <Text style={styles.checkboxText}> and </Text>
                   <Pressable
                     onPress={() => router.push("/(auth)/terms")}
                     style={styles.linkPressable}
                   >
-                    <ThemedText style={[styles.linkText]}>
-                      Privacy Policy
-                    </ThemedText>
+                    <Text style={styles.linkText}>Privacy Policy</Text>
                   </Pressable>
-                </ThemedView>
+                </View>
               </TouchableOpacity>
-            </ThemedView>
+            </View>
 
             {/* Actions */}
-            <ThemedView style={styles.actions}>
+            <View style={styles.actions}>
               {/* Register Button */}
               <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: theme.buttonBackground,
-                    shadowColor: theme.shadowColor,
-                    shadowOpacity: theme.shadowOpacity,
-                  },
-                  isLoading && styles.disabledButton,
-                ]}
+                style={styles.primaryButton}
                 onPress={handleRegister}
                 disabled={isLoading}
                 activeOpacity={0.8}
               >
-                <ThemedText
-                  style={[
-                    styles.primaryButtonText,
-                    { color: theme.buttonText },
-                  ]}
+                <LinearGradient
+                  colors={[Colors.light.primary, Colors.light.buttonBackground]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
                 >
-                  {isLoading ? "Creating Account..." : "Create Account"}
-                </ThemedText>
+                  <Text style={styles.primaryButtonText}>
+                    {isLoading ? "Creating Account..." : "Create Account"}
+                  </Text>
+                  {!isLoading && (
+                    <View style={styles.buttonArrow}>
+                      <Entypo name="chevron-right" size={20} color="#000" />
+                    </View>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
 
               {/* Divider */}
-              <ThemedView style={styles.dividerContainer}>
-                <ThemedView
-                  style={[styles.divider, { backgroundColor: theme.divider }]}
-                />
-                <ThemedText
-                  style={[styles.dividerText, { color: theme.subtleText }]}
-                >
-                  or
-                </ThemedText>
-                <ThemedView
-                  style={[styles.divider, { backgroundColor: theme.divider }]}
-                />
-              </ThemedView>
+              <View style={styles.dividerContainer}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.divider} />
+              </View>
 
               {/* Sign In Link */}
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={handleSignIn}
                 disabled={isLoading}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <ThemedText
-                  style={[styles.secondaryButtonText, { color: theme.text }]}
-                >
+                <Text style={styles.secondaryButtonText}>
                   Already have an account?{" "}
-                  <ThemedText style={[styles.linkText]}>Sign In</ThemedText>
-                </ThemedText>
+                  <Text style={styles.linkText}>Sign In</Text>
+                </Text>
               </TouchableOpacity>
-            </ThemedView>
-          </ThemedView>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenLayout>
@@ -390,55 +324,116 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
+  backgroundPattern: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  patternCircle1: {
+    position: "absolute",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "#f5f5f5",
+    top: -100,
+    right: -50,
+  },
+  patternCircle2: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#f5f5f5",
+    bottom: 100,
+    left: -75,
+  },
+  patternCircle3: {
+    position: "absolute",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#fafafa",
+    top: "35%",
+    right: 30,
+  },
   container: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingVertical: 40,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 40,
   },
-  logoCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  logoContainer: {
+    alignItems: "center",
     marginBottom: 24,
   },
+  logoCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  iconImage: {
+    position: "absolute",
+    width: 64,
+    height: 64,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "200",
+    letterSpacing: 6,
+    color: "#1a1a1a",
+    textTransform: "uppercase",
+  },
   title: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1a1a1a",
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
+    color: "#666666",
     textAlign: "center",
+    fontWeight: "400",
   },
   form: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   inputContainer: {
     marginBottom: 16,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   input: {
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
+    borderColor: "#e0e0e0",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     fontSize: 16,
+    color: "#1a1a1a",
   },
   passwordContainer: {
     position: "relative",
@@ -449,16 +444,13 @@ const styles = StyleSheet.create({
   eyeButton: {
     position: "absolute",
     right: 16,
-    top: 14,
+    top: 16,
     padding: 4,
-  },
-  eyeButtonText: {
-    fontSize: 18,
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginTop: 8,
+    marginTop: 12,
   },
   checkbox: {
     width: 20,
@@ -473,6 +465,7 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: 12,
     fontWeight: "bold",
+    color: "#000",
   },
   checkboxTextContainer: {
     flex: 1,
@@ -483,28 +476,44 @@ const styles = StyleSheet.create({
   checkboxText: {
     fontSize: 14,
     lineHeight: 20,
+    color: "#666666",
   },
   linkPressable: {
     marginHorizontal: 2,
   },
   actions: {
-    gap: 16,
+    gap: 20,
   },
   primaryButton: {
-    backgroundColor: "#000",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  buttonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
     borderRadius: 12,
-    paddingVertical: 16,
+    flexDirection: "row",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    justifyContent: "center",
   },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#000",
+    letterSpacing: 1,
+    marginRight: 12,
   },
-  disabledButton: {
-    opacity: 0.6,
+  buttonArrow: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -514,10 +523,12 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
+    backgroundColor: "#e0e0e0",
   },
   dividerText: {
     marginHorizontal: 16,
     fontSize: 14,
+    color: "#666666",
   },
   secondaryButton: {
     paddingVertical: 12,
@@ -525,8 +536,10 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 14,
+    color: "#666666",
   },
   linkText: {
+    color: "#1a1a1a",
     fontWeight: "600",
     textDecorationLine: "underline",
   },

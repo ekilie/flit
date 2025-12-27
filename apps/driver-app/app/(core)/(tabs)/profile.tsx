@@ -450,44 +450,110 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Stats Grid */}
+        {/* Ride Stats Grid */}
         <View style={styles.statsSection}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Activity Overview
+              Ride Statistics
             </Text>
-            <MaterialIcons name="analytics" size={20} color={theme.mutedText} />
+            <MaterialIcons name="directions-car" size={20} color={theme.mutedText} />
           </View>
           <View style={styles.statsGrid}>
             <StatCard
-              title="Listens"
-              value={user.metadata?.total_listens || 0}
-              description="Total plays"
-              icon="headset"
-              color="#FF6B6B"
+              title="Total Rides"
+              value={24}
+              description="Completed trips"
+              icon="car"
+              color="#f5c724"
             />
             <StatCard
-              title="Likes"
-              value={user.metadata?.total_likes || 0}
-              description="Given"
-              icon="star"
-              color="#090a0aff"
-            />
-            <StatCard
-              title="Uploads"
-              value={user.metadata?.total_uploads || 0}
-              description="Your content"
-              icon="cloud-upload"
+              title="This Month"
+              value={8}
+              description="Rides"
+              icon="calendar"
               color="#45B7D1"
             />
             <StatCard
-              title="Listens"
-              value={user.metadata?.total_listens || 0}
-              description="Total"
-              icon="headset"
+              title="Total Spent"
+              value="TSh 820,000"
+              description="This month"
+              icon="cash"
               color="#96CEB4"
             />
+            <StatCard
+              title="Rating"
+              value="4.9"
+              description="Average"
+              icon="star"
+              color="#FFA726"
+            />
           </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View
+          style={[styles.section, { backgroundColor: theme.cardBackground }]}
+        >
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Quick Actions
+            </Text>
+            <Ionicons name="flash" size={20} color={theme.mutedText} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.actionItem,
+              {
+                backgroundColor: pressed ? theme.highlight : "transparent",
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+            onPress={() => {
+              HapticFeedback("light");
+              router.push("/(core)/ride/history" as any);
+            }}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: `${theme.primary}15` }]}>
+              <Ionicons name="time-outline" size={22} color={theme.primary} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: theme.text }]}>Ride History</Text>
+              <Text style={[styles.actionSubtitle, { color: theme.subtleText }]}>
+                View your past trips
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
+          </Pressable>
+
+          <View
+            style={[styles.separator, { backgroundColor: theme.border }]}
+          />
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.actionItem,
+              {
+                backgroundColor: pressed ? theme.highlight : "transparent",
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+            onPress={() => {
+              HapticFeedback("light");
+              router.push("/(core)/ride/payment" as any);
+            }}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: `${theme.primary}15` }]}>
+              <Ionicons name="card-outline" size={22} color={theme.primary} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: theme.text }]}>Payment Methods</Text>
+              <Text style={[styles.actionSubtitle, { color: theme.subtleText }]}>
+                Manage payment options
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={theme.mutedText} />
+          </Pressable>
         </View>
 
         {/* Account Information */}
@@ -1036,5 +1102,31 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  actionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  actionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  actionSubtitle: {
+    fontSize: 13,
   },
 });

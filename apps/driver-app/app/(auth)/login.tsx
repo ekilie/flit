@@ -1,7 +1,7 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { ThemedText, ThemedView } from "@/components/Themed";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Entypo } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -10,18 +10,19 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
+  View,
+  StatusBar,
 } from "react-native";
 import { toast } from "yooo-native";
-import { useCurrentTheme } from "../../context/CentralTheme";
 import { useAuth } from "../../context/ctx";
 import Colors from "@/constants/Colors";
 
 export default function Login() {
   const router = useRouter();
-  const { signIn, isLoading } = useAuth();
-  const theme = useCurrentTheme();
+  const { signIn, isLoading, signInWithDummyUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +53,16 @@ export default function Login() {
   };
 
   return (
-    <ScreenLayout styles={{ backgroundColor: Colors.light.background }}>
+    <ScreenLayout>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      
+      {/* Background Pattern */}
+      <View style={styles.backgroundPattern}>
+        <View style={styles.patternCircle1} />
+        <View style={styles.patternCircle2} />
+        <View style={styles.patternCircle3} />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -60,45 +70,42 @@ export default function Login() {
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ThemedView style={styles.content}>
+          <View style={styles.content}>
             {/* Header */}
-            <ThemedView style={styles.header}>
-              {/* <ThemedView
-              style={[styles.logoCircle, { backgroundColor: theme.primary }]}
-            /> */}
-              <Image
-                style={[styles.logoCircle]}
-                source={require("@/assets/images/icon-black-and-white.png")}
-              />
-              <ThemedText style={[styles.title, { color: theme.text }]}>
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <LinearGradient
+                  colors={["#00000003", "#53535306"]}
+                  style={styles.logoCircle}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+                <Image
+                  style={styles.iconImage}
+                  source={require("@/assets/images/icon.png")}
+                />
+                <Text style={styles.logoText}>flit</Text>
+              </View>
+
+              <Text style={styles.title}>
                 Welcome Back
-              </ThemedText>
-              <ThemedText
-                style={[styles.subtitle, { color: theme.subtleText }]}
-              >
-                Sign in to your account
-              </ThemedText>
-            </ThemedView>
+              </Text>
+              <Text style={styles.subtitle}>
+                Your ride is just a tap away
+              </Text>
+            </View>
 
             {/* Form */}
-            <ThemedView style={styles.form}>
+            <View style={styles.form}>
               {/* Email Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Email
-                </ThemedText>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email</Text>
                 <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: theme.inputBackground,
-                      borderColor: theme.inputBorder,
-                      color: theme.inputText,
-                    },
-                  ]}
+                  style={styles.input}
                   placeholder="Enter your email"
-                  placeholderTextColor={theme.inputPlaceholder}
+                  placeholderTextColor="#999999"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -106,26 +113,16 @@ export default function Login() {
                   autoCorrect={false}
                   editable={!isLoading}
                 />
-              </ThemedView>
+              </View>
 
               {/* Password Input */}
-              <ThemedView style={styles.inputContainer}>
-                <ThemedText style={[styles.label, { color: theme.text }]}>
-                  Password
-                </ThemedText>
-                <ThemedView style={styles.passwordContainer}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Password</Text>
+                <View style={styles.passwordContainer}>
                   <TextInput
-                    style={[
-                      styles.input,
-                      styles.passwordInput,
-                      {
-                        backgroundColor: theme.inputBackground,
-                        borderColor: theme.inputBorder,
-                        color: theme.inputText,
-                      },
-                    ]}
+                    style={[styles.input, styles.passwordInput]}
                     placeholder="Enter your password"
-                    placeholderTextColor={theme.inputPlaceholder}
+                    placeholderTextColor="#999999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
@@ -136,21 +133,14 @@ export default function Login() {
                     onPress={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    <ThemedText
-                      style={[
-                        styles.eyeButtonText,
-                        { color: theme.subtleText },
-                      ]}
-                    >
-                      {showPassword ? (
-                        <Feather name="eye-off" size={24} color="black" />
-                      ) : (
-                        <Feather name="eye" size={24} color="black" />
-                      )}
-                    </ThemedText>
+                    <Feather 
+                      name={showPassword ? "eye-off" : "eye"} 
+                      size={20} 
+                      color="#666666" 
+                    />
                   </TouchableOpacity>
-                </ThemedView>
-              </ThemedView>
+                </View>
+              </View>
 
               {/* Forgot Password Link */}
               <TouchableOpacity
@@ -158,70 +148,74 @@ export default function Login() {
                 onPress={handleForgotPassword}
                 disabled={isLoading}
               >
-                <ThemedText style={[styles.forgotPasswordText]}>
+                <Text style={styles.forgotPasswordText}>
                   Forgot your password?
-                </ThemedText>
+                </Text>
               </TouchableOpacity>
-            </ThemedView>
+            </View>
 
             {/* Actions */}
-            <ThemedView style={styles.actions}>
+            <View style={styles.actions}>
               {/* Login Button */}
               <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: theme.buttonBackground,
-                    shadowColor: theme.shadowColor,
-                    shadowOpacity: theme.shadowOpacity,
-                  },
-                  isLoading && styles.disabledButton,
-                ]}
+                style={styles.primaryButton}
                 onPress={handleLogin}
                 disabled={isLoading}
                 activeOpacity={0.8}
               >
-                <ThemedText
-                  style={[
-                    styles.primaryButtonText,
-                    { color: theme.buttonText },
-                  ]}
+                <LinearGradient
+                  colors={[Colors.light.primary, Colors.light.buttonBackground]}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
                 >
-                  {isLoading ? "Signing In..." : "Sign In"}
-                </ThemedText>
+                  <Text style={styles.primaryButtonText}>
+                    {isLoading ? "Signing In..." : "Sign In"}
+                  </Text>
+                  {!isLoading && (
+                    <View style={styles.buttonArrow}>
+                      <Entypo name="chevron-right" size={20} color="#000" />
+                    </View>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
 
               {/* Divider */}
-              <ThemedView style={styles.dividerContainer}>
-                <ThemedView
-                  style={[styles.divider, { backgroundColor: theme.divider }]}
-                />
-                <ThemedText
-                  style={[styles.dividerText, { color: theme.subtleText }]}
-                >
-                  or
-                </ThemedText>
-                <ThemedView
-                  style={[styles.divider, { backgroundColor: theme.divider }]}
-                />
-              </ThemedView>
+              <View style={styles.dividerContainer}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.divider} />
+              </View>
 
               {/* Sign Up Link */}
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={handleSignUp}
                 disabled={isLoading}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  Don't have an account?{" "}
+                  <Text style={styles.linkText}>Sign Up</Text>
+                </Text>
+              </TouchableOpacity>
+
+              {/* Development: Dummy User Link */}
+              <TouchableOpacity
+                style={styles.dummyUserButton}
+                onPress={() => {
+                  signInWithDummyUser();
+                  toast.success("Signed in as demo user");
+                }}
+                disabled={isLoading}
                 activeOpacity={0.8}
               >
-                <ThemedText
-                  style={[styles.secondaryButtonText, { color: theme.text }]}
-                >
-                  Don't have an account?{" "}
-                  <ThemedText style={[styles.linkText]}>Sign Up</ThemedText>
-                </ThemedText>
+                <Text style={styles.dummyUserText}>
+                  Continue as Demo User (Development)
+                </Text>
               </TouchableOpacity>
-            </ThemedView>
-          </ThemedView>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenLayout>
@@ -229,36 +223,93 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
+  backgroundPattern: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  patternCircle1: {
+    position: "absolute",
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "#f5f5f5",
+    top: -100,
+    right: -50,
+  },
+  patternCircle2: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#f5f5f5",
+    bottom: 100,
+    left: -75,
+  },
+  patternCircle3: {
+    position: "absolute",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#fafafa",
+    top: "40%",
+    right: 30,
+  },
   container: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingVertical: 40,
   },
   content: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 48,
   },
-  logoCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  logoContainer: {
+    alignItems: "center",
     marginBottom: 24,
   },
+  logoCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  iconImage: {
+    position: "absolute",
+    width: 64,
+    height: 64,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: "200",
+    letterSpacing: 6,
+    color: "#1a1a1a",
+    textTransform: "uppercase",
+  },
   title: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1a1a1a",
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
+    color: "#666666",
     textAlign: "center",
+    fontWeight: "400",
   },
   form: {
     marginBottom: 32,
@@ -267,16 +318,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   input: {
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
+    borderColor: "#e0e0e0",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     fontSize: 16,
+    color: "#1a1a1a",
   },
   passwordContainer: {
     position: "relative",
@@ -287,39 +343,52 @@ const styles = StyleSheet.create({
   eyeButton: {
     position: "absolute",
     right: 16,
-    top: 14,
+    top: 16,
     padding: 4,
-  },
-  eyeButtonText: {
-    fontSize: 18,
   },
   forgotPasswordContainer: {
     alignItems: "flex-end",
-    marginTop: 8,
+    marginTop: 12,
   },
   forgotPasswordText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
+    color: "#1a1a1a",
     textDecorationLine: "underline",
   },
   actions: {
-    gap: 16,
+    gap: 20,
   },
   primaryButton: {
-    backgroundColor: "#000",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  buttonGradient: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
     borderRadius: 12,
-    paddingVertical: 16,
+    flexDirection: "row",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    justifyContent: "center",
   },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#000",
+    letterSpacing: 1,
+    marginRight: 12,
   },
-  disabledButton: {
-    opacity: 0.6,
+  buttonArrow: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -329,10 +398,12 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
+    backgroundColor: "#e0e0e0",
   },
   dividerText: {
     marginHorizontal: 16,
     fontSize: 14,
+    color: "#666666",
   },
   secondaryButton: {
     paddingVertical: 12,
@@ -340,9 +411,22 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 14,
+    color: "#666666",
   },
   linkText: {
+    color: "#1a1a1a",
     fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+  dummyUserButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  dummyUserText: {
+    fontSize: 13,
+    color: "#999999",
+    fontStyle: "italic",
     textDecorationLine: "underline",
   },
 });
