@@ -71,16 +71,18 @@ const api = (authenticate: any) => {
 let refreshTokenPromise: Promise<string | null> | null = null;
 
 async function refreshAuthToken(): Promise<string | null> {
-  // Return existing refresh promise if one is already in progress
-  if (refreshTokenPromise) {
-    return refreshTokenPromise;
-  }
+  router.replace("/(auth)/login");
+  // // Return existing refresh promise if one is already in progress
+  // if (refreshTokenPromise) {
+  //   return refreshTokenPromise;
+  // }
 
-  refreshTokenPromise = performTokenRefresh();
-  const result = await refreshTokenPromise;
-  refreshTokenPromise = null; // Reset after completion
+  // refreshTokenPromise = performTokenRefresh();
+  // const result = await refreshTokenPromise;
+  // refreshTokenPromise = null; // Reset after completion
 
-  return result;
+  // return result;
+  return null;
 }
 
 async function performTokenRefresh(): Promise<string | null> {
