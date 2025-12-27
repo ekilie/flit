@@ -280,7 +280,7 @@ export default function RideScreen() {
 
   return (
     <ScreenLayout styles={{ backgroundColor: Colors.light.background }} fullScreen>
-      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={styles.container}>
         {/* Map View */}
         <Animated.View
@@ -304,7 +304,7 @@ export default function RideScreen() {
             showsMyLocationButton
             showsCompass
             showsTraffic
-            toolbarEnabled={false}
+            toolbarEnabled={true}
           >
             {/* Pickup Marker */}
             <Marker
