@@ -24,6 +24,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 
 import * as Location from 'expo-location';
 import { alert } from "yooo-native";
+import { HapticFeedback } from "@/lib/haptics";
 
 const { width, height } = Dimensions.get("window");
 
@@ -102,10 +103,10 @@ const RECENT_LOCATIONS = [
 ];
 
 // Default map center (Dar es Salaam, Tanzania)
-const DEFAULT_COORDINATES = {
-  latitude: -6.7924,
-  longitude: 39.2083,
-};
+// const DEFAULT_COORDINATES = {
+//   latitude: -6.7924,
+//   longitude: 39.2083,
+// };
 
 interface LocationInputProps {
   placeholder: string;
@@ -216,9 +217,13 @@ export default function RideScreen() {
   const mapRef = useRef<MapView>(null);
   
   const [pickupLocation, setPickupLocation] = useState("Current Location");
-  const [pickupCoordinates, setPickupCoordinates] = useState(DEFAULT_COORDINATES);
+  const [pickupCoordinates, setPickupCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  
   const [destination, setDestination] = useState("");
-  const [destinationCoordinates, setDestinationCoordinates] = useState<typeof DEFAULT_COORDINATES | null>(null);
+  const [destinationCoordinates, setDestinationCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
@@ -230,12 +235,12 @@ export default function RideScreen() {
       
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
+        HapticFeedback("error");
         alert.dialog('Error', 'Permission to access location was denied\n Please grant permission to access your location', [
           {
             text: 'Grant',
             onPress: () => {
               Linking.openSettings().then(() => {
-                alert.success('Permission granted');
                 getCurrentLocation();
               }).catch((error) => {
                 alert.error('Error granting permission\n Please try again');
@@ -246,14 +251,46 @@ export default function RideScreen() {
         ]);
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-      setPickupLocation(location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
-      setPickupCoordinates({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
       });
+      
+      console.log('location', location);
+      if (location) {
+        setLocation(location);
+        setPickupLocation(location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
+        const coords = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+        setPickupCoordinates(coords);
+        console.log('pickupCoordinates', pickupCoordinates);
+
+        
+        
+        requestAnimationFrame(() => {
+          mapRef.current?.animateCamera(
+            {
+              center: coords,
+              zoom: 16,
+            },
+            { duration: 800 }
+          );
+        });
+        
+      } else {
+        alert.error('Error getting current location\n Please try again');
+        console.error('error');
+        HapticFeedback("error");
+        alert.dialog('Error', 'Error getting current location\n Please try again', [
+          {
+            text: 'OK',
+            onPress: () => {
+              return;
+            },
+          },
+        ]);
+      }
     }
 
     getCurrentLocation();
@@ -273,17 +310,18 @@ export default function RideScreen() {
     }).start();
   }, []);
 
-  // Update camera when destination is selected
   useEffect(() => {
-    if (destinationCoordinates && mapRef.current) {
-      // Fit map to show both markers
-      const coordinates = [pickupCoordinates, destinationCoordinates];
-      mapRef.current.fitToCoordinates(coordinates, {
+    if (!pickupCoordinates || !destinationCoordinates || !mapRef.current) return;
+  
+    mapRef.current.fitToCoordinates(
+      [pickupCoordinates, destinationCoordinates],
+      {
         edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
         animated: true,
-      });
-    }
-  }, [destinationCoordinates]);
+      }
+    );
+  }, [destinationCoordinates, pickupCoordinates]);
+  
 
   const snapPoints = ["25%", "50%", "85%"];
 
@@ -333,6 +371,7 @@ export default function RideScreen() {
             },
           ]}
         >
+          {pickupCoordinates && (
           <MapView
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
@@ -372,10 +411,12 @@ export default function RideScreen() {
                 coordinates={[pickupCoordinates, destinationCoordinates]}
                 strokeColor={theme.primary}
                 strokeWidth={3}
-                lineDashPattern={[1]}
+                lineDashPattern={[10, 5]}
+
               />
             )}
           </MapView>
+          )}
 
           {/* Top Controls */}
           <View style={styles.topControls}>
