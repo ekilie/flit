@@ -11,6 +11,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,6 +20,12 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+
+
+import * as Location from 'expo-location';
+import { alert } from "yooo-native";
+import { HapticFeedback } from "@/lib/haptics";
+import { ActivityIndicator } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -59,48 +66,48 @@ const VEHICLE_TYPES = [
 ];
 
 const RECENT_LOCATIONS = [
-  { 
-    id: "1", 
-    name: "Home", 
-    address: "Mikocheni, Dar es Salaam", 
-    icon: "home", 
-    coordinates: { latitude: -6.7735, longitude: 39.2395 } 
+  {
+    id: "1",
+    name: "Home",
+    address: "Mikocheni, Dar es Salaam",
+    icon: "home",
+    coordinates: { latitude: -6.7735, longitude: 39.2395 }
   },
-  { 
-    id: "2", 
-    name: "Work", 
-    address: "Posta Road, Dar es Salaam", 
-    icon: "briefcase", 
-    coordinates: { latitude: -6.8160, longitude: 39.2803 } 
+  {
+    id: "2",
+    name: "Work",
+    address: "Posta Road, Dar es Salaam",
+    icon: "briefcase",
+    coordinates: { latitude: -6.8160, longitude: 39.2803 }
   },
-  { 
-    id: "3", 
-    name: "Airport", 
-    address: "Julius Nyerere International Airport", 
-    icon: "airplane", 
-    coordinates: { latitude: -6.8781, longitude: 39.2026 } 
+  {
+    id: "3",
+    name: "Airport",
+    address: "Julius Nyerere International Airport",
+    icon: "airplane",
+    coordinates: { latitude: -6.8781, longitude: 39.2026 }
   },
-  { 
-    id: "4", 
-    name: "Mlimani City", 
-    address: "Sam Nujoma Road, Dar es Salaam", 
-    icon: "cart", 
-    coordinates: { latitude: -6.7730, longitude: 39.2120 } 
+  {
+    id: "4",
+    name: "Mlimani City",
+    address: "Sam Nujoma Road, Dar es Salaam",
+    icon: "cart",
+    coordinates: { latitude: -6.7730, longitude: 39.2120 }
   },
-  { 
-    id: "5", 
-    name: "Coco Beach", 
-    address: "Msasani Peninsula, Dar es Salaam", 
-    icon: "water", 
-    coordinates: { latitude: -6.7583, longitude: 39.2738 } 
+  {
+    id: "5",
+    name: "Coco Beach",
+    address: "Msasani Peninsula, Dar es Salaam",
+    icon: "water",
+    coordinates: { latitude: -6.7583, longitude: 39.2738 }
   },
 ];
 
 // Default map center (Dar es Salaam, Tanzania)
-const DEFAULT_COORDINATES = {
-  latitude: -6.7924,
-  longitude: 39.2083,
-};
+// const DEFAULT_COORDINATES = {
+//   latitude: -6.7924,
+//   longitude: 39.2083,
+// };
 
 interface LocationInputProps {
   placeholder: string;
@@ -209,14 +216,87 @@ export default function RideScreen() {
   const haptics = useHaptics();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
-  
+
   const [pickupLocation, setPickupLocation] = useState("Current Location");
-  const [pickupCoordinates, setPickupCoordinates] = useState(DEFAULT_COORDINATES);
+  const [pickupCoordinates, setPickupCoordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
   const [destination, setDestination] = useState("");
-  const [destinationCoordinates, setDestinationCoordinates] = useState<typeof DEFAULT_COORDINATES | null>(null);
+  const [destinationCoordinates, setDestinationCoordinates] = useState<{ latitude: number, longitude: number } | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getCurrentLocation() {
+
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        HapticFeedback("error");
+        alert.dialog('Error', 'Permission to access location was denied\n Please grant permission to access your location', [
+          {
+            text: 'Grant',
+            onPress: () => {
+              Linking.openSettings().then(() => {
+                getCurrentLocation();
+              }).catch((error) => {
+                alert.error('Error granting permission\n Please try again');
+                console.error(error);
+              });
+            },
+          },
+        ]);
+        return;
+      }
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      console.log('location', location);
+      if (location) {
+        setLocation(location);
+        setPickupLocation(location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
+        const coords = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+        setPickupCoordinates(coords);
+        console.log('pickupCoordinates', pickupCoordinates);
+
+
+
+        requestAnimationFrame(() => {
+          mapRef.current?.animateCamera(
+            {
+              center: coords,
+              zoom: 16,
+            },
+            { duration: 800 }
+          );
+        });
+
+      } else {
+        alert.error('Error getting current location\n Please try again');
+        console.error('error');
+        HapticFeedback("error");
+        alert.dialog('Error', 'Error getting current location\n Please try again', [
+          {
+            text: 'OK',
+            onPress: () => {
+              return;
+            },
+          },
+        ]);
+      }
+    }
+
+    getCurrentLocation();
+  }, []);
+
 
   // Map animation
   const mapScale = useRef(new Animated.Value(1)).current;
@@ -231,17 +311,18 @@ export default function RideScreen() {
     }).start();
   }, []);
 
-  // Update camera when destination is selected
   useEffect(() => {
-    if (destinationCoordinates && mapRef.current) {
-      // Fit map to show both markers
-      const coordinates = [pickupCoordinates, destinationCoordinates];
-      mapRef.current.fitToCoordinates(coordinates, {
+    if (!pickupCoordinates || !destinationCoordinates || !mapRef.current) return;
+
+    mapRef.current.fitToCoordinates(
+      [pickupCoordinates, destinationCoordinates],
+      {
         edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
         animated: true,
-      });
-    }
-  }, [destinationCoordinates]);
+      }
+    );
+  }, [destinationCoordinates, pickupCoordinates]);
+
 
   const snapPoints = ["25%", "50%", "85%"];
 
@@ -291,49 +372,59 @@ export default function RideScreen() {
             },
           ]}
         >
-          <MapView
-            ref={mapRef}
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={{
-              ...pickupCoordinates,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-            showsUserLocation
-            showsMyLocationButton
-            showsCompass
-            showsTraffic
-            toolbarEnabled={true}
-          >
-            {/* Pickup Marker */}
-            <Marker
-              coordinate={pickupCoordinates}
-              title="Pickup Location"
-              description={pickupLocation}
-              pinColor={theme.primary}
-            />
-
-            {/* Destination Marker */}
-            {destinationCoordinates && (
+          {!pickupCoordinates && (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={theme.primary} />
+              <Text style={{ color: theme.text }}>Loading map...</Text>
+            </View>
+          )}
+          {pickupCoordinates && (
+            <MapView
+              ref={mapRef}
+              provider={PROVIDER_GOOGLE}
+              style={styles.map}
+              initialRegion={{
+                ...pickupCoordinates,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}
+              showsUserLocation
+              showsMyLocationButton
+              showsCompass
+              showsTraffic
+              toolbarEnabled={true}
+              userInterfaceStyle={theme.colorScheme === 'dark' ? 'dark' : 'light'}
+            >
+              {/* Pickup Marker */}
               <Marker
-                coordinate={destinationCoordinates}
-                title="Destination"
-                description={destination}
-                pinColor={theme.success || '#10b981'}
+                coordinate={pickupCoordinates}
+                title="Pickup Location"
+                description={pickupLocation}
+                pinColor={theme.primary}
               />
-            )}
 
-            {/* Route Line */}
-            {destinationCoordinates && (
-              <Polyline
-                coordinates={[pickupCoordinates, destinationCoordinates]}
-                strokeColor={theme.primary}
-                strokeWidth={3}
-                lineDashPattern={[1]}
-              />
-            )}
-          </MapView>
+              {/* Destination Marker */}
+              {destinationCoordinates && (
+                <Marker
+                  coordinate={destinationCoordinates}
+                  title="Destination"
+                  description={destination}
+                  pinColor={theme.success || '#10b981'}
+                />
+              )}
+
+              {/* Route Line */}
+              {destinationCoordinates && (
+                <Polyline
+                  coordinates={[pickupCoordinates, destinationCoordinates]}
+                  strokeColor={theme.primary}
+                  strokeWidth={3}
+                  lineDashPattern={[10, 5]}
+
+                />
+              )}
+            </MapView>
+          )}
 
           {/* Top Controls */}
           <View style={styles.topControls}>
