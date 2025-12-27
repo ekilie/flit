@@ -3,7 +3,11 @@ import { EntityManager } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Role } from 'src/modules/roles/entities/role.entity';
 import { Permission } from 'src/modules/roles/entities/permission.entity';
-import { Vehicle, VehicleType, VehicleStatus } from 'src/modules/vehicles/entities/vehicle.entity';
+import {
+  Vehicle,
+  VehicleType,
+  VehicleStatus,
+} from 'src/modules/vehicles/entities/vehicle.entity';
 import { Ride, RideStatus } from 'src/modules/rides/entities/ride.entity';
 import { predefinedPermissions } from 'src/modules/seeder/data/permissions.data';
 import { LoggerService } from 'src/lib/logger/logger.service';
@@ -84,7 +88,15 @@ export class SeederService {
       return map;
     }, {});
 
-    const users = [
+    type UserSeedData = {
+      fullName: string;
+      phoneNumber: string;
+      email: string;
+      password: string;
+      role: Role;
+    };
+
+    const users: UserSeedData[] = [
       {
         fullName: 'Tachera Sasi',
         phoneNumber: '+255686477074',
@@ -132,7 +144,7 @@ export class SeederService {
     ];
 
     await Promise.all(
-      users.map(async (userData: any) => {
+      users.map(async (userData) => {
         const userExists = await this.entityManager.findOneBy(User, [
           {
             email: userData.email,
@@ -151,12 +163,12 @@ export class SeederService {
 
   async #createVehicles() {
     this.logger.log('Creating vehicles...');
-    
+
     // Get drivers
     const driverRole = await this.entityManager.findOne(Role, {
       where: { name: 'Driver' },
     });
-    
+
     if (!driverRole) {
       this.logger.warn('Driver role not found, skipping vehicle creation');
       return;
@@ -205,7 +217,9 @@ export class SeederService {
         if (!vehicleExists) {
           const vehicle = this.entityManager.create(Vehicle, vehicleData);
           await this.entityManager.save(vehicle);
-          this.logger.log(`Created vehicle: ${vehicleData.make} ${vehicleData.model}`);
+          this.logger.log(
+            `Created vehicle: ${vehicleData.make} ${vehicleData.model}`,
+          );
         }
       }),
     );
@@ -213,7 +227,7 @@ export class SeederService {
 
   async #createRides() {
     this.logger.log('Creating sample rides...');
-    
+
     // Get riders and drivers
     const riderRole = await this.entityManager.findOne(Role, {
       where: { name: 'Rider' },
@@ -246,7 +260,7 @@ export class SeederService {
         pickupLatitude: -6.7924,
         pickupLongitude: 39.2083,
         pickupAddress: 'Kariakoo Market, Dar es Salaam',
-        dropoffLatitude: -6.8160,
+        dropoffLatitude: -6.816,
         dropoffLongitude: 39.2803,
         dropoffAddress: 'Julius Nyerere International Airport, Dar es Salaam',
         riderId: riders[0].id,
@@ -281,12 +295,13 @@ export class SeederService {
         completedAt: new Date('2024-01-15T10:23:00Z'),
       },
       {
-        pickupLatitude: -6.8160,
+        pickupLatitude: -6.816,
         pickupLongitude: 39.2803,
         pickupAddress: 'Julius Nyerere International Airport, Dar es Salaam',
         dropoffLatitude: -6.7647,
         dropoffLongitude: 39.2191,
-        dropoffAddress: 'Slipway Shopping Centre, Msasani Peninsula, Dar es Salaam',
+        dropoffAddress:
+          'Slipway Shopping Centre, Msasani Peninsula, Dar es Salaam',
         riderId: riders[0].id,
         status: RideStatus.REQUESTED,
         fare: 30000,
@@ -294,7 +309,7 @@ export class SeederService {
         estimatedDuration: 35,
       },
       {
-        pickupLatitude: -6.8000,
+        pickupLatitude: -6.8,
         pickupLongitude: 39.2681,
         pickupAddress: 'Ubungo Bus Terminal, Dar es Salaam',
         dropoffLatitude: -6.7732,
@@ -316,7 +331,9 @@ export class SeederService {
       rides.map(async rideData => {
         const ride = this.entityManager.create(Ride, rideData);
         await this.entityManager.save(ride);
-        this.logger.log(`Created ride from ${rideData.pickupAddress} to ${rideData.dropoffAddress}`);
+        this.logger.log(
+          `Created ride from ${rideData.pickupAddress} to ${rideData.dropoffAddress}`,
+        );
       }),
     );
   }
