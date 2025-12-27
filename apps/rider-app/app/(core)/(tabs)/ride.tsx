@@ -11,6 +11,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,6 +20,10 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+
+
+import * as Location from 'expo-location';
+import { alert } from "yooo-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -217,6 +222,43 @@ export default function RideScreen() {
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getCurrentLocation() {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        alert.dialog('Error', 'Permission to access location was denied\n Please grant permission to access your location', [
+          {
+            text: 'Grant',
+            onPress: () => {
+              Linking.openSettings().then(() => {
+                alert.success('Permission granted');
+                getCurrentLocation();
+              }).catch((error) => {
+                alert.error('Error granting permission\n Please try again');
+                console.error(error);
+              });
+            },
+          },
+        ]);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+      setPickupLocation(location.coords.latitude.toString() + ', ' + location.coords.longitude.toString());
+      setPickupCoordinates({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    }
+
+    getCurrentLocation();
+  }, []);
+
 
   // Map animation
   const mapScale = useRef(new Animated.Value(1)).current;
