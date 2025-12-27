@@ -428,27 +428,7 @@ export default function RideScreen() {
 
           {/* Top Controls */}
           <View style={styles.topControls}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.controlButton,
-                {
-                  // backgroundColor: theme.cardBackground,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              onPress={() => router.push("/(core)/ride/history")}
-            >
-              <Image
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  marginBottom: 24,
-                }}
-                source={require("@/assets/images/icon-black-and-white.png")}
-              />
-            </Pressable>
-            <Pressable
+            {/* <Pressable
               style={({ pressed }) => [
                 styles.controlButton,
                 {
@@ -456,9 +436,24 @@ export default function RideScreen() {
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
-              onPress={() => router.push("/(core)/(tabs)/profile" as any)}
+              onPress={() => router.push("/(core)/ride/history")}
             >
-              <Ionicons name="person-circle-outline" size={24} color={theme.text} />
+              <Image
+                style={styles.logoImage}
+                source={require("@/assets/images/icon-black-and-white.png")}
+              />
+            </Pressable> */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.controlButton,
+                {
+                  backgroundColor: "#f5c724",
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+              onPress={() => router.push("/(core)/settings")}
+            >
+              <Ionicons name="settings-outline" size={24} color={theme.text} />
             </Pressable>
           </View>
 
@@ -722,16 +717,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: Platform.OS === 'ios' ? 60 : 50,
     left: 16,
-    right: 16,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
+    gap: 12,
     zIndex: 10,
   },
   controlButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -739,6 +734,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  logoImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   locationInputsContainer: {
     position: "absolute",

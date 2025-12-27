@@ -105,7 +105,9 @@ export class AuthService {
     await this.usersService.update(user.id, { lastLogin: new Date() });
 
     const payload = { email: user.email, sub: user.id, userId: user.id };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: '7d',
     });
