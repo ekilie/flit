@@ -1,83 +1,24 @@
 import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
+import Api from "@/lib/api";
+import { Notification } from "@/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-
-// Dummy notifications data
-const NOTIFICATIONS = [
-  {
-    id: "1",
-    type: "ride",
-    title: "Trip Completed",
-    message: "Safari yako kwenda Julius Nyerere Airport imekamilika. Karibia dereva wako!",
-    timestamp: "2024-01-15T14:30:00",
-    read: false,
-    icon: "checkmark-circle",
-    color: "#4CAF50",
-  },
-  {
-    id: "2",
-    type: "promo",
-    title: "New 30% Discount!",
-    message: "Tumia msimbo WEEKEND30 na upate punguzo la 30% kwa safari zako za wikendi.",
-    timestamp: "2024-01-15T10:00:00",
-    read: false,
-    icon: "pricetag",
-    color: "#FF9800",
-  },
-  {
-    id: "3",
-    type: "payment",
-    title: "Payment Completed",
-    message: "Malipo yako ya TSh 25,000 kwa safari #1234 yamefanikiwa.",
-    timestamp: "2024-01-15T09:15:00",
-    read: true,
-    icon: "card",
-    color: "#2196F3",
-  },
-  {
-    id: "4",
-    type: "ride",
-    title: "Driver Arriving",
-    message: "Juma Mwangi anakuja kwa gari Toyota Corolla (T 123 ABC). ETA: 5 dakika.",
-    timestamp: "2024-01-14T18:45:00",
-    read: true,
-    icon: "car",
-    color: "#4CAF50",
-  },
-  {
-    id: "5",
-    type: "system",
-    title: "App Update",
-    message: "Toleo jipya la programu lipo. Sasisha ili upate vipengele vipya na maboresho.",
-    timestamp: "2024-01-14T08:00:00",
-    read: true,
-    icon: "download",
-    color: "#9C27B0",
-  },
-  {
-    id: "6",
-    type: "promo",
-    title: "Welcome to Flit!",
-    message: "Asante kwa kujiunga na Flit. Tumia msimbo WELCOME50 kwa punguzo la kwanza!",
-    timestamp: "2024-01-13T12:00:00",
-    read: true,
-    icon: "gift",
-    color: "#FF9800",
-  },
-];
+import { toast } from "yooo-native";
 
 interface NotificationItemProps {
-  notification: typeof NOTIFICATIONS[0];
+  notification: Notification;
   onPress: () => void;
   onDelete: () => void;
 }
@@ -98,9 +39,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `min ${diffMins} ago`;
-    if (diffHours < 24) return `hr ${diffHours} ago`;
-    if (diffDays < 7) return `days ${diffDays} ago`;
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    if (diffDays < 7) return `${diffDays} days ago`;
     
     return date.toLocaleDateString("sw-TZ", {
       month: "short",
@@ -108,23 +49,55 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     });
   };
 
+  // Icon mapping based on notification type
+  const getIconForType = (type: string): string => {
+    const iconMap: Record<string, string> = {
+      ride_request: "car",
+      ride_accepted: "checkmark-circle",
+      ride_started: "play-circle",
+      ride_completed: "checkmark-done-circle",
+      ride_cancelled: "close-circle",
+      driver_arrived: "navigate-circle",
+      payment_received: "card",
+      rating_received: "star",
+      system: "information-circle",
+    };
+    return iconMap[type] || "notifications";
+  };
+
+  // Color mapping based on notification type
+  const getColorForType = (type: string): string => {
+    const colorMap: Record<string, string> = {
+      ride_request: "#4CAF50",
+      ride_accepted: "#4CAF50",
+      ride_started: "#2196F3",
+      ride_completed: "#4CAF50",
+      ride_cancelled: "#F44336",
+      driver_arrived: "#FF9800",
+      payment_received: "#2196F3",
+      rating_received: "#FFC107",
+      system: "#9C27B0",
+    };
+    return colorMap[type] || "#607D8B";
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
         styles.notificationItem,
         {
-          backgroundColor: notification.read ? theme.cardBackground : `${theme.primary}08`,
-          borderLeftColor: notification.read ? theme.border : theme.primary,
+          backgroundColor: notification.isRead ? theme.cardBackground : `${theme.primary}08`,
+          borderLeftColor: notification.isRead ? theme.border : theme.primary,
           opacity: pressed ? 0.8 : 1,
         },
       ]}
       onPress={onPress}
     >
-      <View style={[styles.iconContainer, { backgroundColor: `${notification.color}15` }]}>
+      <View style={[styles.iconContainer, { backgroundColor: `${getColorForType(notification.type)}15` }]}>
         <Ionicons
-          name={notification.icon as any}
+          name={getIconForType(notification.type) as any}
           size={24}
-          color={notification.color}
+          color={getColorForType(notification.type)}
         />
       </View>
       
@@ -133,7 +106,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <Text style={[styles.notificationTitle, { color: theme.text }]}>
             {notification.title}
           </Text>
-          {!notification.read && (
+          {!notification.isRead && (
             <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />
           )}
         </View>
@@ -144,7 +117,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           {notification.message}
         </Text>
         <Text style={[styles.notificationTime, { color: theme.mutedText }]}>
-          {formatTimestamp(notification.timestamp)}
+          {formatTimestamp(notification.createdAt)}
         </Text>
       </View>
 
@@ -171,37 +144,93 @@ export default function NotificationsScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [userId, setUserId] = useState<number | null>(null);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  useEffect(() => {
+    fetchNotifications();
+    fetchUserId();
+  }, []);
 
-  const handleNotificationPress = (id: string) => {
+  const fetchUserId = async () => {
+    try {
+      const user = await Api.getCurrentUser();
+      const userData = user.data || user;
+      setUserId(userData.id);
+    } catch (error) {
+      console.error("Failed to fetch user ID:", error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const user = await Api.getCurrentUser();
+      const userData = user.data || user;
+      const notifs = await Api.getNotificationsByUser(userData.id);
+      setNotifications(notifs);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+      toast.error("Failed to load notifications");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchNotifications();
+    setRefreshing(false);
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleNotificationPress = async (id: number) => {
     haptics.selection();
+    
     // Mark as read
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    try {
+      await Api.markNotificationAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
   };
 
-  const handleDeleteNotification = (id: string) => {
+  const handleDeleteNotification = async (id: number) => {
     haptics.medium();
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await Api.deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      toast.success("Notification deleted");
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+      toast.error("Failed to delete notification");
+    }
   };
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = async () => {
+    if (!userId) return;
+    
     haptics.selection();
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const handleClearAll = () => {
-    haptics.medium();
-    setNotifications([]);
+    try {
+      await Api.markAllNotificationsAsRead(userId);
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      toast.success("All notifications marked as read");
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+      toast.error("Failed to mark all as read");
+    }
   };
 
   const filteredNotifications =
     filter === "unread"
-      ? notifications.filter((n) => !n.read)
+      ? notifications.filter((n) => !n.isRead)
       : notifications;
 
   return (
@@ -233,156 +262,157 @@ export default function NotificationsScreen() {
               )}
             </View>
           </View>
-          
-          {notifications.length > 0 && (
-            <Pressable
-              style={({ pressed }) => [
-                styles.moreButton,
-                {
-                  backgroundColor: theme.cardBackground,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              onPress={() => {
-                haptics.selection();
-                // In production, show action sheet
-              }}
-            >
-              <Ionicons name="ellipsis-horizontal" size={24} color={theme.text} />
-            </Pressable>
-          )}
         </View>
 
-        {/* Filter Tabs */}
-        {notifications.length > 0 && (
-          <View style={[styles.filterTabs, { backgroundColor: theme.cardBackground }]}>
-            <Pressable
-              style={[
-                styles.filterTab,
-                filter === "all" && {
-                  backgroundColor: `${theme.primary}15`,
-                  borderBottomColor: theme.primary,
-                },
-              ]}
-              onPress={() => {
-                haptics.selection();
-                setFilter("all");
-              }}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  {
-                    color: filter === "all" ? theme.primary : theme.text,
-                    fontWeight: filter === "all" ? "700" : "600",
-                  },
-                ]}
-              >
-                All ({notifications.length})
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.filterTab,
-                filter === "unread" && {
-                  backgroundColor: `${theme.primary}15`,
-                  borderBottomColor: theme.primary,
-                },
-              ]}
-              onPress={() => {
-                haptics.selection();
-                setFilter("unread");
-              }}
-            >
-              <Text
-                style={[
-                  styles.filterTabText,
-                  {
-                    color: filter === "unread" ? theme.primary : theme.text,
-                    fontWeight: filter === "unread" ? "700" : "600",
-                  },
-                ]}
-              >
-                Unread ({unreadCount})
-              </Text>
-            </Pressable>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.primary} />
+            <Text style={[styles.loadingText, { color: theme.subtleText }]}>
+              Loading notifications...
+            </Text>
           </View>
-        )}
-
-        {/* Notifications List */}
-        {filteredNotifications.length > 0 ? (
+        ) : (
           <>
-            {unreadCount > 0 && filter === "all" && (
-              <View style={styles.actions}>
+            {/* Filter Tabs */}
+            {notifications.length > 0 && (
+              <View style={[styles.filterTabs, { backgroundColor: theme.cardBackground }]}>
                 <Pressable
-                  style={({ pressed }) => [
-                    styles.actionButton,
-                    {
+                  style={[
+                    styles.filterTab,
+                    filter === "all" && {
                       backgroundColor: `${theme.primary}15`,
-                      opacity: pressed ? 0.8 : 1,
+                      borderBottomColor: theme.primary,
                     },
                   ]}
-                  onPress={handleMarkAllAsRead}
+                  onPress={() => {
+                    haptics.selection();
+                    setFilter("all");
+                  }}
                 >
-                  <Ionicons name="checkmark-done" size={18} color={theme.primary} />
-                  <Text style={[styles.actionText, { color: theme.primary }]}>
-                    Mark all as read
+                  <Text
+                    style={[
+                      styles.filterTabText,
+                      {
+                        color: filter === "all" ? theme.primary : theme.text,
+                        fontWeight: filter === "all" ? "700" : "600",
+                      },
+                    ]}
+                  >
+                    All ({notifications.length})
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterTab,
+                    filter === "unread" && {
+                      backgroundColor: `${theme.primary}15`,
+                      borderBottomColor: theme.primary,
+                    },
+                  ]}
+                  onPress={() => {
+                    haptics.selection();
+                    setFilter("unread");
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.filterTabText,
+                      {
+                        color: filter === "unread" ? theme.primary : theme.text,
+                        fontWeight: filter === "unread" ? "700" : "600",
+                      },
+                    ]}
+                  >
+                    Unread ({unreadCount})
                   </Text>
                 </Pressable>
               </View>
             )}
-            
-            <ScrollView
-              style={styles.content}
-              contentContainerStyle={styles.contentContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              {filteredNotifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onPress={() => handleNotificationPress(notification.id)}
-                  onDelete={() => handleDeleteNotification(notification.id)}
-                />
-              ))}
-            </ScrollView>
-          </>
-        ) : (
-          <View style={styles.emptyState}>
-            <View style={[styles.emptyIcon, { backgroundColor: `${theme.primary}15` }]}>
-              <Ionicons
-                name={
-                  filter === "unread"
-                    ? "checkmark-done-circle-outline"
-                    : "notifications-outline"
-                }
-                size={64}
-                color={theme.primary}
-              />
-            </View>
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>
-              {filter === "unread" ? "All zimesomwa!" : "Hakuna Notifications"}
-            </Text>
-            <Text style={[styles.emptyText, { color: theme.subtleText }]}>
-              {filter === "unread"
-                ? "Umesoma arifa zako zote. Hongera!"
-                : "Hutakuwa na arifa zozote za kuona hapa kwa sasa."}
-            </Text>
-            {filter === "unread" && notifications.length > 0 && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.viewAllButton,
-                  {
-                    backgroundColor: theme.primary,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-                onPress={() => setFilter("all")}
-              >
-                <Text style={styles.viewAllText}>Ona All</Text>
-              </Pressable>
+
+            {/* Notifications List */}
+            {filteredNotifications.length > 0 ? (
+              <>
+                {unreadCount > 0 && filter === "all" && (
+                  <View style={styles.actions}>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.actionButton,
+                        {
+                          backgroundColor: `${theme.primary}15`,
+                          opacity: pressed ? 0.8 : 1,
+                        },
+                      ]}
+                      onPress={handleMarkAllAsRead}
+                    >
+                      <Ionicons name="checkmark-done" size={18} color={theme.primary} />
+                      <Text style={[styles.actionText, { color: theme.primary }]}>
+                        Mark all as read
+                      </Text>
+                    </Pressable>
+                  </View>
+                )}
+                
+                <ScrollView
+                  style={styles.content}
+                  contentContainerStyle={styles.contentContainer}
+                  showsVerticalScrollIndicator={false}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      tintColor={theme.primary}
+                      colors={[theme.primary]}
+                    />
+                  }
+                >
+                  {filteredNotifications.map((notification) => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                      onPress={() => handleNotificationPress(notification.id)}
+                      onDelete={() => handleDeleteNotification(notification.id)}
+                    />
+                  ))}
+                </ScrollView>
+              </>
+            ) : (
+              <View style={styles.emptyState}>
+                <View style={[styles.emptyIcon, { backgroundColor: `${theme.primary}15` }]}>
+                  <Ionicons
+                    name={
+                      filter === "unread"
+                        ? "checkmark-done-circle-outline"
+                        : "notifications-outline"
+                    }
+                    size={64}
+                    color={theme.primary}
+                  />
+                </View>
+                <Text style={[styles.emptyTitle, { color: theme.text }]}>
+                  {filter === "unread" ? "All Read!" : "No Notifications"}
+                </Text>
+                <Text style={[styles.emptyText, { color: theme.subtleText }]}>
+                  {filter === "unread"
+                    ? "You've read all your notifications. Great job!"
+                    : "You don't have any notifications to view at this time."}
+                </Text>
+                {filter === "unread" && notifications.length > 0 && (
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.viewAllButton,
+                      {
+                        backgroundColor: theme.primary,
+                        opacity: pressed ? 0.8 : 1,
+                      },
+                    ]}
+                    onPress={() => setFilter("all")}
+                  >
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </Pressable>
+                )}
+              </View>
             )}
-          </View>
+          </>
         )}
       </View>
     </ScreenLayout>
@@ -392,6 +422,15 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
   },
   header: {
     flexDirection: "row",

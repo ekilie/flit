@@ -206,3 +206,164 @@ export interface Vehicle {
   createdAt: string;
   updatedAt: string;
 }
+
+// Notification types
+export enum NotificationType {
+  RIDE_REQUEST = 'ride_request',
+  RIDE_ACCEPTED = 'ride_accepted',
+  RIDE_STARTED = 'ride_started',
+  RIDE_COMPLETED = 'ride_completed',
+  RIDE_CANCELLED = 'ride_cancelled',
+  DRIVER_ARRIVED = 'driver_arrived',
+  PAYMENT_RECEIVED = 'payment_received',
+  RATING_RECEIVED = 'rating_received',
+  SYSTEM = 'system',
+}
+
+export interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  isRead: boolean;
+  data?: Record<string, any>;
+  userId: number;
+  user?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNotificationDto {
+  title: string;
+  message: string;
+  type: NotificationType;
+  isRead?: boolean;
+  data?: Record<string, any>;
+  userId: number;
+}
+
+export interface UpdateNotificationDto {
+  title?: string;
+  message?: string;
+  type?: NotificationType;
+  isRead?: boolean;
+  data?: Record<string, any>;
+}
+
+// Payment types
+export enum PaymentMethod {
+  CASH = 'cash',
+  CARD = 'card',
+  WALLET = 'wallet',
+  MOBILE_MONEY = 'mobile_money',
+}
+
+export enum PaymentStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  REFUNDED = 'refunded',
+}
+
+export interface Payment {
+  id: number;
+  amount: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  transactionId?: string;
+  description?: string;
+  rideId: number;
+  userId: number;
+  ride?: Ride;
+  user?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaymentDto {
+  amount: number;
+  method: PaymentMethod;
+  status?: PaymentStatus;
+  transactionId?: string;
+  description?: string;
+  rideId: number;
+  userId: number;
+}
+
+export interface UpdatePaymentDto {
+  amount?: number;
+  method?: PaymentMethod;
+  status?: PaymentStatus;
+  transactionId?: string;
+  description?: string;
+}
+
+// Rating types
+export enum RatingType {
+  RIDER_TO_DRIVER = 'rider_to_driver',
+  DRIVER_TO_RIDER = 'driver_to_rider',
+}
+
+export interface Rating {
+  id: number;
+  rating: number;
+  review?: string;
+  type: RatingType;
+  fromUserId: number;
+  toUserId: number;
+  rideId: number;
+  fromUser?: User;
+  toUser?: User;
+  ride?: Ride;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRatingDto {
+  rating: number;
+  review?: string;
+  type: RatingType;
+  fromUserId: number;
+  toUserId: number;
+  rideId: number;
+}
+
+export interface UpdateRatingDto {
+  rating?: number;
+  review?: string;
+}
+
+// Location types
+export interface Location {
+  id: number;
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  speed?: number;
+  heading?: number;
+  userId: number;
+  rideId?: number;
+  user?: User;
+  ride?: Ride;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateLocationDto {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  speed?: number;
+  heading?: number;
+  userId: number;
+  rideId?: number;
+}
+
+export interface UpdateLocationDto {
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+  speed?: number;
+  heading?: number;
+}
