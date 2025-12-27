@@ -923,6 +923,60 @@ class Api {
       throw new Error(message);
     }
   }
+
+  // Additional helper methods
+  static async getFollowStats(userId: string): Promise<{ followers_count: number; following_count: number }> {
+    try {
+      // This is a placeholder - the backend might not have this endpoint yet
+      // Return default values for now
+      return { followers_count: 0, following_count: 0 };
+    } catch (error) {
+      console.error("Failed to fetch follow stats:", error);
+      return { followers_count: 0, following_count: 0 };
+    }
+  }
+
+  static async getRideStatistics(userId: number): Promise<{
+    totalRides: number;
+    thisMonth: number;
+    totalSpent: number;
+    averageRating: number;
+  }> {
+    try {
+      // Get all completed rides for the user
+      const rides = await Api.getRidesByRider(userId);
+      const completedRides = rides.filter((r) => r.status === 'completed');
+      
+      // Calculate this month's rides
+      const now = new Date();
+      const thisMonthRides = completedRides.filter((r) => {
+        const rideDate = new Date(r.completedAt || r.createdAt);
+        return rideDate.getMonth() === now.getMonth() && 
+               rideDate.getFullYear() === now.getFullYear();
+      });
+      
+      // Calculate total spent
+      const totalSpent = completedRides.reduce((sum, r) => sum + (r.fare || 0), 0);
+      
+      // Get average rating
+      const ratingData = await Api.getAverageRating(userId);
+      
+      return {
+        totalRides: completedRides.length,
+        thisMonth: thisMonthRides.length,
+        totalSpent,
+        averageRating: ratingData.average || 0,
+      };
+    } catch (error) {
+      console.error("Failed to fetch ride statistics:", error);
+      return {
+        totalRides: 0,
+        thisMonth: 0,
+        totalSpent: 0,
+        averageRating: 0,
+      };
+    }
+  }
 }
 
 export default Api;
