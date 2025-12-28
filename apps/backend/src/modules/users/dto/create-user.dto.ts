@@ -6,6 +6,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { Role } from 'src/modules/roles/entities/role.entity';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -55,5 +56,5 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsString()
-  roleId?: string;
+  role?: Role;
 }

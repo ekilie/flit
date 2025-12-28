@@ -16,6 +16,8 @@ import { Public } from 'src/modules/auth/decorator/public.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/modules/users/entities/user.entity';
 import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
+import { RolesService } from 'src/modules/roles/roles.service';
+import OTPX from 'otpx';
 
 // In-memory OTP storage (In production, use Redis or database)
 const otpStorage = new Map<
@@ -27,6 +29,7 @@ const otpStorage = new Map<
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private rolesService: RolesService,
     private jwtService: JwtService,
   ) {}
 
@@ -39,7 +42,7 @@ export class AuthService {
   }
 
   private generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return OTPX.numeric(6);
   }
 
   private storeOTP(email: string, otp: string, type: string): void {
@@ -74,12 +77,15 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
+    const riderRole = await this.rolesService.findByName('Rider');
+
     // Create user
     const user = await this.usersService.create({
       fullName: registerDto.name,
       email: registerDto.email,
       password: registerDto.password,
       phoneNumber: '', // Can be added later in profile update
+      role: riderRole,
     });
 
     // Generate verification OTP

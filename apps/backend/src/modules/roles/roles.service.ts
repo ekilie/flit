@@ -15,6 +15,15 @@ export class RolesService {
     return await this.entityManager.find(Role);
   }
 
+  async findByName(name: string) {
+    const role = await this.entityManager.findOne(Role, { where: { name } });
+    if (!role) {
+      this.logger.error(`Role not found with name: ${name}`, '');
+      throw new Error(`Role not found with name: ${name}`);
+    }
+    return role;
+  }
+
   async findOne(id: number) {
     const role = await this.entityManager.findOne(Role, {
       where: { id },

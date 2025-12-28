@@ -8,10 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-
+import { RolesModule } from 'src/modules/roles/roles.module';
 @Module({
   imports: [
     UsersModule,
+    RolesModule,
     PassportModule,
     JwtModule.register({
       global: true,

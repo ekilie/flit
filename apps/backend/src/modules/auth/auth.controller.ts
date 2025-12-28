@@ -23,7 +23,7 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  @Public()
+  @Public() // TODO: Will rethink this later
   @Post('register-driver')
   @ApiOperation({ summary: 'Register a new driver' })
   async registerDriver(@Body() registerDto: RegisterDto) {
