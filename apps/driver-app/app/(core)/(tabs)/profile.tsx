@@ -8,9 +8,36 @@ import Api from "@/lib/api";
 import { User } from "@/lib/api/types";
 import { HapticFeedback } from "@/lib/haptics";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+
+// Backend API User structure (camelCase)
+interface BackendUser {
+  id: number;
+  fullName?: string;
+  name?: string; // fallback for compatibility
+  displayName?: string;
+  email: string;
+  emailVerified?: boolean;
+  phoneNumber?: string;
+  isActive?: boolean;
+  is_active?: boolean; // fallback for compatibility
+  role?: string;
+  createdAt?: string;
+  created_at?: string; // fallback for compatibility
+  updatedAt?: string;
+  updated_at?: string; // fallback for compatibility
+  lastLogin?: string;
+  last_login?: string; // fallback for compatibility
+  metadata?: {
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    website?: string;
+    [key: string]: any;
+  } | null;
+}
 import {
   Dimensions,
   Pressable,
@@ -32,56 +59,6 @@ interface SocialLinkProps {
   color: string;
 }
 
-const SocialLink: React.FC<SocialLinkProps> = ({
-  platform,
-  username,
-  url,
-  iconName,
-  color,
-}) => {
-  const theme = useCurrentTheme();
-
-  if (!username && !url) return null;
-
-  const handlePress = () => {
-    alert.dialog(
-      `Open ${platform}`,
-      `Would you like to visit ${username || url}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Open", style: "default" },
-      ]
-    );
-  };
-
-  return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.socialLink,
-        {
-          backgroundColor: theme.cardBackground,
-          borderColor: `${color}20`,
-          opacity: pressed ? 0.8 : 1,
-          transform: [{ scale: pressed ? 0.98 : 1 }],
-        },
-      ]}
-      onPress={handlePress}
-    >
-      <View style={[styles.socialIcon, { backgroundColor: `${color}10` }]}>
-        <Ionicons name={iconName as any} size={18} color={color} />
-      </View>
-      <View style={styles.socialContent}>
-        <Text style={[styles.socialPlatform, { color: theme.text }]}>
-          {platform}
-        </Text>
-        <Text style={[styles.socialText, { color: theme.subtleText }]}>
-          {username || url}
-        </Text>
-      </View>
-      <Ionicons name="chevron-forward" size={16} color={theme.mutedText} />
-    </Pressable>
-  );
-};
 
 interface InfoRowProps {
   icon: string;
@@ -99,7 +76,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value, iconColor }) => {
         <MaterialIcons
           name={icon as any}
           size={20}
-          color={iconColor || theme.primary}
+          color={iconColor || "black"}
         />
         <Text style={[styles.infoLabel, { color: theme.subtleText }]}>
           {label}
@@ -114,13 +91,15 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value, iconColor }) => {
 
 export default function Profile() {
   const theme = useCurrentTheme();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
-  const [followStats, setFollowStats] = useState<{
-    followers_count: number;
-    following_count: number;
+  const [rideStats, setRideStats] = useState<{
+    totalRides: number;
+    thisMonth: number;
+    totalSpent: number;
+    averageRating: number;
   } | null>(null);
 
   const { signOut } = useSession();
@@ -129,19 +108,21 @@ export default function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await Api.getCurrentUser();
-      console.log("User data:", response);
+      // API.getCurrentUser() already extracts data from {success: true, data: {...}}
+      const userData = await Api.getCurrentUser();
+      console.log("User data:", userData);
 
-      const userData = response.data || response;
-      setUser(userData);
+      setUser(userData as BackendUser);
 
       // Fetch follow stats
       if (userData?.id) {
+
+        // Fetch ride statistics
         try {
-          const stats = await Api.getFollowStats(userData.id.toString());
-          setFollowStats(stats);
+          const rStats = await Api.getRideStatistics(userData.id);
+          setRideStats(rStats);
         } catch (error) {
-          console.error("Failed to fetch follow stats:", error);
+          console.error("Failed to fetch ride statistics:", error);
         }
       }
     } catch (error) {
@@ -213,7 +194,10 @@ export default function Profile() {
     );
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined | null) => {
+    if (!name || typeof name !== "string") {
+      return "U";
+    }
     return name
       .split(" ")
       .map((n) => n[0])
@@ -222,13 +206,19 @@ export default function Profile() {
       .slice(0, 2);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "N/A";
+    }
   };
 
   if (loading) {
@@ -258,7 +248,7 @@ export default function Profile() {
               style={({ pressed }) => [
                 styles.retryButton,
                 {
-                  backgroundColor: theme.primary,
+                  backgroundColor: "black",
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
@@ -281,8 +271,8 @@ export default function Profile() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={theme.primary}
-            colors={[theme.primary]}
+            tintColor={"black"}
+            colors={["black"]}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -296,8 +286,8 @@ export default function Profile() {
               style={({ pressed }) => [
                 styles.avatarContainer,
                 {
-                  backgroundColor: theme.primary,
-                  shadowColor: theme.primary,
+                  backgroundColor: "black",
+                  shadowColor: "black",
                   opacity: pressed ? 0.9 : 1,
                   transform: [{ scale: pressed ? 0.98 : 1 }],
                 },
@@ -307,7 +297,7 @@ export default function Profile() {
                 setAvatarModalVisible(true);
               }}
             >
-              <Text style={styles.avatarText}>{getInitials(user.name)}</Text>
+              <Text style={styles.avatarText}>{getInitials(user.fullName || user.name)}</Text>
               <View
                 style={[styles.statusIndicator, { backgroundColor: "#4CAF50" }]}
               />
@@ -315,98 +305,8 @@ export default function Profile() {
 
             <View style={styles.userMainInfo}>
               <Text style={[styles.userName, { color: theme.text }]}>
-                {user.display_name || user.name}
+                {user.displayName || user.fullName || user.name || "User"}
               </Text>
-              {user.display_name && (
-                <Text style={[styles.userHandle, { color: theme.subtleText }]}>
-                  @{user.name.toLowerCase().replace(/\s+/g, "")}
-                </Text>
-              )}
-              <Text style={[styles.userEmail, { color: theme.mutedText }]}>
-                {user.email}
-              </Text>
-
-              {/* Status Badge */}
-              <View style={styles.statusRow}>
-                <View
-                  style={[
-                    styles.statusDot,
-                    { backgroundColor: user.is_active ? "#4CAF50" : "#F44336" },
-                  ]}
-                />
-                <Text style={[styles.statusText, { color: theme.subtleText }]}>
-                  {user.is_active ? "Online" : "Offline"} •{" "}
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                </Text>
-              </View>
-
-              {/* Follow Stats */}
-              {followStats && (
-                <View style={styles.followStatsRow}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.followStatButton,
-                      { opacity: pressed ? 0.7 : 1 },
-                    ]}
-                    onPress={() => {
-                      HapticFeedback("light");
-                      router.push({
-                        pathname: "/(core)/(modals)/followers-list",
-                        params: { userId: user.id.toString() },
-                      });
-                    }}
-                  >
-                    <Text
-                      style={[styles.followStatValue, { color: theme.text }]}
-                    >
-                      {followStats.followers_count}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.followStatLabel,
-                        { color: theme.subtleText },
-                      ]}
-                    >
-                      Followers
-                    </Text>
-                  </Pressable>
-
-                  <View
-                    style={[
-                      styles.followStatDivider,
-                      { backgroundColor: theme.border },
-                    ]}
-                  />
-
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.followStatButton,
-                      { opacity: pressed ? 0.7 : 1 },
-                    ]}
-                    onPress={() => {
-                      HapticFeedback("light");
-                      router.push({
-                        pathname: "/(core)/(modals)/following-list",
-                        params: { userId: user.id.toString() },
-                      });
-                    }}
-                  >
-                    <Text
-                      style={[styles.followStatValue, { color: theme.text }]}
-                    >
-                      {followStats.following_count}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.followStatLabel,
-                        { color: theme.subtleText },
-                      ]}
-                    >
-                      Following
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
             </View>
           </View>
 
@@ -415,7 +315,7 @@ export default function Profile() {
               style={({ pressed }) => [
                 styles.iconButton,
                 {
-                  backgroundColor: `${theme.primary}15`,
+                  backgroundColor: `${"black"}15`,
                   opacity: pressed ? 0.7 : 1,
                 },
               ]}
@@ -427,7 +327,7 @@ export default function Profile() {
               <Ionicons
                 name="settings-outline"
                 size={22}
-                color={theme.primary}
+                color={"black"}
               />
             </Pressable>
             {/* Logout Button - Opens Bottom Sheet */}
@@ -435,7 +335,7 @@ export default function Profile() {
               style={({ pressed }) => [
                 styles.iconButton,
                 {
-                  backgroundColor: `${theme.primary}15`,
+                  backgroundColor: `${"black"}15`,
                   opacity: pressed ? 0.7 : 1,
                 },
               ]}
@@ -444,7 +344,7 @@ export default function Profile() {
               <Ionicons
                 name="log-out-outline"
                 size={22}
-                color={theme.primary}
+                color={"black"}
               />
             </Pressable>
           </View>
@@ -461,28 +361,28 @@ export default function Profile() {
           <View style={styles.statsGrid}>
             <StatCard
               title="Total Rides"
-              value={24}
+              value={rideStats?.totalRides || 0}
               description="Completed trips"
               icon="car"
               color="#f5c724"
             />
             <StatCard
               title="This Month"
-              value={8}
+              value={rideStats?.thisMonth || 0}
               description="Rides"
               icon="calendar"
               color="#45B7D1"
             />
             <StatCard
               title="Total Spent"
-              value="TSh 820,000"
-              description="This month"
+              value={`TSh ${(rideStats?.totalSpent || 0).toLocaleString()}`}
+              description="All time"
               icon="cash"
               color="#96CEB4"
             />
             <StatCard
               title="Rating"
-              value="4.9"
+              value={rideStats?.averageRating?.toFixed(1) || "0.0"}
               description="Average"
               icon="star"
               color="#FFA726"
@@ -514,8 +414,8 @@ export default function Profile() {
               router.push("/(core)/ride/history" as any);
             }}
           >
-            <View style={[styles.actionIcon, { backgroundColor: `${theme.primary}15` }]}>
-              <Ionicons name="time-outline" size={22} color={theme.primary} />
+            <View style={[styles.actionIcon, { backgroundColor: `${"black"}15` }]}>
+              <Ionicons name="time-outline" size={22} color={"black"} />
             </View>
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: theme.text }]}>Ride History</Text>
@@ -543,8 +443,8 @@ export default function Profile() {
               router.push("/(core)/ride/payment" as any);
             }}
           >
-            <View style={[styles.actionIcon, { backgroundColor: `${theme.primary}15` }]}>
-              <Ionicons name="card-outline" size={22} color={theme.primary} />
+            <View style={[styles.actionIcon, { backgroundColor: `${"black"}15` }]}>
+              <Ionicons name="card-outline" size={22} color={"black"} />
             </View>
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: theme.text }]}>Payment Methods</Text>
@@ -572,20 +472,28 @@ export default function Profile() {
           </View>
 
           <View style={styles.infoContainer}>
-            <InfoRow icon="person" label="Full Name" value={user.name} />
+            <InfoRow icon="person" label="Full Name" value={user.fullName || user.name || "N/A"} />
             <View
               style={[styles.separator, { backgroundColor: theme.border }]}
             />
             <InfoRow icon="email" label="Email Address" value={user.email} />
+            {user.phoneNumber && (
+              <>
+                <View
+                  style={[styles.separator, { backgroundColor: theme.border }]}
+                />
+                <InfoRow icon="phone" label="Phone Number" value={user.phoneNumber} />
+              </>
+            )}
             <View
               style={[styles.separator, { backgroundColor: theme.border }]}
             />
             <InfoRow
               icon="calendar-today"
               label="Member Since"
-              value={formatDate(user.created_at)}
+              value={formatDate(user.createdAt || user.created_at || new Date().toISOString())}
             />
-            {user.last_login && (
+            {(user.lastLogin || user.last_login) && (
               <>
                 <View
                   style={[styles.separator, { backgroundColor: theme.border }]}
@@ -593,56 +501,12 @@ export default function Profile() {
                 <InfoRow
                   icon="access-time"
                   label="Last Active"
-                  value={formatDate(user.last_login)}
+                  value={formatDate(user.lastLogin || user.last_login || "")}
                 />
               </>
             )}
           </View>
         </View>
-
-        {/* Social Links */}
-        {(user.metadata?.instagram ||
-          user.metadata?.twitter ||
-          user.metadata?.linkedin ||
-          user.metadata?.website) && (
-          <View
-            style={[styles.section, { backgroundColor: theme.cardBackground }]}
-          >
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Social Connections
-              </Text>
-              <Ionicons name="share-social" size={20} color={theme.mutedText} />
-            </View>
-
-            <View style={styles.socialContainer}>
-              <SocialLink
-                platform="Instagram"
-                username={user.metadata?.instagram}
-                iconName="logo-instagram"
-                color="#E4405F"
-              />
-              <SocialLink
-                platform="Twitter"
-                username={user.metadata?.twitter}
-                iconName="logo-twitter"
-                color="#1DA1F2"
-              />
-              <SocialLink
-                platform="LinkedIn"
-                username={user.metadata?.linkedin}
-                iconName="logo-linkedin"
-                color="#0077B5"
-              />
-              <SocialLink
-                platform="Website"
-                url={user.metadata?.website}
-                iconName="globe"
-                color="#6C5CE7"
-              />
-            </View>
-          </View>
-        )}
       </ScrollView>
 
       {/* Avatar Modal */}
@@ -650,7 +514,7 @@ export default function Profile() {
         <AvatarModal
           visible={avatarModalVisible}
           onClose={() => setAvatarModalVisible(false)}
-          user={user}
+          user={user as any}
         />
       )}
 
@@ -660,6 +524,7 @@ export default function Profile() {
         index={-1}
         snapPoints={["30%"]}
         enablePanDownToClose={true}
+        backdropComponent={BottomSheetBackdrop}
         backgroundStyle={{ backgroundColor: theme.cardBackground }}
         handleIndicatorStyle={{ backgroundColor: theme.mutedText }}
       >
@@ -683,7 +548,7 @@ export default function Profile() {
               <Ionicons
                 name="swap-horizontal"
                 size={24}
-                color={theme.primary}
+                color={"black"}
               />
               <View style={styles.bottomSheetButtonText}>
                 <Text
@@ -900,11 +765,8 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     padding: 20,
     borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
   sectionHeader: {
     flexDirection: "row",

@@ -19,6 +19,7 @@ import {
 import { toast } from "yooo-native";
 import { useAuth } from "../../context/ctx";
 import Colors from "@/constants/Colors";
+import { RoleEnum } from "@/lib/api/types";
 
 export default function Register() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function Register() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +48,17 @@ export default function Register() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address");
+      return false;
+    }
+
+    if (!phoneNumber.trim()) {
+      toast.error("Please enter your phone number");
+      return false;
+    }
+
+    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/;
+    if (!phoneRegex.test(phoneNumber.trim())) {
+      toast.error("Please enter a valid phone number");
       return false;
     }
 
@@ -80,6 +93,8 @@ export default function Register() {
         name: name.trim(),
         email: email.trim(),
         password,
+        phoneNumber: phoneNumber.trim(),
+        role: RoleEnum.Rider,
       });
 
       // Show success message and navigate to verification
@@ -173,6 +188,21 @@ export default function Register() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
+
+              {/* Phone Number Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Phone Number</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your phone number"
+                  placeholderTextColor="#999999"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                  autoCapitalize="none"
                   editable={!isLoading}
                 />
               </View>

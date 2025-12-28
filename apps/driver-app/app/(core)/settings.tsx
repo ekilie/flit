@@ -1,8 +1,6 @@
 import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import {
-  AudioQuality,
-  AutoPlayMode,
   NotificationFrequency,
   useSettingsStore,
 } from "@/stores/settings";
@@ -67,11 +65,12 @@ const SettingItem: React.FC<SettingItemProps> = ({
 
   // Icon colors based on category
   const getIconColor = () => {
-    if (icon === "musical-notes" || icon === "mic") return "#6C5CE7";
+    if (icon === "car" || icon === "map") return "#6C5CE7";
     if (icon === "phone-portrait" || icon === "volume-medium") return "#45B7D1";
     if (icon === "notifications" || icon === "time") return "#FFB84D";
     if (icon === "analytics" || icon === "location") return "#96CEB4";
-    if (icon === "text" || icon === "contrast") return "#FF6B6B";
+    if (icon === "shield-checkmark" || icon === "people") return "#FF6B6B";
+    if (icon === "pause" || icon === "wallet") return "#E17055";
     return theme.primary;
   };
 
@@ -149,27 +148,20 @@ export default function Settings() {
   const {
     hapticsEnabled,
     soundEffectsEnabled,
-    audioQuality,
-    autoPlay,
-    downloadQuality,
-    enableAudioEnhancement,
-    maxRecordingDuration,
-    autoStopRecording,
     pushNotificationsEnabled,
     notificationFrequency,
-    notifyOnNewFollowers,
-    notifyOnComments,
-    notifyOnMentions,
+    notifyOnDriverArrival,
+    notifyOnRideUpdates,
+    notifyOnPromotions,
     shareAnalytics,
     allowLocationAccess,
-    showOnlineStatus,
+    saveRideHistory,
     dataSaverMode,
     preloadContent,
-    fontSize,
-    highContrastMode,
     reduceMotion,
-    themeMode,
-    themeEnabled,
+    autoConfirmPickup,
+    showDriverDetails,
+    emergencyContactsEnabled,
     updateSetting,
     resetToDefaults,
     exportSettings,
@@ -182,40 +174,6 @@ export default function Settings() {
     if (value) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-  };
-
-  const handleAudioQualitySelect = () => {
-    const qualities: AudioQuality[] = ["low", "medium", "high", "lossless"];
-    const options = qualities.map((q) => ({
-      text: q.charAt(0).toUpperCase() + q.slice(1),
-      onPress: () => updateSetting("audioQuality", q),
-      style: (q === audioQuality ? "default" : "cancel") as
-        | "default"
-        | "cancel"
-        | "destructive",
-    }));
-
-    Alert.alert("Audio Quality", "Select playback quality", [
-      ...options,
-      { text: "Cancel", style: "cancel" as const },
-    ]);
-  };
-
-  const handleAutoPlaySelect = () => {
-    const modes: AutoPlayMode[] = ["never", "wifi-only", "always"];
-    const options = modes.map((mode) => ({
-      text: mode.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-      onPress: () => updateSetting("autoPlay", mode),
-      style: (mode === autoPlay ? "default" : "cancel") as
-        | "default"
-        | "cancel"
-        | "destructive",
-    }));
-
-    Alert.alert("Auto Play", "When should audio auto-play?", [
-      ...options,
-      { text: "Cancel", style: "cancel" as const },
-    ]);
   };
 
   const handleNotificationFrequencySelect = () => {
@@ -235,40 +193,6 @@ export default function Settings() {
     }));
 
     Alert.alert("Notification Frequency", "How often should we notify you?", [
-      ...options,
-      { text: "Cancel", style: "cancel" as const },
-    ]);
-  };
-
-  const handleFontSizeSelect = () => {
-    const sizes = ["small", "medium", "large", "xl"] as const;
-    const options = sizes.map((size) => ({
-      text: size.charAt(0).toUpperCase() + size.slice(1),
-      onPress: () => updateSetting("fontSize", size),
-      style: (size === fontSize ? "default" : "cancel") as
-        | "default"
-        | "cancel"
-        | "destructive",
-    }));
-
-    Alert.alert("Font Size", "Select text size", [
-      ...options,
-      { text: "Cancel", style: "cancel" as const },
-    ]);
-  };
-
-  const handleRecordingDurationSelect = () => {
-    const durations = [5, 10, 15, 30, 60];
-    const options = durations.map((duration) => ({
-      text: `${duration} minutes`,
-      onPress: () => updateSetting("maxRecordingDuration", duration),
-      style: (duration === maxRecordingDuration ? "default" : "cancel") as
-        | "default"
-        | "cancel"
-        | "destructive",
-    }));
-
-    Alert.alert("Max Recording Duration", "Select maximum recording length", [
       ...options,
       { text: "Cancel", style: "cancel" as const },
     ]);
@@ -358,67 +282,86 @@ export default function Settings() {
           />
         </View> */}
 
-        {/* Audio Settings */}
+        {/* Ride Settings */}
         <View
           style={[styles.section, { backgroundColor: theme.cardBackground }]}
         >
           <SectionHeader
-            title="Audio & Recording"
-            subtitle="Customize your audio experience"
+            title="Ride Preferences"
+            subtitle="Customize your ride experience"
           />
 
           <SettingItem
-            title="Audio Quality"
-            subtitle={`Current: ${audioQuality}`}
-            icon="musical-notes"
-            onPress={handleAudioQualitySelect}
+            title="Default Vehicle Type"
+            subtitle="Economy"
+            icon="car"
+            onPress={() => {
+              const types = ["Economy", "Comfort", "Premium", "XL"];
+              Alert.alert("Default Vehicle", "Select your preferred vehicle type", [
+                ...types.map((type) => ({
+                  text: type,
+                  onPress: () => toast.success(`Default vehicle set to ${type}`),
+                })),
+                { text: "Cancel", style: "cancel" },
+              ]);
+            }}
             showChevron
           />
 
           <SettingItem
-            title="Auto Play"
-            subtitle={`Current: ${autoPlay.replace("-", " ")}`}
-            icon="play-circle"
-            onPress={handleAutoPlaySelect}
-            showChevron
-          />
-
-          <SettingItem
-            title="Audio Enhancement"
-            subtitle="Improve audio quality with processing"
-            icon="volume-high"
+            title="Auto-Confirm Pickup"
+            subtitle="Automatically confirm when arriving at pickup"
+            icon="checkmark-circle"
             rightElement={
               <Switch
-                value={enableAudioEnhancement}
-                onValueChange={(value) =>
-                  updateSetting("enableAudioEnhancement", value)
-                }
+                value={autoConfirmPickup}
+                onValueChange={(value) => {
+                  updateSetting("autoConfirmPickup", value);
+                  if (hapticsEnabled) {
+                    Haptics.selectionAsync();
+                  }
+                  toast.success(value ? "Auto-confirm enabled" : "Auto-confirm disabled");
+                }}
                 trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor={enableAudioEnhancement ? "white" : theme.mutedText}
+                thumbColor={autoConfirmPickup ? "white" : theme.mutedText}
               />
             }
           />
 
           <SettingItem
-            title="Max Recording Duration"
-            subtitle={`${maxRecordingDuration} minutes`}
-            icon="mic"
-            onPress={handleRecordingDurationSelect}
-            showChevron
+            title="Show Driver Details"
+            subtitle="Display driver info before accepting ride"
+            icon="person"
+            rightElement={
+              <Switch
+                value={showDriverDetails}
+                onValueChange={(value) => {
+                  updateSetting("showDriverDetails", value);
+                  if (hapticsEnabled) {
+                    Haptics.selectionAsync();
+                  }
+                }}
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor={showDriverDetails ? "white" : theme.mutedText}
+              />
+            }
           />
 
           <SettingItem
-            title="Auto Stop Recording"
-            subtitle="Stop recording when reaching max duration"
-            icon="stop-circle"
+            title="Share ETA"
+            subtitle="Automatically share arrival time with contacts"
+            icon="share-social"
             rightElement={
               <Switch
-                value={autoStopRecording}
-                onValueChange={(value) =>
-                  updateSetting("autoStopRecording", value)
-                }
+                value={false}
+                onValueChange={(value) => {
+                  if (hapticsEnabled) {
+                    Haptics.selectionAsync();
+                  }
+                  toast.info(value ? "ETA sharing enabled" : "ETA sharing disabled");
+                }}
                 trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor={autoStopRecording ? "white" : theme.mutedText}
+                thumbColor="white"
               />
             }
           />
@@ -501,102 +444,54 @@ export default function Settings() {
           />
 
           <SettingItem
-            title="New Followers"
-            subtitle="Notify when someone follows you"
-            icon="person-add"
+            title="Driver Arrival"
+            subtitle="Notify when driver is arriving"
+            icon="car-sport"
             rightElement={
               <Switch
-                value={notifyOnNewFollowers}
+                value={notifyOnDriverArrival}
                 onValueChange={(value) =>
-                  updateSetting("notifyOnNewFollowers", value)
+                  updateSetting("notifyOnDriverArrival", value)
                 }
                 trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor={notifyOnNewFollowers ? "white" : theme.mutedText}
+                thumbColor={notifyOnDriverArrival ? "white" : theme.mutedText}
               />
             }
             disabled={!pushNotificationsEnabled}
           />
 
           <SettingItem
-            title="Comments & Mentions"
-            subtitle="Notify for interactions on your posts"
-            icon="chatbubble"
+            title="Ride Updates"
+            subtitle="Notify for ride status changes"
+            icon="information-circle"
             rightElement={
               <Switch
-                value={notifyOnComments}
+                value={notifyOnRideUpdates}
                 onValueChange={(value) =>
-                  updateSetting("notifyOnComments", value)
+                  updateSetting("notifyOnRideUpdates", value)
                 }
                 trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor={notifyOnComments ? "white" : theme.mutedText}
+                thumbColor={notifyOnRideUpdates ? "white" : theme.mutedText}
               />
             }
             disabled={!pushNotificationsEnabled}
           />
-        </View>
-
-        {/* Ride Settings */}
-        <View
-          style={[styles.section, { backgroundColor: theme.cardBackground }]}
-        >
-          <SectionHeader
-            title="Ride Preferences"
-            subtitle="Customize your ride experience"
-          />
 
           <SettingItem
-            title="Default Vehicle Type"
-            subtitle="Economy"
-            icon="car"
-            onPress={() => {
-              const types = ["Economy", "Comfort", "Premium", "XL"];
-              Alert.alert("Default Vehicle", "Select your preferred vehicle type", [
-                ...types.map((type) => ({
-                  text: type,
-                  onPress: () => toast.success(`Default vehicle set to ${type}`),
-                })),
-                { text: "Cancel", style: "cancel" },
-              ]);
-            }}
-            showChevron
-          />
-
-          <SettingItem
-            title="Auto-Request Ride"
-            subtitle="Automatically request ride when opening app"
-            icon="flash"
+            title="Promotions & Offers"
+            subtitle="Receive special offers and deals"
+            icon="pricetag"
             rightElement={
               <Switch
-                value={false}
-                onValueChange={(value) => {
-                  if (hapticsEnabled) {
-                    Haptics.selectionAsync();
-                  }
-                  toast.info(value ? "Auto-request enabled" : "Auto-request disabled");
-                }}
+                value={notifyOnPromotions}
+                onValueChange={(value) =>
+                  updateSetting("notifyOnPromotions", value)
+                }
                 trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor="white"
+                thumbColor={notifyOnPromotions ? "white" : theme.mutedText}
               />
             }
-          />
-
-          <SettingItem
-            title="Share ETA"
-            subtitle="Automatically share arrival time with contacts"
-            icon="share-social"
-            rightElement={
-              <Switch
-                value={false}
-                onValueChange={(value) => {
-                  if (hapticsEnabled) {
-                    Haptics.selectionAsync();
-                  }
-                  toast.info(value ? "ETA sharing enabled" : "ETA sharing disabled");
-                }}
-                trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor="white"
-              />
-            }
+            disabled={!pushNotificationsEnabled}
           />
         </View>
 
@@ -607,6 +502,22 @@ export default function Settings() {
           <SectionHeader
             title="Privacy & Data"
             subtitle="Control your privacy and data usage"
+          />
+
+          <SettingItem
+            title="Save Ride History"
+            subtitle="Store your ride history for easy access"
+            icon="time"
+            rightElement={
+              <Switch
+                value={saveRideHistory}
+                onValueChange={(value) =>
+                  updateSetting("saveRideHistory", value)
+                }
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor={saveRideHistory ? "white" : theme.mutedText}
+              />
+            }
           />
 
           <SettingItem
@@ -642,22 +553,6 @@ export default function Settings() {
           />
 
           <SettingItem
-            title="Show Online Status"
-            subtitle="Let others see when you're active"
-            icon="radio-button-on"
-            rightElement={
-              <Switch
-                value={showOnlineStatus}
-                onValueChange={(value) =>
-                  updateSetting("showOnlineStatus", value)
-                }
-                trackColor={{ false: theme.border, true: theme.primary }}
-                thumbColor={showOnlineStatus ? "white" : theme.mutedText}
-              />
-            }
-          />
-
-          <SettingItem
             title="Data Saver Mode"
             subtitle="Reduce data usage"
             icon="cellular"
@@ -669,6 +564,52 @@ export default function Settings() {
                 thumbColor={dataSaverMode ? "white" : theme.mutedText}
               />
             }
+          />
+        </View>
+
+        {/* Safety & Security */}
+        <View
+          style={[styles.section, { backgroundColor: theme.cardBackground }]}
+        >
+          <SectionHeader
+            title="Safety & Security"
+            subtitle="Keep yourself safe during rides"
+          />
+
+          <SettingItem
+            title="Emergency Contacts"
+            subtitle="Set up emergency contacts for rides"
+            icon="shield-checkmark"
+            rightElement={
+              <Switch
+                value={emergencyContactsEnabled}
+                onValueChange={(value) =>
+                  updateSetting("emergencyContactsEnabled", value)
+                }
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor={emergencyContactsEnabled ? "white" : theme.mutedText}
+              />
+            }
+          />
+
+          <SettingItem
+            title="Share Trip Status"
+            subtitle="Let trusted contacts track your ride"
+            icon="people"
+            onPress={() => {
+              toast.info("Trip sharing settings");
+            }}
+            showChevron
+          />
+
+          <SettingItem
+            title="Safety Center"
+            subtitle="Access safety resources and help"
+            icon="medical"
+            onPress={() => {
+              toast.info("Opening Safety Center");
+            }}
+            showChevron
           />
         </View>
 

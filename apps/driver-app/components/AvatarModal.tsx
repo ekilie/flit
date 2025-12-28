@@ -86,7 +86,10 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
     }
   }, [visible, backdropOpacity, modalScale, modalOpacity, slideAnimation]);
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined | null) => {
+    if (!name || typeof name !== "string") {
+      return "U";
+    }
     return name
       .split(" ")
       .map((n) => n[0])
@@ -95,21 +98,30 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
       .slice(0, 2);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "N/A";
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "N/A";
+    }
   };
 
   const getUserRole = () => {
-    return user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    const role = (user as any).role;
+    if (!role) return "";
+    return role.charAt(0).toUpperCase() + role.slice(1);
   };
 
   const getUserStatus = () => {
-    return user.is_active ? "Online" : "Offline";
+    const isActive = (user as any).isActive ?? (user as any).is_active ?? true;
+    return isActive ? "Online" : "Offline";
   };
 
   return (
@@ -172,7 +184,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
               ]}
             >
               <Text style={styles.largeAvatarText}>
-                {getInitials(user.name)}
+                {getInitials((user as any).fullName || (user as any).name)}
               </Text>
 
               {/* Status Indicator */}
@@ -180,7 +192,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                 style={[
                   styles.statusIndicator,
                   {
-                    backgroundColor: user.is_active ? "#4CAF50" : "#F44336",
+                    backgroundColor: ((user as any).isActive ?? (user as any).is_active ?? true) ? "#4CAF50" : "#F44336",
                     borderColor: theme.card,
                   },
                 ]}
@@ -188,7 +200,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                 <View
                   style={[
                     styles.statusDot,
-                    { backgroundColor: user.is_active ? "#4CAF50" : "#F44336" },
+                    { backgroundColor: ((user as any).isActive ?? (user as any).is_active ?? true) ? "#4CAF50" : "#F44336" },
                   ]}
                 />
               </View>
@@ -198,12 +210,12 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
           {/* User Information */}
           <View style={styles.userInfo}>
             <Text style={[styles.userName, { color: theme.text }]}>
-              {user.display_name || user.name}
+              {(user as any).displayName || (user as any).fullName || (user as any).name || "User"}
             </Text>
 
-            {user.display_name && (
+            {((user as any).displayName || (user as any).fullName || (user as any).name) && (
               <Text style={[styles.userHandle, { color: theme.subtleText }]}>
-                @{user.name.toLowerCase().replace(/\s+/g, "")}
+                @{((user as any).fullName || (user as any).name || "").toLowerCase().replace(/\s+/g, "")}
               </Text>
             )}
 
@@ -219,7 +231,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                 <MaterialIcons
                   name="circle"
                   size={12}
-                  color={user.is_active ? "#4CAF50" : "#F44336"}
+                  color={((user as any).isActive ?? (user as any).is_active ?? true) ? "#4CAF50" : "#F44336"}
                 />
               </View>
               <Text
@@ -229,26 +241,30 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
               </Text>
             </View>
 
-            <View style={styles.credentialSeparator}>
-              <Text style={[styles.separator, { color: theme.mutedText }]}>
-                •
-              </Text>
-            </View>
+            {getUserRole() && (
+              <>
+                <View style={styles.credentialSeparator}>
+                  <Text style={[styles.separator, { color: theme.mutedText }]}>
+                    •
+                  </Text>
+                </View>
 
-            <View style={styles.credentialItem}>
-              <View style={styles.credentialIcon}>
-                <MaterialIcons
-                  name="verified-user"
-                  size={12}
-                  color={theme.primary}
-                />
-              </View>
-              <Text
-                style={[styles.credentialText, { color: theme.subtleText }]}
-              >
-                {getUserRole()}
-              </Text>
-            </View>
+                <View style={styles.credentialItem}>
+                  <View style={styles.credentialIcon}>
+                    <MaterialIcons
+                      name="verified-user"
+                      size={12}
+                      color={theme.primary}
+                    />
+                  </View>
+                  <Text
+                    style={[styles.credentialText, { color: theme.subtleText }]}
+                  >
+                    {getUserRole()}
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
 
           {/* Additional Info */}
@@ -260,11 +276,11 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                 color={theme.mutedText}
               />
               <Text style={[styles.infoText, { color: theme.mutedText }]}>
-                Member since {formatDate(user.created_at)}
+                Member since {formatDate((user as any).createdAt || (user as any).created_at)}
               </Text>
             </View>
 
-            {user.last_login && (
+            {((user as any).lastLogin || (user as any).last_login) && (
               <View style={styles.infoItem}>
                 <MaterialIcons
                   name="access-time"
@@ -272,12 +288,12 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                   color={theme.mutedText}
                 />
                 <Text style={[styles.infoText, { color: theme.mutedText }]}>
-                  Last active {formatDate(user.last_login)}
+                  Last active {formatDate((user as any).lastLogin || (user as any).last_login)}
                 </Text>
               </View>
             )}
 
-            {user.metadata?.location && (
+            {(user as any).metadata?.location && (
               <View style={styles.infoItem}>
                 <MaterialIcons
                   name="location-on"
@@ -285,7 +301,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
                   color={theme.mutedText}
                 />
                 <Text style={[styles.infoText, { color: theme.mutedText }]}>
-                  {user.metadata.location}
+                  {(user as any).metadata.location}
                 </Text>
               </View>
             )}

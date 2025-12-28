@@ -1,10 +1,13 @@
 import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
+import Api from "@/lib/api";
+import { Ride, RideStatus } from "@/lib/api/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -12,77 +15,10 @@ import {
   Text,
   View,
 } from "react-native";
-
-// Dummy ride history data - Tanzania locations
-const RIDE_HISTORY = [
-  {
-    id: "1",
-    date: "2024-01-15",
-    time: "14:30",
-    pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
-    destination: "Julius Nyerere International Airport, Dar es Salaam",
-    vehicle: "Comfort",
-    price: "TSh 25,000",
-    driver: "Juma Mwangi",
-    driverRating: 4.8,
-    rating: 5,
-    status: "completed",
-    distance: "8.5 km",
-    duration: "15 min",
-    paymentMethod: "Bank Card",
-  },
-  {
-    id: "2",
-    date: "2024-01-14",
-    time: "09:15",
-    pickup: "Coco Beach, Msasani, Dar es Salaam",
-    destination: "Kariakoo Market, Dar es Salaam",
-    vehicle: "Economy",
-    price: "TSh 15,000",
-    driver: "Amina Hassan",
-    driverRating: 4.6,
-    rating: 4,
-    status: "completed",
-    distance: "5.2 km",
-    duration: "12 min",
-    paymentMethod: "M-Pesa",
-  },
-  {
-    id: "3",
-    date: "2024-01-13",
-    time: "18:45",
-    pickup: "Posta Road, Dar es Salaam",
-    destination: "Mikocheni B, Dar es Salaam",
-    vehicle: "Premium",
-    price: "TSh 35,000",
-    driver: "Mohamed Ali",
-    driverRating: 4.9,
-    rating: 5,
-    status: "completed",
-    distance: "7.8 km",
-    duration: "18 min",
-    paymentMethod: "Bank Card",
-  },
-  {
-    id: "4",
-    date: "2024-01-12",
-    time: "12:00",
-    pickup: "Ubungo Plaza, Dar es Salaam",
-    destination: "Slipway, Msasani Peninsula",
-    vehicle: "XL",
-    price: "TSh 28,000",
-    driver: "Grace Kimaro",
-    driverRating: 4.7,
-    rating: 4,
-    status: "completed",
-    distance: "9.3 km",
-    duration: "20 min",
-    paymentMethod: "Airtel Money",
-  },
-];
+import { toast } from "yooo-native";
 
 interface RideHistoryItemProps {
-  ride: typeof RIDE_HISTORY[0];
+  ride: Ride;
   onPress: () => void;
 }
 
@@ -108,6 +44,22 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
     }
   };
 
+  const formatPrice = (price?: number) => {
+    if (!price) return "TSh 0";
+    return `TSh ${price.toLocaleString()}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return theme.success || "#4CAF50";
+      case "cancelled":
+        return theme.error || "#F44336";
+      default:
+        return theme.warning || "#FF9800";
+    }
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -121,29 +73,29 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
       <View style={styles.rideHeader}>
         <View style={styles.rideDateContainer}>
           <Text style={[styles.rideDate, { color: theme.text }]}>
-            {formatDate(ride.date)}
+            {formatDate(ride.createdAt)}
           </Text>
-          <View style={[styles.statusBadge, { backgroundColor: `${theme.success}15` }]}>
-            <Text style={[styles.statusText, { color: theme.success }]}>
+          <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(ride.status)}15` }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(ride.status) }]}>
               {ride.status}
             </Text>
           </View>
         </View>
-        <Text style={[styles.ridePrice, { color: theme.primary }]}>{ride.price}</Text>
+        <Text style={[styles.ridePrice, { color: theme.primary }]}>{formatPrice(ride.fare)}</Text>
       </View>
 
       <View style={styles.rideLocations}>
         <View style={styles.locationRow}>
           <View style={[styles.locationDot, { backgroundColor: theme.primary }]} />
           <Text style={[styles.locationText, { color: theme.text }]} numberOfLines={1}>
-            {ride.pickup}
+            {ride.pickupAddress}
           </Text>
         </View>
         <View style={[styles.locationConnector, { backgroundColor: theme.border }]} />
         <View style={styles.locationRow}>
-          <View style={[styles.locationDot, { backgroundColor: theme.success }]} />
+          <View style={[styles.locationDot, { backgroundColor: theme.success || "#4CAF50" }]} />
           <Text style={[styles.locationText, { color: theme.text }]} numberOfLines={1}>
-            {ride.destination}
+            {ride.dropoffAddress}
           </Text>
         </View>
       </View>
@@ -152,20 +104,26 @@ const RideHistoryItem: React.FC<RideHistoryItemProps> = ({ ride, onPress }) => {
         <View style={styles.rideMeta}>
           <Ionicons name="car-outline" size={16} color={theme.mutedText} />
           <Text style={[styles.rideMetaText, { color: theme.subtleText }]}>
-            {ride.vehicle}
+            {ride.vehicle?.type || "Vehicle"}
           </Text>
-          <View style={[styles.metaDivider, { backgroundColor: theme.border }]} />
-          <Ionicons name="person-outline" size={16} color={theme.mutedText} />
-          <Text style={[styles.rideMetaText, { color: theme.subtleText }]}>
-            {ride.driver}
-          </Text>
+          {ride.driver && (
+            <>
+              <View style={[styles.metaDivider, { backgroundColor: theme.border }]} />
+              <Ionicons name="person-outline" size={16} color={theme.mutedText} />
+              <Text style={[styles.rideMetaText, { color: theme.subtleText }]}>
+                {ride.driver.name}
+              </Text>
+            </>
+          )}
         </View>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={14} color={theme.warning} />
-          <Text style={[styles.ratingText, { color: theme.subtleText }]}>
-            {ride.rating}
-          </Text>
-        </View>
+        {ride.distance && (
+          <View style={styles.ratingContainer}>
+            <Ionicons name="navigate-outline" size={14} color={theme.mutedText} />
+            <Text style={[styles.ratingText, { color: theme.subtleText }]}>
+              {(ride.distance / 1000).toFixed(1)} km
+            </Text>
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -175,22 +133,54 @@ export default function RideHistoryScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const [rides, setRides] = useState<Ride[]>([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchRideHistory();
+  }, []);
+
+  const fetchRideHistory = async () => {
+    try {
+      setLoading(true);
+      const user = await Api.getCurrentUser();
+      const userData = user.data || user;
+      
+      // Fetch all rides for the user
+      const allRides = await Api.getRidesByRider(userData.id);
+      
+      // Filter for completed and cancelled rides (history)
+      const historyRides = allRides.filter(
+        (ride) => ride.status === RideStatus.COMPLETED || ride.status === RideStatus.CANCELLED
+      );
+      
+      // Sort by most recent first
+      historyRides.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setRides(historyRides);
+    } catch (error) {
+      console.error("Failed to fetch ride history:", error);
+      toast.error("Failed to load ride history");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    await fetchRideHistory();
+    setRefreshing(false);
   };
 
-  const handleRidePress = (ride: typeof RIDE_HISTORY[0]) => {
+  const handleRidePress = (ride: Ride) => {
     haptics.selection();
     // Navigate to ride details
     router.push({
       pathname: "/(core)/ride/details",
-      params: { rideId: ride.id },
+      params: { rideId: ride.id.toString() },
     } as any);
   };
 
@@ -213,48 +203,57 @@ export default function RideHistoryScreen() {
           <View style={styles.headerContent}>
             <Text style={[styles.headerTitle, { color: theme.text }]}>Ride History</Text>
             <Text style={[styles.headerSubtitle, { color: theme.subtleText }]}>
-              {RIDE_HISTORY.length} trips
+              {rides.length} trips
             </Text>
           </View>
           <View style={styles.headerRight} />
         </View>
 
         {/* Content */}
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.primary}
-              colors={[theme.primary]}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        >
-          {RIDE_HISTORY.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="car-outline" size={64} color={theme.mutedText} />
-              <Text style={[styles.emptyTitle, { color: theme.text }]}>
-                No ride history
-              </Text>
-              <Text style={[styles.emptyDescription, { color: theme.subtleText }]}>
-                Your completed rides will appear here
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.ridesList}>
-              {RIDE_HISTORY.map((ride) => (
-                <RideHistoryItem
-                  key={ride.id}
-                  ride={ride}
-                  onPress={() => handleRidePress(ride)}
-                />
-              ))}
-            </View>
-          )}
-        </ScrollView>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.primary} />
+            <Text style={[styles.loadingText, { color: theme.subtleText }]}>
+              Loading ride history...
+            </Text>
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+                colors={[theme.primary]}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+          >
+            {rides.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="car-outline" size={64} color={theme.mutedText} />
+                <Text style={[styles.emptyTitle, { color: theme.text }]}>
+                  No ride history
+                </Text>
+                <Text style={[styles.emptyDescription, { color: theme.subtleText }]}>
+                  Your completed rides will appear here
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.ridesList}>
+                {rides.map((ride) => (
+                  <RideHistoryItem
+                    key={ride.id}
+                    ride={ride}
+                    onPress={() => handleRidePress(ride)}
+                  />
+                ))}
+              </View>
+            )}
+          </ScrollView>
+        )}
       </View>
     </ScreenLayout>
   );
@@ -263,6 +262,15 @@ export default function RideHistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
   },
   header: {
     flexDirection: "row",

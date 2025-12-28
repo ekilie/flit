@@ -7,7 +7,7 @@ const { width } = Dimensions.get("window");
 
 interface StatCardProps {
   title: string;
-  value: number;
+  value: number | string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
   description?: string;
@@ -42,7 +42,7 @@ export default function StatCard({
           <Ionicons name={icon} size={20} color={color} />
         </View>
         <Text style={[styles.value, { color: theme.text }]}>
-          {value.toLocaleString()}
+          {typeof value === "number" ? value.toLocaleString() : value}
         </Text>
       </View>
       <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
     width: (width - 56) / 2,
     padding: 16,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
     marginBottom: 8,
   },
   header: {
