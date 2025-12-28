@@ -2,7 +2,7 @@ import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -13,26 +13,10 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Api from "@/lib/api";
+import { toast } from "yooo-native";
 
 const { width } = Dimensions.get("window");
-
-// Dummy trip data
-const COMPLETED_TRIP = {
-  id: "1",
-  driver: {
-    name: "Juma Mwangi",
-    rating: 4.8,
-    vehicle: "Toyota Corolla",
-    plate: "T 123 ABC",
-  },
-  pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
-  destination: "Julius Nyerere International Airport, Dar es Salaam",
-  distance: "8.5 km",
-  duration: "15 min",
-  price: "TSh 25,000",
-  paymentMethod: "Bank Card •••• 1234",
-  date: "2024-01-15T14:30:00",
-};
 
 const TIP_OPTIONS = [
   { id: "no-tip", label: "No Tip", amount: 0 },
@@ -53,6 +37,10 @@ export default function RideRatingScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const params = useLocalSearchParams();
+  const rideId = params.rideId as string;
+  const driverId = params.driverId as string;
+  const driverName = params.driverName as string || "Driver";
   
   const [rating, setRating] = useState(0);
   const [selectedTip, setSelectedTip] = useState("no-tip");
@@ -74,23 +62,46 @@ export default function RideRatingScreen() {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (rating === 0) {
       haptics.error();
+      toast.error("Please select a rating");
+      return;
+    }
+
+    if (!rideId || !driverId) {
+      haptics.error();
+      toast.error("Missing ride information");
       return;
     }
     
-    haptics.success();
-    setIsSubmitting(true);
-    
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      haptics.success();
+      setIsSubmitting(true);
+      
+      // Submit rating to backend
+      await Api.createRating({
+        rideId: parseInt(rideId),
+        raterId: parseInt(driverId), // Rating the driver
+        rating,
+        comment: comment || undefined,
+      });
+      
+      toast.success("Rating submitted successfully!");
+      
+      // Navigate back to home
       router.replace("/(core)/(tabs)/ride");
-    }, 1500);
+    } catch (error: any) {
+      console.error("Failed to submit rating:", error);
+      toast.error(error.message || "Failed to submit rating");
+      haptics.error();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Today";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       weekday: "short",
@@ -136,40 +147,15 @@ export default function RideRatingScreen() {
             Trip Completed!
           </Text>
           <Text style={[styles.subtitle, { color: theme.subtleText }]}>
-            {formatDate(COMPLETED_TRIP.date)}
+            {formatDate()}
           </Text>
-
-          <View style={styles.tripDetails}>
-            <View style={styles.tripRoute}>
-              <View style={[styles.routeDot, { backgroundColor: theme.primary }]} />
-              <Text style={[styles.routeText, { color: theme.text }]} numberOfLines={1}>
-                {COMPLETED_TRIP.pickup.split(",")[0]}
-              </Text>
-            </View>
-            <View style={[styles.routeLine, { backgroundColor: theme.border }]} />
-            <View style={styles.tripRoute}>
-              <View style={[styles.routeDot, { backgroundColor: theme.success }]} />
-              <Text style={[styles.routeText, { color: theme.text }]} numberOfLines={1}>
-                {COMPLETED_TRIP.destination.split(",")[0]}
-              </Text>
-            </View>
-          </View>
-
-          <View style={[styles.priceRow, { borderTopColor: theme.border }]}>
-            <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
-              Total Fare
-            </Text>
-            <Text style={[styles.priceValue, { color: theme.text }]}>
-              {COMPLETED_TRIP.price}
-            </Text>
-          </View>
         </View>
 
         {/* Driver Rating */}
         <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
           <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
             <Text style={styles.driverInitials}>
-              {COMPLETED_TRIP.driver.name
+              {driverName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -178,7 +164,7 @@ export default function RideRatingScreen() {
           </View>
 
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Rate {COMPLETED_TRIP.driver.name}
+            Rate {driverName}
           </Text>
 
           <View style={styles.starsContainer}>
