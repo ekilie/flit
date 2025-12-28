@@ -75,7 +75,7 @@ export default function RideCompletedScreen() {
             <Ionicons
               name={star <= rating ? 'star' : 'star-outline'}
               size={48}
-              color={star <= rating ? '#f5c724' : theme.border}
+              color={star <= rating ? '#ffc800' : theme.border}
             />
           </TouchableOpacity>
         ))}

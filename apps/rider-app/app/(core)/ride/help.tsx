@@ -400,7 +400,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    paddingTop: 60,
   },
   backButton: {
     width: 44,

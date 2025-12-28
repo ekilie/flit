@@ -20,6 +20,8 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 
 
 import * as Location from 'expo-location';
@@ -27,6 +29,7 @@ import { alert, toast } from "yooo-native";
 import { HapticFeedback } from "@/lib/haptics";
 import { ActivityIndicator } from "react-native";
 import Api from "@/lib/api";
+import { useAuth } from "@/context/ctx";
 
 const { width, height } = Dimensions.get("window");
 
@@ -215,6 +218,8 @@ export default function RideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const { user } = useAuth();
+  const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
 
@@ -346,19 +351,25 @@ export default function RideScreen() {
       return;
     }
 
+    if (!user?.id) {
+      haptics.error();
+      toast.error("User not authenticated");
+      return;
+    }
+
     try {
       haptics.success();
       setIsBooking(true);
 
       // Create ride request
       const rideData = {
-        pickupLat: pickupCoordinates.latitude,
-        pickupLng: pickupCoordinates.longitude,
+        pickupLatitude: pickupCoordinates.latitude,
+        pickupLongitude: pickupCoordinates.longitude,
         pickupAddress: pickupLocation,
-        dropoffLat: destinationCoordinates.latitude,
-        dropoffLng: destinationCoordinates.longitude,
+        dropoffLatitude: destinationCoordinates.latitude,
+        dropoffLongitude: destinationCoordinates.longitude,
         dropoffAddress: destination,
-        vehicleType: selectedVehicle,
+        riderId: user.id,
       };
 
       const createdRide = await Api.createRide(rideData);
@@ -390,6 +401,17 @@ export default function RideScreen() {
     <ScreenLayout styles={{ backgroundColor: Colors.light.background }} fullScreen>
       <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={styles.container}>
+        {/* Hamburger Menu Button */}
+        <Pressable
+          style={[styles.menuButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+          onPress={() => {
+            haptics.light();
+            navigation.dispatch(DrawerActions.openDrawer());
+          }}
+        >
+          <Ionicons name="menu" size={28} color={theme.text} />
+        </Pressable>
+
         {/* Map View */}
         <Animated.View
           style={[
@@ -470,18 +492,7 @@ export default function RideScreen() {
                 source={require("@/assets/images/icon-black-and-white.png")}
               />
             </Pressable> */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.controlButton,
-                {
-                  backgroundColor: "#f5c724",
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              onPress={() => router.push("/(core)/settings")}
-            >
-              <Ionicons name="settings-outline" size={24} color={theme.text} />
-            </Pressable>
+            
           </View>
 
           {/* Location Inputs Overlay */}
@@ -732,6 +743,23 @@ export default function RideScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  menuButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    left: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderWidth: 1,
   },
   mapContainer: {
     flex: 1,

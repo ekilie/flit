@@ -23,7 +23,7 @@ function TabBarIcon(props: {
       size={26}
       style={{ marginBottom: -3 }}
       name={props.name}
-      color={iconColor}
+      color={props.focused ? "black" : theme.subtleText}
     />
   );
 }
@@ -44,10 +44,11 @@ export default function TabsLayout() {
             paddingVertical: 18,
             height: 82,
           },
-          tabBarActiveTintColor:
-            Colors.tabColors[route.name as keyof typeof Colors.tabColors] ??
-            theme.primary,
-          tabBarInactiveTintColor: theme.isDark ? "#666666" : "#999999",
+          // tabBarActiveTintColor:
+          //   Colors.tabColors[route.name as keyof typeof Colors.tabColors] ??
+          //   theme.primary,
+          tabBarActiveTintColor: "black",
+          tabBarInactiveTintColor: theme.subtleText,
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: "600",

@@ -213,8 +213,8 @@ const HeroHeader = () => {
                   size="sm"
                   className={cn(
                     isScrolled
-                      ? "lg:inline-flex bg-[#f5c724] hover:bg-[#f5c724]/90 text-black"
-                      : "hidden bg-[#f5c724] hover:bg-[#f5c724]/90 text-black",
+                      ? "lg:inline-flex bg-[#ffc800] hover:bg-[#ffc800]/90 text-black"
+                      : "hidden bg-[#ffc800] hover:bg-[#ffc800]/90 text-black",
                   )}
                 >
                   <span>Get Started</span>
@@ -231,7 +231,7 @@ const HeroHeader = () => {
 const Logo = ({ className }: { className?: string }) => {
   return (
     <div className={cn("flex items-center space-x-2", className)}>
-      <div className="bg-[#f5c724] rounded-lg p-2">
+      <div className="bg-[#ffc800] rounded-lg p-2">
         <Car className="h-6 w-6 text-black" />
       </div>
       <span className="text-xl font-bold">FLIT</span>
@@ -245,7 +245,7 @@ const CardDecorator = ({ children }: { children: React.ReactNode }) => (
     className="relative mx-auto size-36 [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"
   >
     <div className="absolute inset-0 [--border:black] dark:[--border:white] bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:24px_24px] opacity-10" />
-    <div className="bg-background absolute inset-0 m-auto flex size-12 items-center justify-center border-t border-l border-[#f5c724]">
+    <div className="bg-background absolute inset-0 m-auto flex size-12 items-center justify-center border-t border-l border-[#ffc800]">
       {children}
     </div>
   </div>
@@ -323,7 +323,7 @@ export default function FlitLanding() {
 
                   <h1 className="mt-8 max-w-4xl mx-auto text-balance text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
                     Your Ride,{" "}
-                    <span className="inline-block text-[#f5c724] text-6xl md:text-7xl xl:text-[5.25rem] font-semibold">
+                    <span className="inline-block text-[#ffc800] text-6xl md:text-7xl xl:text-[5.25rem] font-semibold">
                       On Demand
                     </span>
                   </h1>
@@ -377,15 +377,15 @@ export default function FlitLanding() {
                     </Button>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 my-8">
-                    <div className="bg-[#f5c724]/10 rounded-[14px] border border-[#f5c724]/30 p-0.5">
+                    <div className="bg-[#ffc800]/10 rounded-[14px] border border-[#ffc800]/30 p-0.5">
                       <Button
                         size="lg"
-                        className="rounded-xl px-6 text-base bg-[#f5c724] hover:bg-[#f5c724]/90 text-black font-semibold"
+                        className="rounded-xl px-6 text-base bg-[#ffc800] hover:bg-[#ffc800]/90 text-black font-semibold"
                       >
                         <span className="text-nowrap">Get Early Access</span>
                       </Button>
                     </div>
-                    <Button size="lg" variant="ghost" className="h-11 rounded-xl px-6 hover:text-[#f5c724]">
+                    <Button size="lg" variant="ghost" className="h-11 rounded-xl px-6 hover:text-[#ffc800]">
                       <span className="text-nowrap">Become a Driver</span>
                     </Button>
                   </div>
@@ -411,8 +411,8 @@ export default function FlitLanding() {
                   aria-hidden
                   className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                 />
-                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-[#f5c724]/30 p-4 shadow-lg shadow-[#f5c724]/15 ring-1">
-                  <div className="bg-gradient-to-br from-[#f5c724]/10 to-[#f5c724]/5 dark:from-[#f5c724]/20 dark:to-[#f5c724]/10 aspect-15/8 relative rounded-2xl border border-[#f5c724]/30 overflow-hidden">
+                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-[#ffc800]/30 p-4 shadow-lg shadow-[#ffc800]/15 ring-1">
+                  <div className="bg-gradient-to-br from-[#ffc800]/10 to-[#ffc800]/5 dark:from-[#ffc800]/20 dark:to-[#ffc800]/10 aspect-15/8 relative rounded-2xl border border-[#ffc800]/30 overflow-hidden">
                     <GridMotion items={gridItems} gradientColor="rgba(245, 199, 36, 0.1)" className="h-full w-full" />
                   </div>
                 </div> */}
@@ -426,18 +426,18 @@ export default function FlitLanding() {
           <div className="@container mx-auto max-w-5xl px-6">
             <div className="text-center">
               <h2 className="text-balance text-4xl font-semibold lg:text-5xl">
-                Why Choose <span className="text-[#f5c724]">FLIT</span>
+                Why Choose <span className="text-[#ffc800]">FLIT</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Experience premium transportation with our special hire vehicle platform. Safe, reliable, and built for
                 your comfort.
               </p>
             </div>
-            <Card className="@min-4xl:max-w-full @min-4xl:grid-cols-3 @min-4xl:divide-x @min-4xl:divide-y-0 mx-auto mt-8 grid max-w-sm divide-y overflow-hidden shadow-zinc-950/5 border-[#f5c724]/30 *:text-center md:mt-16">
+            <Card className="@min-4xl:max-w-full @min-4xl:grid-cols-3 @min-4xl:divide-x @min-4xl:divide-y-0 mx-auto mt-8 grid max-w-sm divide-y overflow-hidden shadow-zinc-950/5 border-[#ffc800]/30 *:text-center md:mt-16">
               <div className="group shadow-zinc-950/5">
                 <CardHeader className="pb-3">
                   <CardDecorator>
-                    <Clock className="size-6 text-[#f5c724]" aria-hidden />
+                    <Clock className="size-6 text-[#ffc800]" aria-hidden />
                   </CardDecorator>
 
                   <h3 className="mt-6 font-medium">Always Available</h3>
@@ -453,7 +453,7 @@ export default function FlitLanding() {
               <div className="group shadow-zinc-950/5">
                 <CardHeader className="pb-3">
                   <CardDecorator>
-                    <Shield className="size-6 text-[#f5c724]" aria-hidden />
+                    <Shield className="size-6 text-[#ffc800]" aria-hidden />
                   </CardDecorator>
 
                   <h3 className="mt-6 font-medium">Safe & Secure</h3>
@@ -469,7 +469,7 @@ export default function FlitLanding() {
               <div className="group shadow-zinc-950/5">
                 <CardHeader className="pb-3">
                   <CardDecorator>
-                    <Zap className="size-6 text-[#f5c724]" aria-hidden />
+                    <Zap className="size-6 text-[#ffc800]" aria-hidden />
                   </CardDecorator>
 
                   <h3 className="mt-6 font-medium">Fast & Easy</h3>
@@ -486,7 +486,7 @@ export default function FlitLanding() {
         </section>
       </main>
 
-      <footer className="bg-background border-t border-[#f5c724]/30">
+      <footer className="bg-background border-t border-[#ffc800]/30">
         <div className="mx-auto max-w-7xl py-16 px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {/* Company Info */}
@@ -496,7 +496,7 @@ export default function FlitLanding() {
                 FLIT is your trusted special hire vehicle platform. Safe, reliable transportation whenever you need it.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fillRule="evenodd"
@@ -505,12 +505,12 @@ export default function FlitLanding() {
                     />
                   </svg>
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                   </svg>
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       fillRule="evenodd"
@@ -526,27 +526,27 @@ export default function FlitLanding() {
               <h3 className="text-sm font-semibold text-foreground">Ride</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Book a Ride
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Ride Options
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Airport Transfers
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Business Travel
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Pricing
                   </a>
                 </li>
@@ -558,27 +558,27 @@ export default function FlitLanding() {
               <h3 className="text-sm font-semibold text-foreground">Drive</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Become a Driver
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Driver Requirements
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Earnings
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Driver Support
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Safety
                   </a>
                 </li>
@@ -590,27 +590,27 @@ export default function FlitLanding() {
               <h3 className="text-sm font-semibold text-foreground">Company</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Press
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Contact Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                     Help Center
                   </a>
                 </li>
@@ -619,17 +619,17 @@ export default function FlitLanding() {
           </div>
 
           {/* Bottom section */}
-          <div className="mt-12 pt-8 border-t border-[#f5c724]/30">
+          <div className="mt-12 pt-8 border-t border-[#ffc800]/30">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <div className="text-sm text-muted-foreground">© 2025 FLIT. All rights reserved.</div>
               <div className="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2 text-sm">
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   Terms of Service
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-[#f5c724] transition-colors">
+                <a href="#" className="text-muted-foreground hover:text-[#ffc800] transition-colors">
                   Accessibility
                 </a>
               </div>

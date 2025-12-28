@@ -364,7 +364,7 @@ export default function Profile() {
               value={rideStats?.totalRides || 0}
               description="Completed trips"
               icon="car"
-              color="#f5c724"
+              color="#ffc800"
             />
             <StatCard
               title="This Month"
