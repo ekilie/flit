@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export enum Role {
   Rider = 'Rider',
   Driver = 'Driver',
-  Admin = 'Admin',
 }
+
+export const MAX_PHONE_NUMBER_LENGTH = 15;
+export const MIN_PHONE_NUMBER_LENGTH = 10;
 
 export class RegisterDto {
   @ApiProperty({
@@ -23,6 +25,16 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @ApiProperty({
+    description: 'Phone number of the user',
+    example: '+1234567890',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(MAX_PHONE_NUMBER_LENGTH)
+  @MinLength(MIN_PHONE_NUMBER_LENGTH)
+  phoneNumber: string;
 
   @ApiProperty({
     description: 'Password for the user account (minimum 6 characters)',

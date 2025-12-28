@@ -77,22 +77,21 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
-    const riderRole = await this.rolesService.findByName('Rider');
+    const role = await this.rolesService.findByName(registerDto.role);
 
     // Create user
     const user = await this.usersService.create({
       fullName: registerDto.name,
       email: registerDto.email,
       password: registerDto.password,
-      phoneNumber: '', // Can be added later in profile update
-      role: riderRole,
+      phoneNumber: registerDto.phoneNumber,
+      role,
     });
 
     // Generate verification OTP
     const otp = this.generateOTP();
     this.storeOTP(registerDto.email, otp, 'verification');
 
-    // In production, send email with OTP
     console.log(`Verification OTP for ${registerDto.email}: ${otp}`);
 
     return {
