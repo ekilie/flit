@@ -54,13 +54,24 @@ export default function TabsLayout() {
           },
         })}
       >
-        {/* MAIN RIDE TAB */}
+        {/* HOME TAB - Driver Map View */}
         <Tabs.Screen
-          name="ride"
+          name="home"
           options={{
-            title: "Ride",
+            title: "Home",
             tabBarIcon: ({ focused }) => (
               <TabBarIcon name="map-marker" tabName="ride" focused={focused} />
+            ),
+          }}
+        />
+
+        {/* EARNINGS TAB */}
+        <Tabs.Screen
+          name="earnings"
+          options={{
+            title: "Earnings",
+            tabBarIcon: ({ focused }) => (
+              <TabBarIcon name="money" tabName="profile" focused={focused} />
             ),
           }}
         />
@@ -73,6 +84,14 @@ export default function TabsLayout() {
             tabBarIcon: ({ focused }) => (
               <TabBarIcon name="user" tabName="profile" focused={focused} />
             ),
+          }}
+        />
+        
+        {/* HIDE RIDE TAB - Not needed for drivers */}
+        <Tabs.Screen
+          name="ride"
+          options={{
+            href: null, // Hide this tab
           }}
         />
       </Tabs>
