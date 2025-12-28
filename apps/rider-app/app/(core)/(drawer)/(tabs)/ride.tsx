@@ -492,18 +492,7 @@ export default function RideScreen() {
                 source={require("@/assets/images/icon-black-and-white.png")}
               />
             </Pressable> */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.controlButton,
-                {
-                  backgroundColor: "#ffc800",
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              onPress={() => router.push("/(core)/settings")}
-            >
-              <Ionicons name="settings-outline" size={24} color={theme.text} />
-            </Pressable>
+            
           </View>
 
           {/* Location Inputs Overlay */}

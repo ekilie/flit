@@ -268,17 +268,6 @@ export default function Profile() {
 
   return (
     <ScreenLayout>
-      {/* Hamburger Menu Button */}
-      <Pressable
-        style={[styles.menuButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
-        onPress={() => {
-          HapticFeedback('light');
-          navigation.dispatch(DrawerActions.openDrawer());
-        }}
-      >
-        <Ionicons name="menu" size={28} color={theme.text} />
-      </Pressable>
-
       <ScrollView
         style={styles.container}
         refreshControl={

@@ -1,15 +1,13 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { useState, useMemo, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useAuth } from '@/context/ctx';
 import { useCurrentTheme } from '@/context/CentralTheme';
 import { router } from 'expo-router';
-import React from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -48,7 +46,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatarCircle}>
-              <Ionicons name="person" size={40} color="#000" />
+              <Ionicons name="person" size={20} color={theme.text} />
             </View>
           </View>
           <View style={styles.userInfo}>
@@ -59,14 +57,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
               {(userInfo as any)?.email || 'rider@flit.com'}
             </Text>
           </View>
-
-          {/* Close Drawer Button */}
-          <TouchableOpacity 
-            onPress={() => props.navigation.closeDrawer()} 
-            style={styles.closeButton}
-          >
-            <Ionicons name="close" size={24} color="#000" />
-          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -77,10 +67,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         contentContainerStyle={styles.drawerLinksContent}
         showsVerticalScrollIndicator={false}
       >
-        <DrawerItemList {...props} />
 
-        {/* Additional Menu Items */}
-        <View style={styles.additionalItems}>
+        <View style={styles.items}>
           <TouchableOpacity 
             style={[styles.menuItem, { backgroundColor: theme.surface }]}
             onPress={() => {
@@ -133,22 +121,11 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           style={[styles.footerItem, { backgroundColor: theme.background }]}
           onPress={() => {
             props.navigation.closeDrawer();
-            router.push('/(core)/profile/edit');
+            router.push("/settings");
           }}
         >
           <Ionicons name="settings-outline" size={20} color={theme.text} />
           <Text style={[styles.footerText, { color: theme.text }]}>Settings</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.footerItem, { backgroundColor: theme.background }]}
-          onPress={() => {
-            props.navigation.closeDrawer();
-            router.push('/(core)/ride/details');
-          }}
-        >
-          <Ionicons name="information-circle-outline" size={20} color={theme.text} />
-          <Text style={[styles.footerText, { color: theme.text }]}>Help & Support</Text>
         </TouchableOpacity>
 
         {/* Sign Out Button */}
@@ -194,16 +171,6 @@ export default function Layout() {
           drawerType: 'slide',
         }}
       >
-        <Drawer.Screen
-          name="(tabs)"
-          options={{
-            drawerLabel: 'Home',
-            title: 'Home',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="home-outline" size={size} color={color} />
-            ),
-          }}
-        />
       </Drawer>
     </GestureHandlerRootView>
   );
@@ -236,14 +203,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   avatarCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
   userInfo: {
     marginLeft: 15,
@@ -270,23 +235,16 @@ const styles = StyleSheet.create({
   drawerLinksContent: {
     paddingTop: 10,
   },
-  additionalItems: {
+  items: {
     marginTop: 20,
-    paddingHorizontal: 10,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    padding:20,
     marginVertical: 4,
     marginHorizontal: 10,
     borderRadius: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
   },
   menuItemText: {
     fontSize: 15,
@@ -296,7 +254,10 @@ const styles = StyleSheet.create({
   footer: {
     padding: 15,
     paddingBottom: 30,
-    borderTopWidth: 1,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
   },
   footerItem: {
     flexDirection: 'row',
@@ -315,11 +276,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 12,
     overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   signOutGradient: {
     flexDirection: 'row',
