@@ -90,10 +90,10 @@ export default function Login() {
               </View>
 
               <Text style={styles.title}>
-                Welcome Back
+                Driver Login
               </Text>
               <Text style={styles.subtitle}>
-                Your ride is just a tap away
+                Sign in to start earning
               </Text>
             </View>
 
