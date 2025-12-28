@@ -51,10 +51,8 @@ export default function CashOutScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     toast.success(`Cash out of TSh ${cashOutAmount.toLocaleString()} initiated!`);
     
-    // Navigate back after a delay
-    setTimeout(() => {
-      router.back();
-    }, 1500);
+    // Navigate back immediately
+    router.back();
   };
 
   const selectQuickAmount = (quickAmount: number) => {
