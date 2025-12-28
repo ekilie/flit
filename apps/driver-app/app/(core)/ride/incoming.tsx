@@ -206,7 +206,7 @@ export default function IncomingRideScreen() {
                 👤 {rideData.rider.name}
               </Text>
               <View style={styles.riderRating}>
-                <Ionicons name="star" size={16} color="#f5c724" />
+                <Ionicons name="star" size={16} color="#ffc800" />
                 <Text style={[styles.ratingText, { color: theme.text }]}>
                   {rideData.rider.rating}
                 </Text>

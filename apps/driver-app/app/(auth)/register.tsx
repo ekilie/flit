@@ -273,7 +273,7 @@ export default function Register() {
                     styles.checkbox,
                     {
                       borderColor: "#e0e0e0",
-                      backgroundColor: agreeToTerms ? "#f5c724" : "transparent",
+                      backgroundColor: agreeToTerms ? "#ffc800" : "transparent",
                     },
                   ]}
                 >

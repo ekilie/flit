@@ -474,7 +474,7 @@ export default function RideScreen() {
               style={({ pressed }) => [
                 styles.controlButton,
                 {
-                  backgroundColor: "#f5c724",
+                  backgroundColor: "#ffc800",
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}

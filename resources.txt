@@ -1,1 +1,1 @@
- logo color is #f5c724
+ logo color is #ffc800
