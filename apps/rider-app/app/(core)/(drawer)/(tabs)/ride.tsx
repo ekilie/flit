@@ -20,6 +20,8 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 
 
 import * as Location from 'expo-location';
@@ -217,6 +219,7 @@ export default function RideScreen() {
   const router = useRouter();
   const haptics = useHaptics();
   const { user } = useAuth();
+  const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
 
@@ -398,6 +401,17 @@ export default function RideScreen() {
     <ScreenLayout styles={{ backgroundColor: Colors.light.background }} fullScreen>
       <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={styles.container}>
+        {/* Hamburger Menu Button */}
+        <Pressable
+          style={[styles.menuButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+          onPress={() => {
+            haptics.light();
+            navigation.dispatch(DrawerActions.openDrawer());
+          }}
+        >
+          <Ionicons name="menu" size={28} color={theme.text} />
+        </Pressable>
+
         {/* Map View */}
         <Animated.View
           style={[
@@ -740,6 +754,23 @@ export default function RideScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  menuButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    left: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderWidth: 1,
   },
   mapContainer: {
     flex: 1,

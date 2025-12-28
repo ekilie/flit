@@ -11,6 +11,8 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 
 // Backend API User structure (camelCase)
 interface BackendUser {
@@ -91,6 +93,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value, iconColor }) => {
 
 export default function Profile() {
   const theme = useCurrentTheme();
+  const navigation = useNavigation();
   const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -265,6 +268,17 @@ export default function Profile() {
 
   return (
     <ScreenLayout>
+      {/* Hamburger Menu Button */}
+      <Pressable
+        style={[styles.menuButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+        onPress={() => {
+          HapticFeedback('light');
+          navigation.dispatch(DrawerActions.openDrawer());
+        }}
+      >
+        <Ionicons name="menu" size={28} color={theme.text} />
+      </Pressable>
+
       <ScrollView
         style={styles.container}
         refreshControl={
@@ -617,6 +631,23 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderWidth: 1,
   },
   contentContainer: {
     paddingTop: 8,
