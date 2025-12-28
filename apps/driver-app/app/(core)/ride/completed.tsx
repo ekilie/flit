@@ -4,7 +4,7 @@ import { useCurrentTheme } from "@/context/CentralTheme";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -52,10 +52,8 @@ export default function RideCompletedScreen() {
       
       toast.success('Thanks for your feedback!');
       
-      // Navigate back to home and go online
-      setTimeout(() => {
-        router.replace('/(core)/(tabs)/home');
-      }, 1000);
+      // Navigate back to home immediately
+      router.replace('/(core)/(tabs)/home');
     } catch (error) {
       toast.error('Failed to submit feedback');
       console.error('Submit feedback error:', error);

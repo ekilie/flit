@@ -4,7 +4,7 @@ import { useCurrentTheme } from "@/context/CentralTheme";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -47,37 +47,7 @@ export default function IncomingRideScreen() {
     },
   };
 
-  // Countdown timer
-  useEffect(() => {
-    if (countdown <= 0) {
-      handleDecline('timeout');
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setCountdown(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [countdown]);
-
-  const handleAccept = async () => {
-    try {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      toast.success('Ride accepted!');
-      
-      // TODO: API call to accept ride
-      // await Api.acceptRide(rideData.id);
-      
-      // Navigate to active ride screen
-      router.replace(`/(core)/ride/active?id=${rideData.id}`);
-    } catch (error) {
-      toast.error('Failed to accept ride');
-      console.error('Accept ride error:', error);
-    }
-  };
-
-  const handleDecline = async (reason?: string) => {
+  const handleDecline = useCallback(async (reason?: string) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       
@@ -96,7 +66,37 @@ export default function IncomingRideScreen() {
       console.error('Decline ride error:', error);
       router.back();
     }
+  }, [router]);
+
+  const handleAccept = async () => {
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      toast.success('Ride accepted!');
+      
+      // TODO: API call to accept ride
+      // await Api.acceptRide(rideData.id);
+      
+      // Navigate to active ride screen
+      router.replace(`/(core)/ride/active?id=${rideData.id}`);
+    } catch (error) {
+      toast.error('Failed to accept ride');
+      console.error('Accept ride error:', error);
+    }
   };
+
+  // Countdown timer
+  useEffect(() => {
+    if (countdown <= 0) {
+      handleDecline('timeout');
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown, handleDecline]);
 
   return (
     <ScreenLayout>
