@@ -212,7 +212,10 @@ export default function DriverHomeScreen() {
             <Text style={[styles.earningsTitle, { color: theme.text }]}>
               📊 Today's Summary
             </Text>
-            <TouchableOpacity onPress={() => router.push('/(core)/earnings/details')}>
+            <TouchableOpacity onPress={() => {
+              // TODO: Create earnings details screen
+              toast.info('Earnings details coming soon');
+            }}>
               <Text style={[styles.viewDetailsLink, { color: theme.primary }]}>
                 View Details
               </Text>

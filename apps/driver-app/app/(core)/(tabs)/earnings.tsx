@@ -136,7 +136,10 @@ export default function EarningsScreen() {
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               Recent Trips
             </Text>
-            <TouchableOpacity onPress={() => router.push('/(core)/ride/history')}>
+            <TouchableOpacity onPress={() => {
+              // TODO: Create ride history screen
+              toast.info('Ride history coming soon');
+            }}>
               <Text style={[styles.viewAllLink, { color: theme.primary }]}>
                 View All
               </Text>
@@ -194,7 +197,10 @@ export default function EarningsScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.secondaryButton, { borderColor: theme.border }]}
-            onPress={() => router.push('/(core)/ride/history')}
+            onPress={() => {
+              // TODO: Create ride history screen
+              toast.info('Ride history coming soon');
+            }}
           >
             <MaterialCommunityIcons name="history" size={20} color={theme.text} />
             <Text style={[styles.secondaryButtonText, { color: theme.text }]}>

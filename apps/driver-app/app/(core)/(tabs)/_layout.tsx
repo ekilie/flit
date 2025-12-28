@@ -60,7 +60,7 @@ export default function TabsLayout() {
           options={{
             title: "Home",
             tabBarIcon: ({ focused }) => (
-              <TabBarIcon name="map-marker" tabName="ride" focused={focused} />
+              <TabBarIcon name="map-marker" tabName="home" focused={focused} />
             ),
           }}
         />
@@ -71,7 +71,7 @@ export default function TabsLayout() {
           options={{
             title: "Earnings",
             tabBarIcon: ({ focused }) => (
-              <TabBarIcon name="money" tabName="profile" focused={focused} />
+              <TabBarIcon name="money" tabName="earnings" focused={focused} />
             ),
           }}
         />
