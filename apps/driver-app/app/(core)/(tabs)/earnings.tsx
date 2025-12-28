@@ -14,6 +14,7 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { toast } from "yooo-native";
 
 const { width } = Dimensions.get("window");
 
