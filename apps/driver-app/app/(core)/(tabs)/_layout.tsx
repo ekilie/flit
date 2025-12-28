@@ -86,14 +86,6 @@ export default function TabsLayout() {
             ),
           }}
         />
-        
-        {/* HIDE RIDE TAB - Not needed for drivers */}
-        <Tabs.Screen
-          name="ride"
-          options={{
-            href: null, // Hide this tab
-          }}
-        />
       </Tabs>
     </View>
   );

@@ -20,6 +20,7 @@ import * as Location from 'expo-location';
 import { toast } from "yooo-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
+import { LIGHT_MAP_STYLE } from "@/constants/mapstyle";
 
 const { width } = Dimensions.get("window");
 
@@ -34,13 +35,13 @@ const DEFAULT_REGION = {
 export default function DriverHomeScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
-  
+
   // Driver state
   const [isOnline, setIsOnline] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<Location.LocationObject | null>(null);
   const [locationPermission, setLocationPermission] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-  
+
   // Today's earnings data (mock for now)
   const [todayEarnings, setTodayEarnings] = useState(45000);
   const [tripCount, setTripCount] = useState(5);
@@ -58,7 +59,7 @@ export default function DriverHomeScreen() {
           setIsLoadingLocation(false);
           return;
         }
-        
+
         setLocationPermission(true);
         const location = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
@@ -76,7 +77,7 @@ export default function DriverHomeScreen() {
   // Track location when online
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | null = null;
-    
+
     if (isOnline && locationPermission) {
       (async () => {
         locationSubscription = await Location.watchPositionAsync(
@@ -92,7 +93,7 @@ export default function DriverHomeScreen() {
         );
       })();
     }
-    
+
     return () => {
       if (locationSubscription) {
         locationSubscription.remove();
@@ -107,7 +108,7 @@ export default function DriverHomeScreen() {
     }
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
     if (!isOnline) {
       // Going online
       setIsOnline(true);
@@ -132,9 +133,10 @@ export default function DriverHomeScreen() {
   };
 
   return (
-    <ScreenLayout>
-      <StatusBar style={theme.isDark ? "light" : "dark"} />
-      
+    <ScreenLayout fullScreen>
+
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+
       <View style={styles.container}>
         {/* Map View */}
         <MapView
@@ -142,9 +144,11 @@ export default function DriverHomeScreen() {
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           initialRegion={DEFAULT_REGION}
-          showsUserLocation={false}
+          showsTraffic={true}
+          showsUserLocation={true}
           showsMyLocationButton={false}
-          showsCompass={false}
+          showsCompass={true}
+          customMapStyle={LIGHT_MAP_STYLE}
           region={currentLocation ? {
             latitude: currentLocation.coords.latitude,
             longitude: currentLocation.coords.longitude,
@@ -162,10 +166,10 @@ export default function DriverHomeScreen() {
               anchor={{ x: 0.5, y: 0.5 }}
             >
               <View style={[styles.driverMarker, isOnline && styles.driverMarkerOnline]}>
-                <MaterialCommunityIcons 
-                  name="car" 
-                  size={20} 
-                  color="#fff" 
+                <MaterialCommunityIcons
+                  name="car"
+                  size={20}
+                  color="#fff"
                 />
               </View>
             </Marker>
@@ -180,8 +184,8 @@ export default function DriverHomeScreen() {
                 {isOnline ? "You're Online" : "You're Offline"}
               </Text>
               <Text style={[styles.statusSubtext, { color: theme.mutedText }]}>
-                {isOnline 
-                  ? "You can receive ride requests" 
+                {isOnline
+                  ? "You can receive ride requests"
                   : "Go online to start earning"}
               </Text>
             </View>
@@ -221,7 +225,7 @@ export default function DriverHomeScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.earningsStats}>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>
@@ -231,9 +235,9 @@ export default function DriverHomeScreen() {
                 Earnings
               </Text>
             </View>
-            
+
             <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            
+
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>
                 {tripCount}
@@ -242,9 +246,9 @@ export default function DriverHomeScreen() {
                 Trips
               </Text>
             </View>
-            
+
             <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            
+
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>
                 {onlineTime}
@@ -262,10 +266,10 @@ export default function DriverHomeScreen() {
             style={[styles.centerButton, { backgroundColor: theme.card }]}
             onPress={centerOnCurrentLocation}
           >
-            <MaterialCommunityIcons 
-              name="crosshairs-gps" 
-              size={24} 
-              color={theme.text} 
+            <MaterialCommunityIcons
+              name="crosshairs-gps"
+              size={24}
+              color={theme.text}
             />
           </TouchableOpacity>
         )}
