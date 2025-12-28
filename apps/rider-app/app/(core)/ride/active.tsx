@@ -47,6 +47,18 @@ export default function ActiveRideScreen() {
       const rideData = await Api.getRide(parseInt(rideId));
       setRide(rideData);
       setLoading(false);
+      
+      // If ride is completed, navigate to rating screen
+      if (rideData.status === RideStatus.COMPLETED && !loading) {
+        router.replace({
+          pathname: "/(core)/ride/rating",
+          params: { 
+            rideId: rideData.id.toString(),
+            driverId: rideData.driver?.id?.toString() || "",
+            driverName: rideData.driver?.name || "Driver"
+          }
+        } as any);
+      }
     } catch (error: any) {
       console.error("Failed to fetch ride:", error);
       if (loading) {
