@@ -1,7 +1,17 @@
 export interface RegisterDto {
-  email: string;
-  password: string;
   name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  role: RoleEnum;
+}
+
+/**
+ * Roles for the user as per backend 
+ */
+export enum RoleEnum {
+  Rider = 'Rider',
+  Driver = 'Driver',
 }
 
 export interface LoginDto {
