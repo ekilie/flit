@@ -2,9 +2,10 @@ import ScreenLayout from "@/components/ScreenLayout";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Pressable,
@@ -13,40 +14,47 @@ import {
   Text,
   View,
 } from "react-native";
+import Api from "@/lib/api";
+import { Ride, RideStatus } from "@/lib/api/types";
+import { toast } from "yooo-native";
 
 const { width } = Dimensions.get("window");
-
-// Dummy ride data - Tanzania locations
-const ACTIVE_RIDE = {
-  id: "1",
-  vehicle: {
-    name: "Comfort",
-    icon: "car-sport-outline",
-  },
-  pickup: "Mlimani City, Sam Nujoma Road, Dar es Salaam",
-  destination: "Julius Nyerere International Airport, Dar es Salaam",
-  driver: {
-    name: "Juma Mwangi",
-    rating: 4.8,
-    vehicle: "Toyota Corolla",
-    plate: "T 123 ABC",
-    phone: "+255 712 345 678",
-    avatar: null,
-  },
-  eta: "5 min",
-  price: "TSh 25,000",
-  status: "arriving", // arriving, in-ride, completed
-  distance: "8.5 km",
-  duration: "15 min",
-};
 
 export default function ActiveRideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
-  const [rideStatus, setRideStatus] = useState(ACTIVE_RIDE.status);
+  const params = useLocalSearchParams();
+  const rideId = params.rideId as string;
+  
+  const [ride, setRide] = useState<Ride | null>(null);
+  const [loading, setLoading] = useState(true);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (rideId) {
+      fetchRideDetails();
+      // Poll for ride updates every 5 seconds
+      const interval = setInterval(fetchRideDetails, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [rideId]);
+
+  const fetchRideDetails = async () => {
+    try {
+      if (!rideId) return;
+      const rideData = await Api.getRide(parseInt(rideId));
+      setRide(rideData);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Failed to fetch ride:", error);
+      if (loading) {
+        toast.error("Failed to load ride details");
+        router.back();
+      }
+    }
+  };
 
   useEffect(() => {
     // Pulse animation for driver marker
@@ -65,50 +73,69 @@ export default function ActiveRideScreen() {
       ])
     ).start();
 
-    // Simulate ride progression
+    // Timer for elapsed time
     const interval = setInterval(() => {
       setTimeElapsed((prev) => prev + 1);
-      if (timeElapsed > 30 && rideStatus === "arriving") {
-        setRideStatus("in-ride");
-      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeElapsed, rideStatus]);
+  }, []);
 
   const handleCallDriver = () => {
     haptics.selection();
     // In production, use Linking to call
+    if (ride?.driver?.metadata?.phone) {
+      // Linking.openURL(`tel:${ride.driver.metadata.phone}`);
+      toast.info("Call driver: " + ride.driver.metadata.phone);
+    }
   };
 
-  const handleCancelRide = () => {
+  const handleCancelRide = async () => {
+    if (!ride) return;
+    
     haptics.medium();
-    router.back();
+    try {
+      await Api.cancelRide(ride.id);
+      toast.success("Ride cancelled");
+      router.back();
+    } catch (error: any) {
+      console.error("Failed to cancel ride:", error);
+      toast.error(error.message || "Failed to cancel ride");
+    }
   };
 
   const handleEmergency = () => {
     haptics.error();
+    toast.error("Emergency feature - Call emergency services");
     // In production, trigger emergency protocol
   };
 
   const handleShareETA = () => {
     haptics.selection();
+    toast.info("Share ETA feature coming soon");
     // In production, use Share API
   };
 
   const handleMessageDriver = () => {
     haptics.selection();
+    toast.info("Messaging feature coming soon");
     // In production, open messaging interface
   };
 
   const getStatusText = () => {
-    switch (rideStatus) {
-      case "arriving":
+    if (!ride) return "Loading...";
+    
+    switch (ride.status) {
+      case RideStatus.PENDING:
+        return "Finding driver...";
+      case RideStatus.ACCEPTED:
         return "Driver arriving";
-      case "in-ride":
+      case RideStatus.PICKED_UP:
         return "On the way";
-      case "completed":
+      case RideStatus.COMPLETED:
         return "Ride completed";
+      case RideStatus.CANCELLED:
+        return "Ride cancelled";
       default:
         return "Ride in progress";
     }
@@ -119,6 +146,54 @@ export default function ActiveRideScreen() {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  const getDriverName = () => {
+    return ride?.driver?.name || "Driver";
+  };
+
+  const getDriverInitials = () => {
+    const name = getDriverName();
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <ScreenLayout>
+        <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
+          <Text style={[{ color: theme.subtleText, marginTop: 16 }]}>Loading ride...</Text>
+        </View>
+      </ScreenLayout>
+    );
+  }
+
+  if (!ride) {
+    return (
+      <ScreenLayout>
+        <View style={[styles.container, { justifyContent: "center", alignItems: "center", padding: 20 }]}>
+          <Ionicons name="alert-circle-outline" size={64} color={theme.mutedText} />
+          <Text style={[{ color: theme.text, fontSize: 18, fontWeight: "bold", marginTop: 16 }]}>
+            Ride Not Found
+          </Text>
+          <Pressable
+            style={({ pressed }) => [
+              {
+                backgroundColor: theme.primary,
+                paddingHorizontal: 24,
+                paddingVertical: 12,
+                borderRadius: 8,
+                marginTop: 20,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+            onPress={() => router.back()}
+          >
+            <Text style={{ color: "white", fontSize: 16, fontWeight: "600" }}>Go Back</Text>
+          </Pressable>
+        </View>
+      </ScreenLayout>
+    );
+  }
 
   return (
     <ScreenLayout>
@@ -187,21 +262,17 @@ export default function ActiveRideScreen() {
               <View style={styles.driverInfo}>
                 <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
                   <Text style={styles.driverInitials}>
-                    {ACTIVE_RIDE.driver.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
+                    {getDriverInitials()}
                   </Text>
                 </View>
                 <View style={styles.driverDetails}>
                   <Text style={[styles.driverName, { color: theme.text }]}>
-                    {ACTIVE_RIDE.driver.name}
+                    {getDriverName()}
                   </Text>
                   <View style={styles.driverRating}>
                     <Ionicons name="star" size={14} color={theme.warning} />
                     <Text style={[styles.ratingText, { color: theme.subtleText }]}>
-                      {ACTIVE_RIDE.driver.rating}
+                      {ride.driver?.metadata?.rating || "N/A"}
                     </Text>
                   </View>
                 </View>
@@ -238,16 +309,16 @@ export default function ActiveRideScreen() {
             <View style={[styles.vehicleSection, { backgroundColor: theme.surface }]}>
               <View style={styles.vehicleInfo}>
                 <Ionicons
-                  name={ACTIVE_RIDE.vehicle.icon as any}
+                  name="car-sport-outline"
                   size={24}
                   color={theme.primary}
                 />
                 <View style={styles.vehicleDetails}>
                   <Text style={[styles.vehicleName, { color: theme.text }]}>
-                    {ACTIVE_RIDE.driver.vehicle}
+                    {ride.vehicle ? `${ride.vehicle.make} ${ride.vehicle.model}` : "Vehicle"}
                   </Text>
                   <Text style={[styles.vehiclePlate, { color: theme.subtleText }]}>
-                    {ACTIVE_RIDE.driver.plate}
+                    {ride.vehicle?.licensePlate || "N/A"}
                   </Text>
                 </View>
               </View>
@@ -262,7 +333,7 @@ export default function ActiveRideScreen() {
                     Pickup
                   </Text>
                   <Text style={[styles.tripLocationValue, { color: theme.text }]}>
-                    {ACTIVE_RIDE.pickup}
+                    {ride.pickupAddress}
                   </Text>
                 </View>
               </View>
@@ -274,7 +345,7 @@ export default function ActiveRideScreen() {
                     Destination
                   </Text>
                   <Text style={[styles.tripLocationValue, { color: theme.text }]}>
-                    {ACTIVE_RIDE.destination}
+                    {ride.dropoffAddress}
                   </Text>
                 </View>
               </View>
@@ -296,7 +367,7 @@ export default function ActiveRideScreen() {
                 <Ionicons name="navigate-outline" size={20} color={theme.mutedText} />
                 <View style={styles.statInfo}>
                   <Text style={[styles.statValue, { color: theme.text }]}>
-                    {ACTIVE_RIDE.distance}
+                    {ride.distance ? `${(ride.distance / 1000).toFixed(1)} km` : "N/A"}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>Distance</Text>
                 </View>
@@ -306,7 +377,7 @@ export default function ActiveRideScreen() {
                 <Ionicons name="cash-outline" size={20} color={theme.mutedText} />
                 <View style={styles.statInfo}>
                   <Text style={[styles.statValue, { color: theme.primary }]}>
-                    {ACTIVE_RIDE.price}
+                    {ride.fare ? `TSh ${ride.fare.toLocaleString()}` : "TSh 0"}
                   </Text>
                   <Text style={[styles.statLabel, { color: theme.subtleText }]}>Price</Text>
                 </View>
@@ -348,7 +419,7 @@ export default function ActiveRideScreen() {
               </Pressable>
             </View>
 
-            {rideStatus === "arriving" && (
+            {ride.status === RideStatus.PENDING && (
               <Pressable
                 style={({ pressed }) => [
                   styles.cancelButton,

@@ -309,71 +309,20 @@ export default function RideDetailsScreen() {
                   Fare
                 </Text>
                 <Text style={[styles.priceValue, { color: theme.text }]}>
-                  {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.subtotal.toLocaleString()}
+                  {formatPrice(ride.fare)}
                 </Text>
               </View>
-              {RIDE_DETAILS.price.discount > 0 && (
-                <View style={styles.priceRow}>
-                  <Text style={[styles.priceLabel, { color: theme.success }]}>
-                    Discount
-                  </Text>
-                  <Text style={[styles.priceValue, { color: theme.success }]}>
-                    -{RIDE_DETAILS.price.currency}{" "}
-                    {RIDE_DETAILS.price.discount.toLocaleString()}
-                  </Text>
-                </View>
-              )}
-              {RIDE_DETAILS.price.tip > 0 && (
-                <View style={styles.priceRow}>
-                  <Text style={[styles.priceLabel, { color: theme.subtleText }]}>
-                    Tip
-                  </Text>
-                  <Text style={[styles.priceValue, { color: theme.text }]}>
-                    {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.tip.toLocaleString()}
-                  </Text>
-                </View>
-              )}
               <View style={[styles.priceDivider, { backgroundColor: theme.border }]} />
               <View style={styles.priceRow}>
                 <Text style={[styles.priceLabelTotal, { color: theme.text }]}>
                   Total
                 </Text>
                 <Text style={[styles.priceValueTotal, { color: theme.primary }]}>
-                  {RIDE_DETAILS.price.currency} {RIDE_DETAILS.price.total.toLocaleString()}
-                </Text>
-              </View>
-              <View style={styles.paymentMethod}>
-                <Ionicons name="card-outline" size={16} color={theme.mutedText} />
-                <Text style={[styles.paymentText, { color: theme.subtleText }]}>
-                  {RIDE_DETAILS.paymentMethod}
+                  {formatPrice(ride.fare)}
                 </Text>
               </View>
             </View>
           </View>
-
-          {/* Rating & Feedback */}
-          {RIDE_DETAILS.rating > 0 && (
-            <View style={[styles.section, { backgroundColor: theme.cardBackground }]}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Your Rating
-              </Text>
-              <View style={styles.ratingStars}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Ionicons
-                    key={star}
-                    name={star <= RIDE_DETAILS.rating ? "star" : "star-outline"}
-                    size={28}
-                    color={star <= RIDE_DETAILS.rating ? "#FFD700" : theme.mutedText}
-                  />
-                ))}
-              </View>
-              {RIDE_DETAILS.feedback && (
-                <Text style={[styles.feedback, { color: theme.subtleText }]}>
-                  "{RIDE_DETAILS.feedback}"
-                </Text>
-              )}
-            </View>
-          )}
 
           {/* Actions */}
           <View style={styles.actions}>

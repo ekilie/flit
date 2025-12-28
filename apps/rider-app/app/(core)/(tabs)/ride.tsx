@@ -23,9 +23,10 @@ import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 
 
 import * as Location from 'expo-location';
-import { alert } from "yooo-native";
+import { alert, toast } from "yooo-native";
 import { HapticFeedback } from "@/lib/haptics";
 import { ActivityIndicator } from "react-native";
+import Api from "@/lib/api";
 
 const { width, height } = Dimensions.get("window");
 
@@ -338,18 +339,44 @@ export default function RideScreen() {
     bottomSheetRef.current?.snapToIndex(2);
   };
 
-  const handleBookRide = () => {
-    if (!selectedVehicle || !destination) {
+  const handleBookRide = async () => {
+    if (!selectedVehicle || !destination || !pickupCoordinates || !destinationCoordinates) {
       haptics.error();
+      toast.error("Please select both pickup and destination");
       return;
     }
-    haptics.success();
-    setIsBooking(true);
-    // Simulate booking process
-    setTimeout(() => {
+
+    try {
+      haptics.success();
+      setIsBooking(true);
+
+      // Create ride request
+      const rideData = {
+        pickupLat: pickupCoordinates.latitude,
+        pickupLng: pickupCoordinates.longitude,
+        pickupAddress: pickupLocation,
+        dropoffLat: destinationCoordinates.latitude,
+        dropoffLng: destinationCoordinates.longitude,
+        dropoffAddress: destination,
+        vehicleType: selectedVehicle,
+      };
+
+      const createdRide = await Api.createRide(rideData);
+      
+      toast.success("Ride booked successfully!");
+      
+      // Navigate to active ride screen with the ride ID
+      router.push({
+        pathname: "/(core)/ride/active",
+        params: { rideId: createdRide.id }
+      });
+    } catch (error: any) {
+      console.error("Failed to book ride:", error);
+      toast.error(error.message || "Failed to book ride");
+      haptics.error();
+    } finally {
       setIsBooking(false);
-      router.push("/(core)/ride/active");
-    }, 2000);
+    }
   };
 
   const handleLocationSelect = (location: typeof RECENT_LOCATIONS[0]) => {
