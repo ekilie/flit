@@ -27,6 +27,7 @@ import { alert, toast } from "yooo-native";
 import { HapticFeedback } from "@/lib/haptics";
 import { ActivityIndicator } from "react-native";
 import Api from "@/lib/api";
+import { useAuth } from "@/context/ctx";
 
 const { width, height } = Dimensions.get("window");
 
@@ -215,6 +216,7 @@ export default function RideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const haptics = useHaptics();
+  const { user } = useAuth();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
 
@@ -346,19 +348,25 @@ export default function RideScreen() {
       return;
     }
 
+    if (!user?.id) {
+      haptics.error();
+      toast.error("User not authenticated");
+      return;
+    }
+
     try {
       haptics.success();
       setIsBooking(true);
 
       // Create ride request
       const rideData = {
-        pickupLat: pickupCoordinates.latitude,
-        pickupLng: pickupCoordinates.longitude,
+        pickupLatitude: pickupCoordinates.latitude,
+        pickupLongitude: pickupCoordinates.longitude,
         pickupAddress: pickupLocation,
-        dropoffLat: destinationCoordinates.latitude,
-        dropoffLng: destinationCoordinates.longitude,
+        dropoffLatitude: destinationCoordinates.latitude,
+        dropoffLongitude: destinationCoordinates.longitude,
         dropoffAddress: destination,
-        vehicleType: selectedVehicle,
+        riderId: user.id,
       };
 
       const createdRide = await Api.createRide(rideData);
