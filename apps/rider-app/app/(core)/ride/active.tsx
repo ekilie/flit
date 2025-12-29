@@ -17,6 +17,7 @@ import {
 import Api from "@/lib/api";
 import { Ride, RideStatus } from "@/lib/api/types";
 import { toast } from "yooo-native";
+import { useRideUpdates, useDriverLocation, useSocketConnection } from "@/lib/socket/socket-hooks";
 
 const { width } = Dimensions.get("window");
 
@@ -32,14 +33,61 @@ export default function ActiveRideScreen() {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Real-time updates via Socket.IO
+  const { rideUpdate, rideStatus, estimatedArrival } = useRideUpdates(rideId ? parseInt(rideId) : null);
+  const { location: driverLocation, isStale } = useDriverLocation(rideId ? parseInt(rideId) : null);
+  const { isConnected, connectionStatus, reconnect } = useSocketConnection();
+
   useEffect(() => {
     if (rideId) {
       fetchRideDetails();
-      // Poll for ride updates every 5 seconds
-      const interval = setInterval(fetchRideDetails, 5000);
-      return () => clearInterval(interval);
     }
   }, [rideId]);
+
+  // Handle real-time ride updates
+  useEffect(() => {
+    if (rideUpdate && ride) {
+      // Update local ride state with real-time data
+      setRide((prevRide) => {
+        if (!prevRide) return prevRide;
+        return {
+          ...prevRide,
+          status: rideUpdate.status as RideStatus,
+          fare: rideUpdate.fare ?? prevRide.fare,
+          distance: rideUpdate.distance ?? prevRide.distance,
+          duration: rideUpdate.duration ?? prevRide.duration,
+        };
+      });
+
+      // Show notifications for status changes
+      if (rideUpdate.status === 'accepted') {
+        toast.success('Driver accepted your ride!');
+        haptics.success();
+      } else if (rideUpdate.status === 'arrived') {
+        toast.success('Driver has arrived!');
+        haptics.success();
+      } else if (rideUpdate.status === 'in_progress') {
+        toast.success('Ride started!');
+        haptics.success();
+      } else if (rideUpdate.status === 'completed') {
+        toast.success('Ride completed!');
+        haptics.success();
+        // Navigate to rating screen
+        router.replace({
+          pathname: "/(core)/ride/rating",
+          params: { 
+            rideId: ride.id.toString(),
+            driverId: ride.driver?.id?.toString() || "",
+            driverName: ride.driver?.name || "Driver"
+          }
+        } as any);
+      } else if (rideUpdate.status === 'cancelled') {
+        toast.error('Ride was cancelled');
+        haptics.error();
+        router.back();
+      }
+    }
+  }, [rideUpdate]);
 
   const fetchRideDetails = async () => {
     try {

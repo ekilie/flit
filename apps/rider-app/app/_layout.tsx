@@ -5,6 +5,7 @@ import { ThemeStatusBar } from "../context/CentralTheme";
 import { SessionProvider, useSession } from "../context/ctx";
 import { ThemeProvider } from "../context/ThemeProvider";
 import { SplashScreenController } from "../components/splash";
+import { SocketProvider } from "../lib/socket/socket-context";
 
 export default function Root() {
   return (
@@ -12,8 +13,10 @@ export default function Root() {
       <ThemeProvider>
         <ThemeStatusBar />
         <SessionProvider>
-          <SplashScreenController />
-          <RootNavigator />
+          <SocketProvider>
+            <SplashScreenController />
+            <RootNavigator />
+          </SocketProvider>
         </SessionProvider>
       </ThemeProvider>
       <Toaster /> {/* yooo native*/}

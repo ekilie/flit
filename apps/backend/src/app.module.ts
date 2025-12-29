@@ -17,6 +17,7 @@ import { LocationsModule } from './modules/locations/locations.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
+import { WebSocketModule } from './gateways/websocket.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
     PaymentsModule,
     LocationsModule,
     NotificationsModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],
