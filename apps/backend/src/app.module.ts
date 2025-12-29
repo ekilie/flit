@@ -18,6 +18,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { WebSocketModule } from './gateways/websocket.module';
+import { PricingModule } from './modules/pricing/pricing.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { WebSocketModule } from './gateways/websocket.module';
     LocationsModule,
     NotificationsModule,
     WebSocketModule,
+    PricingModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, JwtStrategy],

@@ -4,6 +4,7 @@ import {
   BadRequestException,
   forwardRef,
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,29 +12,60 @@ import { Ride, RideStatus } from './entities/ride.entity';
 import { CreateRideDto } from './dto/create-ride.dto';
 import { UpdateRideDto } from './dto/update-ride.dto';
 import { DriverMatchingService } from './services/driver-matching.service';
+import { PricingService } from '../pricing/services/pricing.service';
 
 @Injectable()
 export class RidesService {
+  private readonly logger = new Logger('RidesService');
+
   constructor(
     @InjectRepository(Ride)
     private readonly rideRepository: Repository<Ride>,
     @Inject(forwardRef(() => DriverMatchingService))
     private readonly driverMatchingService: DriverMatchingService,
+    private readonly pricingService: PricingService,
   ) {}
 
   async create(createRideDto: CreateRideDto): Promise<Ride> {
-    const ride = this.rideRepository.create(createRideDto);
-    const savedRide = await this.rideRepository.save(ride);
-    
-    // Start driver matching process
+    // Calculate fare estimate before creating ride
     try {
-      await this.driverMatchingService.matchDriverForRide(savedRide);
+      const fareEstimate = await this.pricingService.calculateFareEstimate({
+        pickupLat: createRideDto.pickupLatitude,
+        pickupLng: createRideDto.pickupLongitude,
+        dropoffLat: createRideDto.dropoffLatitude,
+        dropoffLng: createRideDto.dropoffLongitude,
+        vehicleType: createRideDto.vehicleType,
+      });
+
+      this.logger.log(
+        `Calculated fare estimate: ${fareEstimate.estimatedFare} ${fareEstimate.currency}`,
+      );
+
+      // Create ride with fare estimate
+      const ride = this.rideRepository.create({
+        ...createRideDto,
+        estimatedFare: fareEstimate.estimatedFare,
+        fare: fareEstimate.estimatedFare, // Initial fare
+        distance: fareEstimate.distance,
+        estimatedDuration: fareEstimate.duration,
+        surgeMultiplier: fareEstimate.surgeMultiplier,
+      });
+
+      const savedRide = await this.rideRepository.save(ride);
+
+      // Start driver matching process
+      try {
+        await this.driverMatchingService.matchDriverForRide(savedRide);
+      } catch (error) {
+        this.logger.error('Error starting driver matching:', error);
+        // Don't fail the ride creation if matching fails
+      }
+
+      return savedRide;
     } catch (error) {
-      console.error('Error starting driver matching:', error);
-      // Don't fail the ride creation if matching fails
+      this.logger.error('Error creating ride:', error);
+      throw new BadRequestException('Failed to create ride');
     }
-    
-    return savedRide;
   }
 
   async findAll(): Promise<Ride[]> {

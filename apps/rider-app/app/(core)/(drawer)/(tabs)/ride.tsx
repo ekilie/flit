@@ -30,6 +30,7 @@ import { HapticFeedback } from "@/lib/haptics";
 import { ActivityIndicator } from "react-native";
 import Api from "@/lib/api";
 import { useAuth } from "@/context/ctx";
+import { pricingApi, FareEstimate } from "@/lib/api/pricing-api";
 
 const { width, height } = Dimensions.get("window");
 
@@ -163,14 +164,42 @@ interface VehicleTypeCardProps {
   vehicle: typeof VEHICLE_TYPES[0];
   selected: boolean;
   onSelect: () => void;
+  fareEstimate?: FareEstimate;
 }
 
 const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
   vehicle,
   selected,
   onSelect,
+  fareEstimate,
 }) => {
   const theme = useCurrentTheme();
+
+  // Format fare with surge indicator
+  const getFareDisplay = () => {
+    if (!fareEstimate) {
+      return vehicle.price; // Fallback to static price
+    }
+
+    const hasSurge = fareEstimate.surgeMultiplier > 1.0;
+    const fareText = `${fareEstimate.currency} ${fareEstimate.estimatedFare.toLocaleString()}`;
+    
+    if (hasSurge) {
+      return `${fareText} (${fareEstimate.surgeMultiplier}x)`;
+    }
+    
+    return fareText;
+  };
+
+  // Format distance and duration
+  const getMetaDisplay = () => {
+    if (!fareEstimate) {
+      return vehicle.eta; // Fallback to static ETA
+    }
+
+    const minutes = Math.round(fareEstimate.duration / 60);
+    return `${fareEstimate.distance.toFixed(1)} km • ${minutes} min`;
+  };
 
   return (
     <Pressable
@@ -189,7 +218,16 @@ const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
         <Ionicons name={vehicle.icon as any} size={24} color={theme.primary} />
       </View>
       <View style={styles.vehicleInfo}>
-        <Text style={[styles.vehicleName, { color: theme.text }]}>{vehicle.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={[styles.vehicleName, { color: theme.text }]}>{vehicle.name}</Text>
+          {fareEstimate && fareEstimate.surgeMultiplier > 1.0 && (
+            <View style={{ backgroundColor: '#FF6B6B', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+              <Text style={{ color: 'white', fontSize: 10, fontWeight: '600' }}>
+                SURGE
+              </Text>
+            </View>
+          )}
+        </View>
         <Text style={[styles.vehicleDescription, { color: theme.subtleText }]}>
           {vehicle.description}
         </Text>
@@ -197,11 +235,11 @@ const VehicleTypeCard: React.FC<VehicleTypeCardProps> = ({
           <View style={styles.vehicleMetaItem}>
             <Ionicons name="time-outline" size={14} color={theme.mutedText} />
             <Text style={[styles.vehicleMetaText, { color: theme.mutedText }]}>
-              {vehicle.eta}
+              {getMetaDisplay()}
             </Text>
           </View>
-          <Text style={[styles.vehiclePrice, { color: theme.primary }]}>
-            {vehicle.price}
+          <Text style={[styles.vehiclePrice, { color: theme.primary, fontWeight: '700' }]}>
+            {getFareDisplay()}
           </Text>
         </View>
       </View>
@@ -234,6 +272,8 @@ export default function RideScreen() {
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [fareEstimates, setFareEstimates] = useState<Record<string, FareEstimate>>({});
+  const [isLoadingFares, setIsLoadingFares] = useState(false);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -369,6 +409,7 @@ export default function RideScreen() {
         dropoffLatitude: destinationCoordinates.latitude,
         dropoffLongitude: destinationCoordinates.longitude,
         dropoffAddress: destination,
+        vehicleType: selectedVehicle,
         riderId: user.id,
       };
 
@@ -390,12 +431,59 @@ export default function RideScreen() {
     }
   };
 
-  const handleLocationSelect = (location: typeof RECENT_LOCATIONS[0]) => {
+  const handleLocationSelect = async (location: typeof RECENT_LOCATIONS[0]) => {
     setDestination(location.address);
     setDestinationCoordinates(location.coordinates);
     setShowLocationPicker(false);
     bottomSheetRef.current?.snapToIndex(1);
+    
+    // Fetch fare estimates for all vehicle types
+    if (pickupCoordinates) {
+      await fetchFareEstimates(pickupCoordinates, location.coordinates);
+    }
   };
+
+  const fetchFareEstimates = async (
+    pickup: { latitude: number; longitude: number },
+    dropoff: { latitude: number; longitude: number }
+  ) => {
+    setIsLoadingFares(true);
+    try {
+      const estimates: Record<string, FareEstimate> = {};
+      
+      // Fetch estimates for all vehicle types in parallel
+      await Promise.all(
+        VEHICLE_TYPES.map(async (vehicleType) => {
+          try {
+            const estimate = await pricingApi.getFareEstimate({
+              pickupLat: pickup.latitude,
+              pickupLng: pickup.longitude,
+              dropoffLat: dropoff.latitude,
+              dropoffLng: dropoff.longitude,
+              vehicleType: vehicleType.id,
+            });
+            estimates[vehicleType.id] = estimate;
+          } catch (error) {
+            console.error(`Failed to fetch fare for ${vehicleType.id}:`, error);
+          }
+        })
+      );
+      
+      setFareEstimates(estimates);
+    } catch (error) {
+      console.error("Error fetching fare estimates:", error);
+      toast.error("Failed to calculate fares");
+    } finally {
+      setIsLoadingFares(false);
+    }
+  };
+
+  // Fetch fare estimates when destination changes
+  useEffect(() => {
+    if (pickupCoordinates && destinationCoordinates) {
+      fetchFareEstimates(pickupCoordinates, destinationCoordinates);
+    }
+  }, [pickupCoordinates, destinationCoordinates]);
 
   return (
     <ScreenLayout styles={{ backgroundColor: Colors.light.background }} fullScreen>
@@ -564,12 +652,21 @@ export default function RideScreen() {
                     </View>
 
                     <View style={styles.vehicleList}>
-                      {VEHICLE_TYPES.map((vehicle) => (
+                      {isLoadingFares && (
+                        <View style={{ padding: 20, alignItems: 'center' }}>
+                          <ActivityIndicator size="large" color={theme.primary} />
+                          <Text style={{ color: theme.mutedText, marginTop: 10 }}>
+                            Calculating fares...
+                          </Text>
+                        </View>
+                      )}
+                      {!isLoadingFares && VEHICLE_TYPES.map((vehicle) => (
                         <VehicleTypeCard
                           key={vehicle.id}
                           vehicle={vehicle}
                           selected={selectedVehicle === vehicle.id}
                           onSelect={() => handleSelectVehicle(vehicle.id)}
+                          fareEstimate={fareEstimates[vehicle.id]}
                         />
                       ))}
                     </View>

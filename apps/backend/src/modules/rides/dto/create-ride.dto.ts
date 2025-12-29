@@ -32,6 +32,14 @@ export class CreateRideDto {
   @IsString()
   dropoffAddress: string;
 
+  @ApiProperty({
+    example: 'economy',
+    description: 'Vehicle type',
+    enum: ['economy', 'comfort', 'premium', 'xl'],
+  })
+  @IsString()
+  vehicleType: string;
+
   @ApiPropertyOptional({ description: 'Additional notes for the ride' })
   @IsOptional()
   @IsString()

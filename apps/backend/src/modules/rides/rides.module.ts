@@ -6,12 +6,14 @@ import { Ride } from './entities/ride.entity';
 import { DriverMatchingService } from './services/driver-matching.service';
 import { WebSocketModule } from '../../gateways/websocket.module';
 import { UsersModule } from '../users/users.module';
+import { PricingModule } from '../pricing/pricing.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ride]),
     WebSocketModule,
     UsersModule,
+    PricingModule,
   ],
   controllers: [RidesController],
   providers: [RidesService, DriverMatchingService],

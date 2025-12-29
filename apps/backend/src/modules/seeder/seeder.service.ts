@@ -11,12 +11,14 @@ import {
 import { Ride, RideStatus } from 'src/modules/rides/entities/ride.entity';
 import { predefinedPermissions } from 'src/modules/seeder/data/permissions.data';
 import { LoggerService } from 'src/lib/logger/logger.service';
+import { PricingSeeder } from '../pricing/pricing.seeder';
 
 @Injectable()
 export class SeederService {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly logger: LoggerService,
+    private readonly pricingSeeder: PricingSeeder,
   ) {}
 
   async seed() {
@@ -24,6 +26,7 @@ export class SeederService {
     await this.#createUsers();
     await this.#createVehicles();
     await this.#createRides();
+    await this.pricingSeeder.seed();
   }
 
   async #createRoles() {

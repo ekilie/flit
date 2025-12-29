@@ -39,14 +39,23 @@ export class Ride extends BasicEntity {
   })
   status: RideStatus;
 
+  @Column({ type: 'varchar', nullable: true })
+  vehicleType?: string; // 'economy', 'comfort', 'premium', 'xl'
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   fare?: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  estimatedFare?: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   distance?: number;
 
   @Column({ type: 'int', nullable: true })
   estimatedDuration?: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 1.0 })
+  surgeMultiplier: number;
 
   @Column({ type: 'int', nullable: true })
   actualDuration?: number;

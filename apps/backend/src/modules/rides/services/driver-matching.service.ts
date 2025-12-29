@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Ride } from '../entities/ride.entity';
+import { Ride, RideStatus } from '../entities/ride.entity';
 import { RidesGateway } from '../../../gateways/rides.gateway';
 import { LocationGateway } from '../../../gateways/location.gateway';
 
@@ -320,7 +320,7 @@ export class DriverMatchingService {
     // Update ride status
     await this.ridesRepository.update(rideId, {
       driverId,
-      status: 'accepted',
+      status: RideStatus.ACCEPTED,
     });
 
     // Notify rider
@@ -403,15 +403,16 @@ export class DriverMatchingService {
     // Clean up
     this.pendingRequests.delete(rideId);
 
-    // Update ride status
+    // Update ride status to cancelled since no drivers available
     await this.ridesRepository.update(rideId, {
-      status: 'no_drivers_available',
+      status: RideStatus.CANCELLED,
+      notes: 'No drivers available in your area',
     });
 
     // Notify rider
     this.ridesGateway.emitRideUpdate({
       rideId,
-      status: 'no_drivers_available',
+      status: RideStatus.CANCELLED,
     });
   }
 
