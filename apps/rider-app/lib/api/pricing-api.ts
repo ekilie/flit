@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+import api from "./config";
 
 export interface FareEstimate {
   estimatedFare: number;
@@ -44,14 +44,21 @@ export const pricingApi = {
    */
   async getFareEstimate(request: FareEstimateRequest): Promise<FareEstimate> {
     try {
-      const response = await apiClient.post<FareEstimate>(
+      const response = await api(true).post<FareEstimate>(
         "/pricing/estimate",
         request
       );
       return response.data;
     } catch (error) {
       console.error("Error getting fare estimate:", error);
-      throw error;
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to get fare estimate";
+      throw new Error(message);
     }
   },
 
@@ -60,11 +67,18 @@ export const pricingApi = {
    */
   async getPricingConfigs(): Promise<PricingConfig[]> {
     try {
-      const response = await apiClient.get<PricingConfig[]>("/pricing/configs");
+      const response = await api(false).get<PricingConfig[]>("/pricing/configs");
       return response.data;
     } catch (error) {
       console.error("Error getting pricing configs:", error);
-      throw error;
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to get pricing configurations";
+      throw new Error(message);
     }
   },
 
@@ -73,13 +87,20 @@ export const pricingApi = {
    */
   async getPricingConfig(vehicleType: string): Promise<PricingConfig> {
     try {
-      const response = await apiClient.get<PricingConfig>(
+      const response = await api(false).get<PricingConfig>(
         `/pricing/configs/${vehicleType}`
       );
       return response.data;
     } catch (error) {
       console.error("Error getting pricing config:", error);
-      throw error;
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to get pricing configuration";
+      throw new Error(message);
     }
   },
 };

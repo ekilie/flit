@@ -6,7 +6,7 @@ import { Ride, RideStatus } from '../entities/ride.entity';
 import { RidesGateway } from '../../../gateways/rides.gateway';
 import { LocationGateway } from '../../../gateways/location.gateway';
 
-interface DriverCandidate {
+export interface DriverCandidate {
   driverId: number;
   distance: number;
   rating: number;
@@ -15,7 +15,7 @@ interface DriverCandidate {
   longitude: number;
 }
 
-interface MatchResult {
+export interface MatchResult {
   success: boolean;
   driverId?: number;
   estimatedArrival?: number;

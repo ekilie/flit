@@ -17,7 +17,6 @@ import { CreateSurgeZoneDto } from './dto/create-surge-zone.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../users/entities/user.entity';
 
 @ApiTags('pricing')
 @Controller('pricing')
@@ -68,7 +67,7 @@ export class PricingController {
 
   @Post('configs')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('Admin')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create pricing configuration (Admin only)' })
   @ApiResponse({
@@ -81,7 +80,7 @@ export class PricingController {
 
   @Patch('configs/:vehicleType')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('Admin')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update pricing configuration (Admin only)' })
   @ApiResponse({
@@ -107,7 +106,7 @@ export class PricingController {
 
   @Post('surge-zones')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('Admin')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create surge zone (Admin only)' })
   @ApiResponse({
@@ -128,7 +127,7 @@ export class PricingController {
 
   @Patch('surge-zones/:id/multiplier')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('Admin')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update surge multiplier (Admin only)' })
   @ApiResponse({
@@ -145,7 +144,7 @@ export class PricingController {
 
   @Delete('surge-zones/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles('Admin')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Deactivate surge zone (Admin only)' })
   @ApiResponse({
