@@ -475,26 +475,6 @@ export default function RideScreen() {
             </MapView>
           )}
 
-          {/* Top Controls */}
-          <View style={styles.topControls}>
-            {/* <Pressable
-              style={({ pressed }) => [
-                styles.controlButton,
-                {
-                  backgroundColor: theme.cardBackground,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              onPress={() => router.push("/(core)/ride/history")}
-            >
-              <Image
-                style={styles.logoImage}
-                source={require("@/assets/images/icon-black-and-white.png")}
-              />
-            </Pressable> */}
-            
-          </View>
-
           {/* Location Inputs Overlay */}
           <View style={styles.locationInputsContainer}>
             <View style={styles.locationInputWrapper}>
@@ -633,6 +613,29 @@ export default function RideScreen() {
                           Payment
                         </Text>
                       </Pressable>
+                      {/* <Pressable
+                        style={({ pressed }) => [
+                          styles.quickActionButton,
+                          {
+                            backgroundColor: `${theme.primary}15`,
+                            opacity: pressed ? 0.8 : 1,
+                          },
+                        ]}
+                        onPress={() => router.push("/(core)/ride/promotions")}
+                      >
+                        <Ionicons name="pricetag-outline" size={24} color={theme.primary} />
+                        <Text style={[styles.quickActionText, { color: theme.text }]}>
+                          Promotions
+                        </Text>
+                      </Pressable> */}
+                    </View>
+                    
+                    {/* Welcome Message */}
+                    <View style={[styles.welcomeCard, { backgroundColor: `${theme.primary}08`, borderColor: `${theme.primary}30` }]}>
+                      <Ionicons name="information-circle-outline" size={20} color={theme.primary} style={styles.welcomeIcon} />
+                      <Text style={[styles.welcomeText, { color: theme.text }]}>
+                        Start a new ride with Flit, the best special hire & ride sharing app in Tanzania.
+                      </Text>
                     </View>
                   </View>
                 )}
@@ -957,6 +960,23 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: 14,
     fontWeight: "600",
+  },
+  welcomeCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    padding: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  welcomeIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  welcomeText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
   },
   tripSummary: {
     marginBottom: 16,
