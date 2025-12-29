@@ -3,7 +3,7 @@ import { Drawer } from 'expo-router/drawer';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useState, useMemo, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/ctx';
 import { useCurrentTheme } from '@/context/CentralTheme';
@@ -30,35 +30,68 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     }
   }, [signOut]);
 
-  const gradientColors = (theme.isDark 
-    ? ['#ffc800', '#ffb700'] 
-    : ['#ffc800', '#ffb700']) as [string, string, ...string[]];
+  const gradientColors: [string, string, ...string[]] = theme.isDark 
+    ? ['#ffc800', '#ff9500'] 
+    : ['#ffc800', '#ff9500'];
+
+  const menuItems = [
+    {
+      id: 'history',
+      label: 'Ride History',
+      icon: 'time-outline',
+      route: '/(core)/ride/history',
+    },
+    {
+      id: 'payment',
+      label: 'Payment Methods',
+      icon: 'wallet-outline',
+      route: '/(core)/ride/payment',
+    },
+    {
+      id: 'promotions',
+      label: 'Promotions',
+      icon: 'pricetag-outline',
+      route: '/(core)/ride/promotions',
+    },
+    {
+      id: 'notifications',
+      label: 'Notifications',
+      icon: 'notifications-outline',
+      route: '/(core)/ride/notifications',
+    },
+  ];
 
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.background }]}>
       {/* Header Section with User Info */}
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerGradient}
-      >
-        <View style={styles.header}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatarCircle}>
-              <Ionicons name="person" size={20} color={theme.text} />
+      <View style={styles.headerContainer}>
+        <LinearGradient
+          colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.header}>
+            <View style={[styles.avatarContainer, { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)' }]}>
+              <View style={[styles.avatarCircle, { backgroundColor: theme.isDark ? '#2A2A2A' : '#FFFFFF' }]}>
+                <Ionicons 
+                  name="person" 
+                  size={24} 
+                  color={theme.isDark ? '#FFFFFF' : '#FFC800'} 
+                />
+              </View>
+            </View>
+            <View style={styles.userInfo}>
+              <Text style={[styles.userName, { color: theme.isDark ? '#1A1A1A' : '#1A1A1A' }]} numberOfLines={1}>
+                {(userInfo as any)?.fullName || (userInfo as any)?.name || 'Rider'}
+              </Text>
+              <Text style={[styles.userEmail, { color: theme.isDark ? 'rgba(26,26,26,0.8)' : 'rgba(26,26,26,0.8)' }]} numberOfLines={1}>
+                {(userInfo as any)?.email || 'rider@flit.com'}
+              </Text>
             </View>
           </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
-              {(userInfo as any)?.fullName || (userInfo as any)?.name || 'Rider'}
-            </Text>
-            <Text style={styles.userEmail} numberOfLines={1} ellipsizeMode="tail">
-              {(userInfo as any)?.email || 'rider@flit.com'}
-            </Text>
-          </View>
-        </View>
-      </LinearGradient>
+        </LinearGradient>
+      </View>
 
       {/* Drawer Menu Items */}
       <DrawerContentScrollView 
@@ -67,65 +100,48 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         contentContainerStyle={styles.drawerLinksContent}
         showsVerticalScrollIndicator={false}
       >
-
         <View style={styles.items}>
-          <TouchableOpacity 
-            style={[styles.menuItem, { backgroundColor: theme.surface }]}
-            onPress={() => {
-              props.navigation.closeDrawer();
-              router.push('/(core)/ride/history');
-            }}
-          >
-            <Ionicons name="time-outline" size={22} color={theme.text} />
-            <Text style={[styles.menuItemText, { color: theme.text }]}>Ride History</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.menuItem, { backgroundColor: theme.surface }]}
-            onPress={() => {
-              props.navigation.closeDrawer();
-              router.push('/(core)/ride/payment');
-            }}
-          >
-            <Ionicons name="wallet-outline" size={22} color={theme.text} />
-            <Text style={[styles.menuItemText, { color: theme.text }]}>Payment Methods</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.menuItem, { backgroundColor: theme.surface }]}
-            onPress={() => {
-              props.navigation.closeDrawer();
-              router.push('/(core)/ride/promotions');
-            }}
-          >
-            <Ionicons name="pricetag-outline" size={22} color={theme.text} />
-            <Text style={[styles.menuItemText, { color: theme.text }]}>Promotions</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.menuItem, { backgroundColor: theme.surface }]}
-            onPress={() => {
-              props.navigation.closeDrawer();
-              router.push('/(core)/ride/notifications');
-            }}
-          >
-            <Ionicons name="notifications-outline" size={22} color={theme.text} />
-            <Text style={[styles.menuItemText, { color: theme.text }]}>Notifications</Text>
-          </TouchableOpacity>
+          {menuItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.menuItem, 
+                { 
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border
+                }
+              ]}
+              onPress={() => {
+                props.navigation.closeDrawer();
+                router.push(item.route as any);
+              }}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.iconContainer, { backgroundColor: theme.isDark ? '#2A2A2A' : '#F5F5F5' }]}>
+                <Ionicons name={item.icon as any} size={22} color={theme.isDark ? '#FFC800' : '#FF9800'} />
+              </View>
+              <Text style={[styles.menuItemText, { color: theme.text }]}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={16} color={theme.subtleText} />
+            </TouchableOpacity>
+          ))}
         </View>
       </DrawerContentScrollView>
 
       {/* Footer Section */}
-      <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
+      <View style={[styles.footer, { backgroundColor: theme.background }]}>
         <TouchableOpacity 
-          style={[styles.footerItem, { backgroundColor: theme.background }]}
+          style={[styles.footerItem, { backgroundColor: theme.surface, borderColor: theme.border }]}
           onPress={() => {
             props.navigation.closeDrawer();
             router.push("/settings");
           }}
+          activeOpacity={0.7}
         >
-          <Ionicons name="settings-outline" size={20} color={theme.text} />
+          <View style={[styles.iconContainer, { backgroundColor: theme.isDark ? '#2A2A2A' : '#F5F5F5' }]}>
+            <Ionicons name="settings-outline" size={20} color={theme.isDark ? '#FFC800' : '#FF9800'} />
+          </View>
           <Text style={[styles.footerText, { color: theme.text }]}>Settings</Text>
+          <Ionicons name="chevron-forward" size={16} color={theme.subtleText} />
         </TouchableOpacity>
 
         {/* Sign Out Button */}
@@ -133,6 +149,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           style={[styles.signOutButton, { opacity: isLoading ? 0.5 : 1 }]}
           onPress={handleSignOut}
           disabled={isLoading}
+          activeOpacity={0.7}
         >
           <LinearGradient
             colors={['#ff3b30', '#ff6b6b']}
@@ -140,7 +157,9 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
             end={{ x: 1, y: 0 }}
             style={styles.signOutGradient}
           >
-            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <View style={styles.signOutIcon}>
+              <Ionicons name="log-out-outline" size={20} color="#fff" />
+            </View>
             <Text style={styles.signOutText}>
               {isLoading ? 'Signing Out...' : 'Sign Out'}
             </Text>
@@ -161,17 +180,20 @@ export default function Layout() {
         screenOptions={{
           drawerStyle: [
             styles.drawerStyle,
-            { backgroundColor: theme.background }
+            { 
+              backgroundColor: theme.background,
+              borderRightWidth: StyleSheet.hairlineWidth,
+              borderRightColor: theme.border
+            }
           ],
-          drawerActiveBackgroundColor: 'rgba(255, 200, 0, 0.1)',
-          drawerActiveTintColor: '#ffc800',
+          drawerActiveBackgroundColor: theme.isDark ? 'rgba(255, 200, 0, 0.1)' : 'rgba(255, 152, 0, 0.1)',
+          drawerActiveTintColor: theme.isDark ? '#ffc800' : '#ff9800',
           drawerInactiveTintColor: theme.subtleText,
           drawerLabelStyle: [styles.drawerLabelStyle, { color: theme.text }],
           headerShown: false,
           drawerType: 'slide',
         }}
-      >
-      </Drawer>
+      />
     </GestureHandlerRootView>
   );
 }
@@ -180,33 +202,26 @@ const styles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
   },
-  headerGradient: {
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+  headerContainer: {
     overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
   },
-  header: {
+  headerGradient: {
+    paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 30,
-    paddingHorizontal: 20,
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatarContainer: {
-    padding: 3,
-    borderRadius: 40,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 25,
+    padding: 4,
   },
   avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -216,92 +231,92 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: '700',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: 'rgba(0, 0, 0, 0.7)',
-  },
-  closeButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    fontWeight: '400',
   },
   drawerLinks: {
     flex: 1,
   },
   drawerLinksContent: {
     paddingTop: 10,
+    paddingBottom: 20,
   },
   items: {
-    marginTop: 20,
+    paddingHorizontal: 12,
+    paddingTop: 8,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding:20,
-    marginVertical: 4,
-    marginHorizontal: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginVertical: 6,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   menuItemText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
-    marginLeft: 15,
+    flex: 1,
   },
   footer: {
-    padding: 15,
+    paddingHorizontal: 16,
     paddingBottom: 30,
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
+    paddingTop: 10,
   },
   footerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    marginBottom: 8,
-    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   footerText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
-    marginLeft: 12,
+    flex: 1,
+    marginLeft: 0,
   },
   signOutButton: {
-    marginTop: 10,
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ff3b30',
   },
   signOutGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 20,
+  },
+  signOutIcon: {
+    marginRight: 10,
   },
   signOutText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 10,
   },
   drawerStyle: {
-    width: width * 0.8,
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 5, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    width: width * 0.82,
   },
   drawerLabelStyle: {
-    fontWeight: '600',
+    fontWeight: '500',
     fontSize: 15,
     marginLeft: -20,
   },
