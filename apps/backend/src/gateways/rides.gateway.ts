@@ -237,5 +237,76 @@ export class RidesGateway
     
     this.logger.log(`Ride ${rideId} cancelled by ${cancelledBy}`);
   }
+
+  /**
+   * Send ride request to specific driver
+   */
+  sendRideRequestToDriver(driverId: number, rideRequest: {
+    rideId: number;
+    pickupLatitude: number;
+    pickupLongitude: number;
+    pickupAddress: string;
+    dropoffLatitude: number;
+    dropoffLongitude: number;
+    dropoffAddress: string;
+    riderId: number;
+    distance: number;
+    estimatedArrival: number;
+  }) {
+    const socketId = this.userSockets.get(driverId);
+    
+    if (socketId) {
+      this.server.to(socketId).emit('ride:request', {
+        ...rideRequest,
+        expiresAt: Date.now() + 15000, // 15 seconds to respond
+        timestamp: Date.now(),
+      });
+      
+      this.logger.log(
+        `Sent ride request ${rideRequest.rideId} to driver ${driverId}`
+      );
+    } else {
+      this.logger.warn(
+        `Driver ${driverId} is not connected via WebSocket`
+      );
+    }
+  }
+
+  /**
+   * Cancel ride request to driver (when another driver accepts)
+   */
+  cancelRideRequestToDriver(driverId: number, rideId: number) {
+    const socketId = this.userSockets.get(driverId);
+    
+    if (socketId) {
+      this.server.to(socketId).emit('ride:request-cancelled', {
+        rideId,
+        reason: 'accepted_by_another_driver',
+        timestamp: Date.now(),
+      });
+      
+      this.logger.log(
+        `Cancelled ride request ${rideId} to driver ${driverId}`
+      );
+    }
+  }
+
+  /**
+   * Notify rider about search status
+   */
+  emitDriverSearchUpdate(riderId: number, update: {
+    status: 'searching' | 'found' | 'no_drivers';
+    driversFound?: number;
+    message: string;
+  }) {
+    const socketId = this.userSockets.get(riderId);
+    
+    if (socketId) {
+      this.server.to(socketId).emit('ride:search-update', {
+        ...update,
+        timestamp: Date.now(),
+      });
+    }
+  }
 }
 

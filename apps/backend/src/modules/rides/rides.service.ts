@@ -2,23 +2,38 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ride, RideStatus } from './entities/ride.entity';
 import { CreateRideDto } from './dto/create-ride.dto';
 import { UpdateRideDto } from './dto/update-ride.dto';
+import { DriverMatchingService } from './services/driver-matching.service';
 
 @Injectable()
 export class RidesService {
   constructor(
     @InjectRepository(Ride)
     private readonly rideRepository: Repository<Ride>,
+    @Inject(forwardRef(() => DriverMatchingService))
+    private readonly driverMatchingService: DriverMatchingService,
   ) {}
 
   async create(createRideDto: CreateRideDto): Promise<Ride> {
     const ride = this.rideRepository.create(createRideDto);
-    return await this.rideRepository.save(ride);
+    const savedRide = await this.rideRepository.save(ride);
+    
+    // Start driver matching process
+    try {
+      await this.driverMatchingService.matchDriverForRide(savedRide);
+    } catch (error) {
+      console.error('Error starting driver matching:', error);
+      // Don't fail the ride creation if matching fails
+    }
+    
+    return savedRide;
   }
 
   async findAll(): Promise<Ride[]> {

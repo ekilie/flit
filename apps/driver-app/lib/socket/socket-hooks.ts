@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSocket, RideUpdate, ChatMessage } from './socket-context';
+import { useSocket, RideUpdate, RideRequest, ChatMessage } from './socket-context';
 
 /**
  * Hook to subscribe to ride updates for a specific ride (driver perspective)
@@ -193,6 +193,44 @@ export const useRideStats = (rideId: number | null) => {
   }, [currentRideUpdate, rideId]);
 
   return stats;
+};
+
+/**
+ * Hook for handling incoming ride requests (driver-specific)
+ */
+export const useRideRequests = () => {
+  const { currentRideRequest, clearRideRequest } = useSocket();
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (currentRideRequest) {
+      // Calculate initial time remaining
+      const remaining = Math.max(0, currentRideRequest.expiresAt - Date.now());
+      setTimeRemaining(remaining);
+
+      // Update countdown every second
+      const interval = setInterval(() => {
+        const newRemaining = Math.max(0, currentRideRequest.expiresAt - Date.now());
+        setTimeRemaining(newRemaining);
+
+        if (newRemaining <= 0) {
+          clearInterval(interval);
+          clearRideRequest();
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    } else {
+      setTimeRemaining(null);
+    }
+  }, [currentRideRequest, clearRideRequest]);
+
+  return {
+    rideRequest: currentRideRequest,
+    timeRemaining,
+    timeRemainingSeconds: timeRemaining ? Math.ceil(timeRemaining / 1000) : null,
+    clearRequest: clearRideRequest,
+  };
 };
 
 /**

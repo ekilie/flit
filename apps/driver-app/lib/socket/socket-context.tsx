@@ -13,6 +13,21 @@ export interface RideUpdate {
   duration?: number;
 }
 
+export interface RideRequest {
+  rideId: number;
+  pickupLatitude: number;
+  pickupLongitude: number;
+  pickupAddress: string;
+  dropoffLatitude: number;
+  dropoffLongitude: number;
+  dropoffAddress: string;
+  riderId: number;
+  distance: number;
+  estimatedArrival: number;
+  expiresAt: number;
+  timestamp: number;
+}
+
 export interface ChatMessage {
   id: string;
   rideId: number;
@@ -36,6 +51,10 @@ interface SocketContextType {
   
   // Ride updates
   currentRideUpdate: RideUpdate | null;
+  
+  // Ride requests (incoming)
+  currentRideRequest: RideRequest | null;
+  clearRideRequest: () => void;
   
   // Location tracking
   isTrackingLocation: boolean;
@@ -63,6 +82,7 @@ export const SocketProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [currentRideUpdate, setCurrentRideUpdate] = useState<RideUpdate | null>(null);
+  const [currentRideRequest, setCurrentRideRequest] = useState<RideRequest | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typingIndicator, setTypingIndicator] = useState<TypingIndicator | null>(null);
   const [isTrackingLocation, setIsTrackingLocation] = useState(false);
@@ -98,7 +118,27 @@ export const SocketProvider: React.FC<PropsWithChildren> = ({ children }) => {
         setCurrentRideUpdate(update);
       });
 
-      // Driver-specific events (if any are added later)
+      // Driver-specific events
+      ridesSocket.on('ride:request', (request: RideRequest) => {
+        console.log('[Driver] New ride request received:', request);
+        setCurrentRideRequest(request);
+        
+        // Auto-clear after expiration
+        const timeUntilExpiry = request.expiresAt - Date.now();
+        setTimeout(() => {
+          setCurrentRideRequest((current) => 
+            current?.rideId === request.rideId ? null : current
+          );
+        }, Math.max(timeUntilExpiry, 0));
+      });
+
+      ridesSocket.on('ride:request-cancelled', (data) => {
+        console.log('[Driver] Ride request cancelled:', data);
+        setCurrentRideRequest((current) => 
+          current?.rideId === data.rideId ? null : current
+        );
+      });
+
       ridesSocket.on('ride:cancelled', (data) => {
         console.log('[Driver] Ride cancelled:', data);
         setCurrentRideUpdate({
@@ -242,6 +282,10 @@ export const SocketProvider: React.FC<PropsWithChildren> = ({ children }) => {
     socket?.emit('chat:mark-read', { rideId, messageIds });
   }, []);
 
+  const clearRideRequest = useCallback(() => {
+    setCurrentRideRequest(null);
+  }, []);
+
   const reconnect = useCallback(async () => {
     await socketClient.reconnect();
     setIsConnected(socketClient.isConnected());
@@ -251,6 +295,8 @@ export const SocketProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value: SocketContextType = {
     isConnected,
     currentRideUpdate,
+    currentRideRequest,
+    clearRideRequest,
     isTrackingLocation,
     startLocationTracking,
     stopLocationTracking,
