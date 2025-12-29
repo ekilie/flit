@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { WsJwtGuard } from '../guards/ws-jwt.guard';
 import { AuthUser } from '../modules/auth/decorator/auth-user.decorator';
-import { User } from '../modules/auth/interfaces/auth-user.interface';
+import { IAuthUser as User } from '../modules/auth/interfaces/auth-user.interface';
 
 export interface RideUpdate {
   rideId: number;
