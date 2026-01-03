@@ -16,6 +16,8 @@ import {
   RegisterDto,
   ResetPasswordDto,
   Ride,
+  RideAcceptanceResponse,
+  RideRejectionResponse,
   RideStatus,
   UpdateNotificationDto,
   UpdatePaymentDto,
@@ -569,7 +571,7 @@ class Api {
     }
   }
 
-  static async acceptRide(rideId: number, vehicleId?: number): Promise<any> {
+  static async acceptRide(rideId: number, vehicleId?: number): Promise<RideAcceptanceResponse> {
     try {
       const res = await api(true).post(`/rides/${rideId}/accept`, {
         vehicleId,
@@ -587,7 +589,7 @@ class Api {
     }
   }
 
-  static async rejectRide(rideId: number): Promise<any> {
+  static async rejectRide(rideId: number): Promise<RideRejectionResponse> {
     try {
       const res = await api(true).post(`/rides/${rideId}/reject`);
       return res.data;

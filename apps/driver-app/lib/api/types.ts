@@ -377,3 +377,15 @@ export interface UpdateLocationDto {
   speed?: number;
   heading?: number;
 }
+
+export interface RideAcceptanceResponse {
+  success: boolean;
+  driverId?: number;
+  estimatedArrival?: number;
+  message: string;
+}
+
+export interface RideRejectionResponse {
+  success: boolean;
+  message: string;
+}
