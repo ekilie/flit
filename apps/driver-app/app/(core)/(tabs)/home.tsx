@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Switch,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from 'expo-location';
@@ -30,6 +29,22 @@ const DEFAULT_REGION = {
   longitude: 39.2083,
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0421,
+};
+
+// UI Color Constants - extracted for theme consistency
+const UI_COLORS = {
+  online: '#10b981',        // Green for online status and earnings
+  onlineGradient: '#059669', // Darker green for gradient
+  offline: '#6b7280',       // Gray for offline status
+  offlineDark: '#1f2937',   // Dark gray for offline button
+  offlineDarker: '#111827', // Darker gray for gradient
+  earnings: '#10b981',      // Green for earnings icon
+  trips: '#fbbf24',         // Amber for trips/navigation
+  time: '#3b82f6',          // Blue for time/clock
+  iconBg: 'rgba(16, 185, 129, 0.1)',   // Light green background for icons
+  iconBgSubtle: 'rgba(16, 185, 129, 0.08)', // Subtle green for stat icons
+  border: 'rgba(0, 0, 0, 0.05)',       // Subtle border
+  borderSeparator: 'rgba(0, 0, 0, 0.06)', // Separator line
 };
 
 export default function DriverHomeScreen() {
@@ -168,7 +183,7 @@ export default function DriverHomeScreen() {
               <View style={[styles.driverMarker, isOnline && styles.driverMarkerOnline]}>
                 <MaterialCommunityIcons
                   name="car"
-                  size={20}
+                  size={24}
                   color="#fff"
                 />
               </View>
@@ -176,111 +191,171 @@ export default function DriverHomeScreen() {
           )}
         </MapView>
 
-        {/* Online/Offline Toggle */}
+        {/* Online/Offline Toggle - Modern Bolt-style */}
         <View style={[styles.statusCard, { backgroundColor: theme.card }]}>
-          <View style={styles.statusRow}>
-            <View style={styles.statusInfo}>
-              <Text style={[styles.statusLabel, { color: theme.subtleText }]}>
+          <View style={styles.statusContent}>
+            <View style={styles.statusIconContainer}>
+              <View style={[
+                styles.statusIndicator,
+                { backgroundColor: isOnline ? UI_COLORS.online : UI_COLORS.offline }
+              ]} />
+            </View>
+            <View style={styles.statusTextContainer}>
+              <Text style={[styles.statusLabel, { color: theme.text }]}>
                 {isOnline ? "You're Online" : "You're Offline"}
               </Text>
-              <Text style={[styles.statusSubtext, { color: theme.mutedText }]}>
+              <Text style={[styles.statusSubtext, { color: theme.subtleText }]}>
                 {isOnline
-                  ? "You can receive ride requests"
-                  : "Go online to start earning"}
+                  ? "Ready to accept requests"
+                  : "Tap to start earning"}
               </Text>
             </View>
-            <TouchableOpacity
-              onPress={toggleOnlineStatus}
-              disabled={isLoadingLocation}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={isOnline ? ['#10b981', '#059669'] : ['#6b7280', '#4b5563']}
-                style={styles.toggleButton}
-              >
-                {isLoadingLocation ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Text style={styles.toggleButtonText}>
-                    {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
-                  </Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
           </View>
+          
+          <TouchableOpacity
+            onPress={toggleOnlineStatus}
+            disabled={isLoadingLocation}
+            activeOpacity={0.7}
+            style={styles.toggleButtonContainer}
+          >
+            <LinearGradient
+              colors={isOnline ? [UI_COLORS.online, UI_COLORS.onlineGradient] : [UI_COLORS.offlineDark, UI_COLORS.offlineDarker]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.toggleButton, isLoadingLocation && styles.toggleButtonDisabled]}
+            >
+              {isLoadingLocation ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <>
+                  <MaterialCommunityIcons
+                    name={isOnline ? "pause-circle-outline" : "play-circle-outline"}
+                    size={20}
+                    color="#fff"
+                    style={styles.toggleIcon}
+                  />
+                  <Text style={styles.toggleButtonText}>
+                    {isOnline ? 'Stop' : 'Start'}
+                  </Text>
+                </>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
-        {/* Earnings Summary Card */}
+        {/* Earnings Summary Card - Enhanced Design */}
         <View style={[styles.earningsCard, { backgroundColor: theme.card }]}>
           <View style={styles.earningsHeader}>
-            <Text style={[styles.earningsTitle, { color: theme.text }]}>
-              📊 Today's Summary
-            </Text>
-            <TouchableOpacity onPress={() => {
-              // TODO: Create earnings details screen
-              toast.info('Earnings details coming soon');
-            }}>
-              <Text style={[styles.viewDetailsLink, { color: theme.primary }]}>
-                View Details
+            <View style={styles.earningsHeaderLeft}>
+              <View style={styles.earningsIconContainer}>
+                <MaterialCommunityIcons
+                  name="chart-line"
+                  size={20}
+                  color={UI_COLORS.earnings}
+                />
+              </View>
+              <Text style={[styles.earningsTitle, { color: theme.text }]}>
+                Today's Summary
               </Text>
+            </View>
+            <TouchableOpacity 
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                toast.info('Earnings details coming soon');
+              }}
+              style={styles.viewDetailsButton}
+            >
+              <Text style={styles.viewDetailsLink}>Details</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={18}
+                color={UI_COLORS.earnings}
+              />
             </TouchableOpacity>
           </View>
 
           <View style={styles.earningsStats}>
             <View style={styles.statItem}>
+              <View style={styles.statIconWrapper}>
+                <MaterialCommunityIcons
+                  name="cash-multiple"
+                  size={18}
+                  color={UI_COLORS.earnings}
+                />
+              </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
                 TSh {todayEarnings.toLocaleString()}
               </Text>
               <Text style={[styles.statLabel, { color: theme.subtleText }]}>
-                Earnings
+                Total Earnings
               </Text>
             </View>
 
-            <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-
             <View style={styles.statItem}>
+              <View style={styles.statIconWrapper}>
+                <MaterialCommunityIcons
+                  name="map-marker-path"
+                  size={18}
+                  color={UI_COLORS.trips}
+                />
+              </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
                 {tripCount}
               </Text>
               <Text style={[styles.statLabel, { color: theme.subtleText }]}>
-                Trips
+                Completed Trips
               </Text>
             </View>
 
-            <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-
             <View style={styles.statItem}>
+              <View style={styles.statIconWrapper}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={18}
+                  color={UI_COLORS.time}
+                />
+              </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
                 {onlineTime}
               </Text>
               <Text style={[styles.statLabel, { color: theme.subtleText }]}>
-                Online
+                Time Online
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Center on Location Button */}
-        {currentLocation && (
+        {/* Action Buttons - Bottom Right */}
+        <View style={styles.actionButtons}>
+          {currentLocation && (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.actionButtonSpacing, { backgroundColor: theme.card }]}
+              onPress={centerOnCurrentLocation}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons
+                name="crosshairs-gps"
+                size={22}
+                color={theme.text}
+              />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
-            style={[styles.centerButton, { backgroundColor: theme.card }]}
-            onPress={centerOnCurrentLocation}
+            style={[styles.actionButton, { backgroundColor: theme.card }]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/(core)/settings');
+            }}
+            activeOpacity={0.7}
           >
             <MaterialCommunityIcons
-              name="crosshairs-gps"
-              size={24}
+              name="cog-outline"
+              size={22}
               color={theme.text}
             />
           </TouchableOpacity>
-        )}
-
-        {/* Settings Button */}
-        <TouchableOpacity
-          style={[styles.settingsButton, { backgroundColor: theme.card }]}
-          onPress={() => router.push('/(core)/settings')}
-        >
-          <Ionicons name="settings-outline" size={24} color={theme.text} />
-        </TouchableOpacity>
+        </View>
       </View>
     </ScreenLayout>
   );
@@ -295,142 +370,206 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  // Enhanced Driver Marker
   driverMarker: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#6b7280',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
+    borderWidth: 4,
     borderColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
   },
   driverMarkerOnline: {
-    backgroundColor: '#10b981',
+    backgroundColor: UI_COLORS.online,
+    borderColor: '#fff',
   },
+  // Modern Status Card
   statusCard: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 60 : 40,
-    left: 16,
-    right: 16,
-    borderRadius: 16,
-    padding: 16,
+    left: 20,
+    right: 20,
+    borderRadius: 20,
+    padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: UI_COLORS.border,
   },
-  statusRow: {
+  statusContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  statusInfo: {
+  statusIconContainer: {
+    marginRight: 12,
+  },
+  statusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    shadowColor: UI_COLORS.online,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statusTextContainer: {
     flex: 1,
   },
   statusLabel: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     marginBottom: 4,
+    letterSpacing: -0.5,
   },
   statusSubtext: {
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  toggleButtonContainer: {
+    alignSelf: 'stretch',
   },
   toggleButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    minWidth: 120,
+    paddingVertical: 16,
+    borderRadius: 14,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  toggleButtonDisabled: {
+    opacity: 0.6,
+  },
+  toggleIcon: {
+    marginRight: 8,
   },
   toggleButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
+  // Enhanced Earnings Card
   earningsCard: {
     position: 'absolute',
     bottom: 100,
-    left: 16,
-    right: 16,
-    borderRadius: 16,
+    left: 20,
+    right: 20,
+    borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: UI_COLORS.border,
   },
   earningsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: UI_COLORS.borderSeparator,
+  },
+  earningsHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  earningsIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: UI_COLORS.iconBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   earningsTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
+    letterSpacing: -0.3,
+  },
+  viewDetailsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   viewDetailsLink: {
     fontSize: 14,
     fontWeight: '600',
+    color: UI_COLORS.earnings,
+    marginRight: 2,
   },
   earningsStats: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
+    paddingVertical: 8,
+  },
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: UI_COLORS.iconBgSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 4,
+    fontSize: 19,
+    fontWeight: '800',
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+    opacity: 0.7,
   },
-  statDivider: {
-    width: 1,
-    height: 40,
-  },
-  centerButton: {
+  // Action Buttons
+  actionButtons: {
     position: 'absolute',
-    right: 16,
-    bottom: 220,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    right: 20,
+    bottom: Platform.OS === 'ios' ? 240 : 220,
+  },
+  actionButtonSpacing: {
+    marginBottom: 12,
+  },
+  actionButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  settingsButton: {
-    position: 'absolute',
-    left: 16,
-    bottom: 220,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: UI_COLORS.border,
   },
 });
