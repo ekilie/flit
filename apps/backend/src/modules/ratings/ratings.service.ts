@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rating } from './entities/rating.entity';
@@ -13,6 +13,21 @@ export class RatingsService {
   ) {}
 
   async create(createRatingDto: CreateRatingDto): Promise<Rating> {
+    // Check if rating already exists for this combination
+    const existingRating = await this.ratingRepository.findOne({
+      where: {
+        fromUserId: createRatingDto.fromUserId,
+        toUserId: createRatingDto.toUserId,
+        rideId: createRatingDto.rideId,
+      },
+    });
+
+    if (existingRating) {
+      throw new ConflictException(
+        'You have already rated this user for this ride',
+      );
+    }
+
     const rating = this.ratingRepository.create(createRatingDto);
     return await this.ratingRepository.save(rating);
   }

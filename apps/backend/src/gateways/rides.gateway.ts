@@ -86,25 +86,40 @@ export class RidesGateway
     @MessageBody() data: { rideId: number },
     @AuthUser() user: User,
   ) {
-    const { rideId } = data;
-    
-    if (!this.rideSubscriptions.has(rideId)) {
-      this.rideSubscriptions.set(rideId, new Set());
+    try {
+      const { rideId } = data;
+      
+      if (!rideId) {
+        return {
+          success: false,
+          message: 'Ride ID is required',
+        };
+      }
+      
+      if (!this.rideSubscriptions.has(rideId)) {
+        this.rideSubscriptions.set(rideId, new Set());
+      }
+      
+      this.rideSubscriptions.get(rideId).add(client.id);
+      this.userSockets.set(user.userId, client.id);
+      
+      client.join(`ride:${rideId}`);
+      
+      this.logger.log(
+        `User ${user.userId} (${client.id}) subscribed to ride ${rideId}`,
+      );
+      
+      return {
+        success: true,
+        message: `Subscribed to ride ${rideId}`,
+      };
+    } catch (error) {
+      this.logger.error('Error subscribing to ride:', error);
+      return {
+        success: false,
+        message: 'Failed to subscribe to ride',
+      };
     }
-    
-    this.rideSubscriptions.get(rideId).add(client.id);
-    this.userSockets.set(user.userId, client.id);
-    
-    client.join(`ride:${rideId}`);
-    
-    this.logger.log(
-      `User ${user.userId} (${client.id}) subscribed to ride ${rideId}`,
-    );
-    
-    return {
-      success: true,
-      message: `Subscribed to ride ${rideId}`,
-    };
   }
 
   @SubscribeMessage('unsubscribe:ride')
@@ -112,24 +127,39 @@ export class RidesGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { rideId: number },
   ) {
-    const { rideId } = data;
-    
-    const subscribers = this.rideSubscriptions.get(rideId);
-    if (subscribers) {
-      subscribers.delete(client.id);
-      if (subscribers.size === 0) {
-        this.rideSubscriptions.delete(rideId);
+    try {
+      const { rideId } = data;
+      
+      if (!rideId) {
+        return {
+          success: false,
+          message: 'Ride ID is required',
+        };
       }
+      
+      const subscribers = this.rideSubscriptions.get(rideId);
+      if (subscribers) {
+        subscribers.delete(client.id);
+        if (subscribers.size === 0) {
+          this.rideSubscriptions.delete(rideId);
+        }
+      }
+      
+      client.leave(`ride:${rideId}`);
+      
+      this.logger.log(`Client ${client.id} unsubscribed from ride ${rideId}`);
+      
+      return {
+        success: true,
+        message: `Unsubscribed from ride ${rideId}`,
+      };
+    } catch (error) {
+      this.logger.error('Error unsubscribing from ride:', error);
+      return {
+        success: false,
+        message: 'Failed to unsubscribe from ride',
+      };
     }
-    
-    client.leave(`ride:${rideId}`);
-    
-    this.logger.log(`Client ${client.id} unsubscribed from ride ${rideId}`);
-    
-    return {
-      success: true,
-      message: `Unsubscribed from ride ${rideId}`,
-    };
   }
 
   // Server-side methods to emit events
