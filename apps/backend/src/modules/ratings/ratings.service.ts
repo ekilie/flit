@@ -67,14 +67,18 @@ export class RatingsService {
     });
   }
 
-  async getAverageRating(userId: number): Promise<number> {
+  async getAverageRating(userId: number): Promise<{ average: number; count: number }> {
     const result = await this.ratingRepository
       .createQueryBuilder('rating')
       .select('AVG(rating.rating)', 'average')
+      .addSelect('COUNT(rating.id)', 'count')
       .where('rating.toUserId = :userId', { userId })
       .getRawOne();
 
-    return result.average ? parseFloat(result.average) : 0;
+    return {
+      average: result.average ? parseFloat(result.average) : 0,
+      count: result.count ? parseInt(result.count) : 0,
+    };
   }
 
   async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {

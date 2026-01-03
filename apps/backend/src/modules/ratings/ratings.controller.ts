@@ -43,13 +43,7 @@ export class RatingsController {
 
   @Get('user/:userId/average')
   async getAverageRating(@Param('userId') userId: string) {
-    const ratings = await this.ratingsService.findByUser(+userId);
-    const average = await this.ratingsService.getAverageRating(+userId);
-    
-    return {
-      average,
-      count: ratings.length,
-    };
+    return await this.ratingsService.getAverageRating(+userId);
   }
 
   @Get('ride/:rideId')
