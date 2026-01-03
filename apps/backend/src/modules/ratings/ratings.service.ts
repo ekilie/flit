@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rating } from './entities/rating.entity';
@@ -13,6 +13,21 @@ export class RatingsService {
   ) {}
 
   async create(createRatingDto: CreateRatingDto): Promise<Rating> {
+    // Check if rating already exists for this combination
+    const existingRating = await this.ratingRepository.findOne({
+      where: {
+        fromUserId: createRatingDto.fromUserId,
+        toUserId: createRatingDto.toUserId,
+        rideId: createRatingDto.rideId,
+      },
+    });
+
+    if (existingRating) {
+      throw new ConflictException(
+        'You have already rated this user for this ride',
+      );
+    }
+
     const rating = this.ratingRepository.create(createRatingDto);
     return await this.ratingRepository.save(rating);
   }
@@ -52,14 +67,18 @@ export class RatingsService {
     });
   }
 
-  async getAverageRating(userId: number): Promise<number> {
+  async getAverageRating(userId: number): Promise<{ average: number; count: number }> {
     const result = await this.ratingRepository
       .createQueryBuilder('rating')
       .select('AVG(rating.rating)', 'average')
+      .addSelect('COUNT(rating.id)', 'count')
       .where('rating.toUserId = :userId', { userId })
       .getRawOne();
 
-    return result.average ? parseFloat(result.average) : 0;
+    return {
+      average: result.average ? parseFloat(result.average) : 0,
+      count: result.count ? parseInt(result.count) : 0,
+    };
   }
 
   async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {

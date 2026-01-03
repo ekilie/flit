@@ -42,8 +42,8 @@ export class RatingsController {
   }
 
   @Get('user/:userId/average')
-  getAverageRating(@Param('userId') userId: string) {
-    return this.ratingsService.getAverageRating(+userId);
+  async getAverageRating(@Param('userId') userId: string) {
+    return await this.ratingsService.getAverageRating(+userId);
   }
 
   @Get('ride/:rideId')

@@ -731,6 +731,22 @@ class Api {
     }
   }
 
+  static async updateNotification(id: number, payload: UpdateNotificationDto): Promise<Notification> {
+    try {
+      const res = await api(true).patch(`/notifications/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to update notification";
+      throw new Error(message);
+    }
+  }
+
   static async deleteNotification(id: number): Promise<void> {
     try {
       await api(true).delete(`/notifications/${id}`);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import { EntityManager, Equal } from 'typeorm';
@@ -25,7 +25,7 @@ export class UsersService {
   async findOne(id: number) {
     const user = await this.entityManager.findOneBy(User, { id: Equal(id) });
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
   }
@@ -54,7 +54,7 @@ export class UsersService {
   async updatePassword(userId: number, newPassword: string) {
     const user = await this.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     user.password = newPassword;
@@ -65,7 +65,7 @@ export class UsersService {
   async resetPassword(userId: number, token: string) {
     const user = await this.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     // Verify token here (implement your token verification logic)

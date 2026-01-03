@@ -86,40 +86,62 @@ export class LocationGateway
     @MessageBody() data: { location: LocationUpdate; rideId?: number },
     @AuthUser() user: User,
   ) {
-    const driverId = user.userId;
-    const { location, rideId } = data;
+    try {
+      const driverId = user.userId;
+      const { location, rideId } = data;
 
-    const driverLocationData: DriverLocationData = {
-      driverId,
-      rideId,
-      ...location,
-    };
+      // Validate location data
+      if (
+        !location || 
+        typeof location.latitude !== 'number' || 
+        typeof location.longitude !== 'number' ||
+        isNaN(location.latitude) ||
+        isNaN(location.longitude)
+      ) {
+        return {
+          success: false,
+          message: 'Invalid location data',
+        };
+      }
 
-    // Store driver location
-    this.driverLocations.set(driverId, driverLocationData);
-    this.driverSockets.set(driverId, client.id);
-
-    // If driver is on a ride, broadcast location to ride subscribers
-    if (rideId) {
-      const room = `ride:${rideId}:location`;
-      this.server.to(room).emit('location:driver-update', {
+      const driverLocationData: DriverLocationData = {
         driverId,
         rideId,
-        location: {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          heading: location.heading,
-          speed: location.speed,
-          accuracy: location.accuracy,
-          timestamp: location.timestamp,
-        },
-      });
-    }
+        ...location,
+      };
 
-    return {
-      success: true,
-      message: 'Location updated',
-    };
+      // Store driver location
+      this.driverLocations.set(driverId, driverLocationData);
+      this.driverSockets.set(driverId, client.id);
+
+      // If driver is on a ride, broadcast location to ride subscribers
+      if (rideId) {
+        const room = `ride:${rideId}:location`;
+        this.server.to(room).emit('location:driver-update', {
+          driverId,
+          rideId,
+          location: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            heading: location.heading,
+            speed: location.speed,
+            accuracy: location.accuracy,
+            timestamp: location.timestamp,
+          },
+        });
+      }
+
+      return {
+        success: true,
+        message: 'Location updated',
+      };
+    } catch (error) {
+      this.logger.error('Error updating location:', error);
+      return {
+        success: false,
+        message: 'Failed to update location',
+      };
+    }
   }
 
   /**
@@ -132,24 +154,40 @@ export class LocationGateway
     @MessageBody() data: { rideId: number },
     @AuthUser() user: User,
   ) {
-    const { rideId } = data;
-    const room = `ride:${rideId}:location`;
+    try {
+      const { rideId } = data;
+      
+      if (!rideId) {
+        return {
+          success: false,
+          message: 'Ride ID is required',
+        };
+      }
+      
+      const room = `ride:${rideId}:location`;
 
-    if (!this.rideLocationSubscribers.has(rideId)) {
-      this.rideLocationSubscribers.set(rideId, new Set());
+      if (!this.rideLocationSubscribers.has(rideId)) {
+        this.rideLocationSubscribers.set(rideId, new Set());
+      }
+
+      this.rideLocationSubscribers.get(rideId).add(client.id);
+      client.join(room);
+
+      this.logger.log(
+        `User ${user.userId} subscribed to location updates for ride ${rideId}`,
+      );
+
+      return {
+        success: true,
+        message: `Subscribed to location updates for ride ${rideId}`,
+      };
+    } catch (error) {
+      this.logger.error('Error subscribing to location:', error);
+      return {
+        success: false,
+        message: 'Failed to subscribe to location updates',
+      };
     }
-
-    this.rideLocationSubscribers.get(rideId).add(client.id);
-    client.join(room);
-
-    this.logger.log(
-      `User ${user.userId} subscribed to location updates for ride ${rideId}`,
-    );
-
-    return {
-      success: true,
-      message: `Subscribed to location updates for ride ${rideId}`,
-    };
   }
 
   /**

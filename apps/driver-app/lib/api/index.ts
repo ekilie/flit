@@ -16,6 +16,8 @@ import {
   RegisterDto,
   ResetPasswordDto,
   Ride,
+  RideAcceptanceResponse,
+  RideRejectionResponse,
   RideStatus,
   UpdateNotificationDto,
   UpdatePaymentDto,
@@ -553,6 +555,56 @@ class Api {
     }
   }
 
+  static async getRidesByDriver(driverId: number): Promise<Ride[]> {
+    try {
+      const res = await api(true).get(`/rides/driver/${driverId}`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to fetch driver rides";
+      throw new Error(message);
+    }
+  }
+
+  static async acceptRide(rideId: number, vehicleId?: number): Promise<RideAcceptanceResponse> {
+    try {
+      const res = await api(true).post(`/rides/${rideId}/accept`, {
+        vehicleId,
+      });
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to accept ride";
+      throw new Error(message);
+    }
+  }
+
+  static async rejectRide(rideId: number): Promise<RideRejectionResponse> {
+    try {
+      const res = await api(true).post(`/rides/${rideId}/reject`);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to reject ride";
+      throw new Error(message);
+    }
+  }
+
   static async updateRide(id: number, payload: UpdateRideDto): Promise<Ride> {
     try {
       const res = await api(true).patch(`/rides/${id}`, payload);
@@ -727,6 +779,22 @@ class Api {
         err.response?.data?.error ||
         err.response?.data?.message ||
         "Failed to create notification";
+      throw new Error(message);
+    }
+  }
+
+  static async updateNotification(id: number, payload: UpdateNotificationDto): Promise<Notification> {
+    try {
+      const res = await api(true).patch(`/notifications/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as {
+        response?: { data?: { error?: string; message?: string } };
+      };
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to update notification";
       throw new Error(message);
     }
   }
@@ -941,12 +1009,12 @@ class Api {
   static async getRideStatistics(userId: number): Promise<{
     totalRides: number;
     thisMonth: number;
-    totalSpent: number;
+    totalEarned: number;
     averageRating: number;
   }> {
     try {
-      // Get all completed rides for the user
-      const rides = await Api.getRidesByRider(userId);
+      // Get all completed rides for the driver
+      const rides = await Api.getRidesByDriver(userId);
       const completedRides = rides.filter((r) => r.status === RideStatus.COMPLETED);
       
       // Calculate this month's rides
@@ -957,8 +1025,8 @@ class Api {
                rideDate.getFullYear() === now.getFullYear();
       });
       
-      // Calculate total spent
-      const totalSpent = completedRides.reduce((sum, r) => sum + (r.fare || 0), 0);
+      // Calculate total earned (for drivers)
+      const totalEarned = completedRides.reduce((sum, r) => sum + (r.fare || 0), 0);
       
       // Get average rating
       const ratingData = await Api.getAverageRating(userId);
@@ -966,7 +1034,7 @@ class Api {
       return {
         totalRides: completedRides.length,
         thisMonth: thisMonthRides.length,
-        totalSpent,
+        totalEarned,
         averageRating: ratingData.average || 0,
       };
     } catch (error) {
@@ -974,7 +1042,7 @@ class Api {
       return {
         totalRides: 0,
         thisMonth: 0,
-        totalSpent: 0,
+        totalEarned: 0,
         averageRating: 0,
       };
     }
