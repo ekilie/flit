@@ -83,7 +83,7 @@ export class PaymentsService {
       [PaymentStatus.PENDING]: [
         PaymentStatus.PROCESSING,
         PaymentStatus.FAILED,
-        PaymentStatus.COMPLETED, // Allow direct completion for cash payments
+        PaymentStatus.COMPLETED, // Allow direct completion for cash/wallet payments that don't require processing
       ],
       [PaymentStatus.PROCESSING]: [
         PaymentStatus.COMPLETED,

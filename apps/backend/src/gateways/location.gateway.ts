@@ -91,7 +91,13 @@ export class LocationGateway
       const { location, rideId } = data;
 
       // Validate location data
-      if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
+      if (
+        !location || 
+        typeof location.latitude !== 'number' || 
+        typeof location.longitude !== 'number' ||
+        isNaN(location.latitude) ||
+        isNaN(location.longitude)
+      ) {
         return {
           success: false,
           message: 'Invalid location data',
