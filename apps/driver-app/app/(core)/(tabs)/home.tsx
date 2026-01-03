@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Switch,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from 'expo-location';
@@ -330,7 +329,7 @@ export default function DriverHomeScreen() {
         <View style={styles.actionButtons}>
           {currentLocation && (
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: theme.card }]}
+              style={[styles.actionButton, styles.actionButtonSpacing, { backgroundColor: theme.card }]}
               onPress={centerOnCurrentLocation}
               activeOpacity={0.7}
             >
@@ -555,7 +554,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: Platform.OS === 'ios' ? 240 : 220,
-    gap: 12,
+  },
+  actionButtonSpacing: {
+    marginBottom: 12,
   },
   actionButton: {
     width: 52,
