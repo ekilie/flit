@@ -32,6 +32,22 @@ const DEFAULT_REGION = {
   longitudeDelta: 0.0421,
 };
 
+// UI Color Constants - extracted for theme consistency
+const UI_COLORS = {
+  online: '#10b981',        // Green for online status and earnings
+  onlineGradient: '#059669', // Darker green for gradient
+  offline: '#6b7280',       // Gray for offline status
+  offlineDark: '#1f2937',   // Dark gray for offline button
+  offlineDarker: '#111827', // Darker gray for gradient
+  earnings: '#10b981',      // Green for earnings icon
+  trips: '#fbbf24',         // Amber for trips/navigation
+  time: '#3b82f6',          // Blue for time/clock
+  iconBg: 'rgba(16, 185, 129, 0.1)',   // Light green background for icons
+  iconBgSubtle: 'rgba(16, 185, 129, 0.08)', // Subtle green for stat icons
+  border: 'rgba(0, 0, 0, 0.05)',       // Subtle border
+  borderSeparator: 'rgba(0, 0, 0, 0.06)', // Separator line
+};
+
 export default function DriverHomeScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
@@ -182,7 +198,7 @@ export default function DriverHomeScreen() {
             <View style={styles.statusIconContainer}>
               <View style={[
                 styles.statusIndicator,
-                { backgroundColor: isOnline ? '#10b981' : '#6b7280' }
+                { backgroundColor: isOnline ? UI_COLORS.online : UI_COLORS.offline }
               ]} />
             </View>
             <View style={styles.statusTextContainer}>
@@ -204,7 +220,7 @@ export default function DriverHomeScreen() {
             style={styles.toggleButtonContainer}
           >
             <LinearGradient
-              colors={isOnline ? ['#10b981', '#059669'] : ['#1f2937', '#111827']}
+              colors={isOnline ? [UI_COLORS.online, UI_COLORS.onlineGradient] : [UI_COLORS.offlineDark, UI_COLORS.offlineDarker]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={[styles.toggleButton, isLoadingLocation && styles.toggleButtonDisabled]}
@@ -236,7 +252,7 @@ export default function DriverHomeScreen() {
                 <MaterialCommunityIcons
                   name="chart-line"
                   size={20}
-                  color="#10b981"
+                  color={UI_COLORS.earnings}
                 />
               </View>
               <Text style={[styles.earningsTitle, { color: theme.text }]}>
@@ -254,7 +270,7 @@ export default function DriverHomeScreen() {
               <MaterialCommunityIcons
                 name="chevron-right"
                 size={18}
-                color="#10b981"
+                color={UI_COLORS.earnings}
               />
             </TouchableOpacity>
           </View>
@@ -265,7 +281,7 @@ export default function DriverHomeScreen() {
                 <MaterialCommunityIcons
                   name="cash-multiple"
                   size={18}
-                  color="#10b981"
+                  color={UI_COLORS.earnings}
                 />
               </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
@@ -281,7 +297,7 @@ export default function DriverHomeScreen() {
                 <MaterialCommunityIcons
                   name="map-marker-path"
                   size={18}
-                  color="#fbbf24"
+                  color={UI_COLORS.trips}
                 />
               </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
@@ -297,7 +313,7 @@ export default function DriverHomeScreen() {
                 <MaterialCommunityIcons
                   name="clock-outline"
                   size={18}
-                  color="#3b82f6"
+                  color={UI_COLORS.time}
                 />
               </View>
               <Text style={[styles.statValue, { color: theme.text }]}>
@@ -372,7 +388,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   driverMarkerOnline: {
-    backgroundColor: '#10b981',
+    backgroundColor: UI_COLORS.online,
     borderColor: '#fff',
   },
   // Modern Status Card
@@ -389,7 +405,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderColor: UI_COLORS.border,
   },
   statusContent: {
     flexDirection: 'row',
@@ -403,7 +419,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    shadowColor: '#10b981',
+    shadowColor: UI_COLORS.online,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 4,
@@ -463,7 +479,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderColor: UI_COLORS.border,
   },
   earningsHeader: {
     flexDirection: 'row',
@@ -472,7 +488,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+    borderBottomColor: UI_COLORS.borderSeparator,
   },
   earningsHeaderLeft: {
     flexDirection: 'row',
@@ -482,7 +498,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: UI_COLORS.iconBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -501,7 +517,7 @@ const styles = StyleSheet.create({
   viewDetailsLink: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#10b981',
+    color: UI_COLORS.earnings,
     marginRight: 2,
   },
   earningsStats: {
@@ -517,7 +533,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    backgroundColor: UI_COLORS.iconBgSubtle,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
@@ -553,6 +569,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderColor: UI_COLORS.border,
   },
 });
