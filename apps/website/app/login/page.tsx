@@ -37,7 +37,7 @@ export default function LoginPage() {
       }
 
       // Check if user is admin or manager
-      if (data.user?.role?.name !== 'Admin' && data.user?.role?.name !== 'Manager') {
+      if (!['Admin', 'Manager'].includes(data.user?.role?.name)) {
         throw new Error('Access denied. Admin or Manager role required.')
       }
 

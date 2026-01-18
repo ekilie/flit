@@ -170,7 +170,7 @@ export class PaymentsService {
     };
 
     analytics.averagePayment =
-      analytics.totalPayments > 0
+      analytics.paymentsByStatus.completed > 0
         ? analytics.totalRevenue / analytics.paymentsByStatus.completed
         : 0;
 

@@ -23,6 +23,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Allowed admin roles
+const ADMIN_ROLES = ['Admin', 'Manager'] as const;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
@@ -36,8 +39,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem('user')
 
     if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        // Validate user object structure
+        if (parsedUser && parsedUser.id && parsedUser.email && parsedUser.role) {
+          setToken(storedToken)
+          setUser(parsedUser)
+        } else {
+          // Invalid user data, clear storage
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+        }
+      } catch (error) {
+        // Invalid JSON, clear storage
+        console.error('Failed to parse stored user data:', error)
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
     }
     setIsLoading(false)
   }, [])
@@ -65,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Check if user is admin or manager
-    if (data.user?.role?.name !== 'Admin' && data.user?.role?.name !== 'Manager') {
+    if (!ADMIN_ROLES.includes(data.user?.role?.name)) {
       throw new Error('Access denied. Admin or Manager role required.')
     }
 

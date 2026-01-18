@@ -21,6 +21,10 @@ import { EmailService } from 'src/lib/email/email.service';
 import OTPX from 'otpx';
 
 // In-memory OTP storage (In production, use Redis or database)
+// TODO: Replace with Redis for production use to support:
+// - Server restarts without losing OTPs
+// - Horizontal scaling across multiple instances
+// - Better security and automatic expiration
 const otpStorage = new Map<
   string,
   { otp: string; expiresAt: Date; type: string }
