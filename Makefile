@@ -7,4 +7,7 @@ rider-app:
 driver-app:
 	cd apps/driver-app && npm run start
 
-all: backend rider-app driver-app
+web-app:
+	cd apps/web-app && npm run dev
+
+all: backend rider-app driver-app web-app
