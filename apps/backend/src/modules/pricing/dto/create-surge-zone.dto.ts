@@ -79,4 +79,3 @@ export class CreateSurgeZoneDto {
   @IsBoolean()
   isActive?: boolean;
 }
-

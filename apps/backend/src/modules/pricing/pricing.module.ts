@@ -25,4 +25,3 @@ import { PricingSeeder } from './pricing.seeder';
   ],
 })
 export class PricingModule {}
-

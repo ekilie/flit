@@ -177,11 +177,7 @@ export class AuthService {
 
     // Send verification email
     try {
-      await this.emailService.sendVerificationEmail(
-        email,
-        user.fullName,
-        otp,
-      );
+      await this.emailService.sendVerificationEmail(email, user.fullName, otp);
     } catch (error) {
       console.log(`Failed to send verification email: ${error.message}`);
       console.log(`Verification OTP for ${email}: ${otp}`);

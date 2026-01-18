@@ -12,7 +12,12 @@ import {
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { ApiBearerAuth, ApiTags, ApiQuery, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiQuery,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PaymentStatus } from './entities/payment.entity';
 
@@ -52,10 +57,10 @@ export class PaymentsController {
 
   @Get('revenue/period')
   @ApiOperation({ summary: 'Get revenue by time period' })
-  @ApiQuery({ 
-    name: 'period', 
+  @ApiQuery({
+    name: 'period',
     enum: ['day', 'week', 'month', 'year'],
-    required: false 
+    required: false,
   })
   async getRevenueByPeriod(
     @Query('period') period?: 'day' | 'week' | 'month' | 'year',

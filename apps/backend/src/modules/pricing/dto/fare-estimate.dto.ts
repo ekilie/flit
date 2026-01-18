@@ -54,4 +54,3 @@ export class FareEstimateDto {
   @IsOptional()
   timeOfDay?: string;
 }
-

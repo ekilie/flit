@@ -24,9 +24,7 @@ export class CloudinaryService {
           {
             folder,
             resource_type: 'auto',
-            transformation: [
-              { quality: 'auto', fetch_format: 'auto' },
-            ],
+            transformation: [{ quality: 'auto', fetch_format: 'auto' }],
           },
           (error, result) => {
             if (error) {
@@ -53,9 +51,7 @@ export class CloudinaryService {
       return await cloudinary.uploader.upload(base64Data, {
         folder,
         resource_type: 'auto',
-        transformation: [
-          { quality: 'auto', fetch_format: 'auto' },
-        ],
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
       });
     } catch (error) {
       this.logger.error('Error uploading base64 to Cloudinary:', error);

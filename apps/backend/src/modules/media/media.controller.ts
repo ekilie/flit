@@ -24,7 +24,9 @@ export class MediaController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Post('upload')
-  @ApiOperation({ summary: 'Upload a file to Cloudinary (images, documents, etc.)' })
+  @ApiOperation({
+    summary: 'Upload a file to Cloudinary (images, documents, etc.)',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

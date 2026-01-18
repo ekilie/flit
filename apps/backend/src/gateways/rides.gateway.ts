@@ -61,7 +61,7 @@ export class RidesGateway
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
-    
+
     // Clean up subscriptions
     this.rideSubscriptions.forEach((subscribers, rideId) => {
       subscribers.delete(client.id);
@@ -88,27 +88,27 @@ export class RidesGateway
   ) {
     try {
       const { rideId } = data;
-      
+
       if (!rideId) {
         return {
           success: false,
           message: 'Ride ID is required',
         };
       }
-      
+
       if (!this.rideSubscriptions.has(rideId)) {
         this.rideSubscriptions.set(rideId, new Set());
       }
-      
+
       this.rideSubscriptions.get(rideId).add(client.id);
       this.userSockets.set(user.userId, client.id);
-      
+
       client.join(`ride:${rideId}`);
-      
+
       this.logger.log(
         `User ${user.userId} (${client.id}) subscribed to ride ${rideId}`,
       );
-      
+
       return {
         success: true,
         message: `Subscribed to ride ${rideId}`,
@@ -129,14 +129,14 @@ export class RidesGateway
   ) {
     try {
       const { rideId } = data;
-      
+
       if (!rideId) {
         return {
           success: false,
           message: 'Ride ID is required',
         };
       }
-      
+
       const subscribers = this.rideSubscriptions.get(rideId);
       if (subscribers) {
         subscribers.delete(client.id);
@@ -144,11 +144,11 @@ export class RidesGateway
           this.rideSubscriptions.delete(rideId);
         }
       }
-      
+
       client.leave(`ride:${rideId}`);
-      
+
       this.logger.log(`Client ${client.id} unsubscribed from ride ${rideId}`);
-      
+
       return {
         success: true,
         message: `Unsubscribed from ride ${rideId}`,
@@ -169,9 +169,9 @@ export class RidesGateway
    */
   emitRideUpdate(rideUpdate: RideUpdate) {
     const room = `ride:${rideUpdate.rideId}`;
-    
+
     this.server.to(room).emit('ride:update', rideUpdate);
-    
+
     this.logger.log(
       `Emitted ride update for ride ${rideUpdate.rideId}: ${rideUpdate.status}`,
     );
@@ -182,7 +182,7 @@ export class RidesGateway
    */
   emitRideStatusToUser(userId: number, rideUpdate: RideUpdate) {
     const socketId = this.userSockets.get(userId);
-    
+
     if (socketId) {
       this.server.to(socketId).emit('ride:update', rideUpdate);
       this.logger.log(
@@ -194,16 +194,20 @@ export class RidesGateway
   /**
    * Notify rider that driver has accepted the ride
    */
-  emitDriverAccepted(rideId: number, driverId: number, estimatedArrival: number) {
+  emitDriverAccepted(
+    rideId: number,
+    driverId: number,
+    estimatedArrival: number,
+  ) {
     const room = `ride:${rideId}`;
-    
+
     this.server.to(room).emit('ride:driver-accepted', {
       rideId,
       driverId,
       estimatedArrival,
       timestamp: Date.now(),
     });
-    
+
     this.logger.log(`Driver ${driverId} accepted ride ${rideId}`);
   }
 
@@ -212,12 +216,12 @@ export class RidesGateway
    */
   emitDriverArrived(rideId: number) {
     const room = `ride:${rideId}`;
-    
+
     this.server.to(room).emit('ride:driver-arrived', {
       rideId,
       timestamp: Date.now(),
     });
-    
+
     this.logger.log(`Driver arrived for ride ${rideId}`);
   }
 
@@ -226,21 +230,26 @@ export class RidesGateway
    */
   emitRideStarted(rideId: number) {
     const room = `ride:${rideId}`;
-    
+
     this.server.to(room).emit('ride:started', {
       rideId,
       timestamp: Date.now(),
     });
-    
+
     this.logger.log(`Ride ${rideId} started`);
   }
 
   /**
    * Notify rider that ride has been completed
    */
-  emitRideCompleted(rideId: number, fare: number, distance: number, duration: number) {
+  emitRideCompleted(
+    rideId: number,
+    fare: number,
+    distance: number,
+    duration: number,
+  ) {
     const room = `ride:${rideId}`;
-    
+
     this.server.to(room).emit('ride:completed', {
       rideId,
       fare,
@@ -248,57 +257,62 @@ export class RidesGateway
       duration,
       timestamp: Date.now(),
     });
-    
+
     this.logger.log(`Ride ${rideId} completed`);
   }
 
   /**
    * Notify about ride cancellation
    */
-  emitRideCancelled(rideId: number, cancelledBy: 'rider' | 'driver', reason?: string) {
+  emitRideCancelled(
+    rideId: number,
+    cancelledBy: 'rider' | 'driver',
+    reason?: string,
+  ) {
     const room = `ride:${rideId}`;
-    
+
     this.server.to(room).emit('ride:cancelled', {
       rideId,
       cancelledBy,
       reason,
       timestamp: Date.now(),
     });
-    
+
     this.logger.log(`Ride ${rideId} cancelled by ${cancelledBy}`);
   }
 
   /**
    * Send ride request to specific driver
    */
-  sendRideRequestToDriver(driverId: number, rideRequest: {
-    rideId: number;
-    pickupLatitude: number;
-    pickupLongitude: number;
-    pickupAddress: string;
-    dropoffLatitude: number;
-    dropoffLongitude: number;
-    dropoffAddress: string;
-    riderId: number;
-    distance: number;
-    estimatedArrival: number;
-  }) {
+  sendRideRequestToDriver(
+    driverId: number,
+    rideRequest: {
+      rideId: number;
+      pickupLatitude: number;
+      pickupLongitude: number;
+      pickupAddress: string;
+      dropoffLatitude: number;
+      dropoffLongitude: number;
+      dropoffAddress: string;
+      riderId: number;
+      distance: number;
+      estimatedArrival: number;
+    },
+  ) {
     const socketId = this.userSockets.get(driverId);
-    
+
     if (socketId) {
       this.server.to(socketId).emit('ride:request', {
         ...rideRequest,
         expiresAt: Date.now() + 15000, // 15 seconds to respond
         timestamp: Date.now(),
       });
-      
+
       this.logger.log(
-        `Sent ride request ${rideRequest.rideId} to driver ${driverId}`
+        `Sent ride request ${rideRequest.rideId} to driver ${driverId}`,
       );
     } else {
-      this.logger.warn(
-        `Driver ${driverId} is not connected via WebSocket`
-      );
+      this.logger.warn(`Driver ${driverId} is not connected via WebSocket`);
     }
   }
 
@@ -307,30 +321,31 @@ export class RidesGateway
    */
   cancelRideRequestToDriver(driverId: number, rideId: number) {
     const socketId = this.userSockets.get(driverId);
-    
+
     if (socketId) {
       this.server.to(socketId).emit('ride:request-cancelled', {
         rideId,
         reason: 'accepted_by_another_driver',
         timestamp: Date.now(),
       });
-      
-      this.logger.log(
-        `Cancelled ride request ${rideId} to driver ${driverId}`
-      );
+
+      this.logger.log(`Cancelled ride request ${rideId} to driver ${driverId}`);
     }
   }
 
   /**
    * Notify rider about search status
    */
-  emitDriverSearchUpdate(riderId: number, update: {
-    status: 'searching' | 'found' | 'no_drivers';
-    driversFound?: number;
-    message: string;
-  }) {
+  emitDriverSearchUpdate(
+    riderId: number,
+    update: {
+      status: 'searching' | 'found' | 'no_drivers';
+      driversFound?: number;
+      message: string;
+    },
+  ) {
     const socketId = this.userSockets.get(riderId);
-    
+
     if (socketId) {
       this.server.to(socketId).emit('ride:search-update', {
         ...update,
@@ -339,4 +354,3 @@ export class RidesGateway
     }
   }
 }
-

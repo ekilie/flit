@@ -30,12 +30,15 @@ export class DriverMatchingService {
   private readonly MAX_DRIVERS_TO_TRY = 5; // Try up to 5 drivers
 
   // Track pending ride requests
-  private pendingRequests = new Map<number, {
-    rideId: number;
-    currentDriverIndex: number;
-    candidates: DriverCandidate[];
-    timeoutHandle?: NodeJS.Timeout;
-  }>();
+  private pendingRequests = new Map<
+    number,
+    {
+      rideId: number;
+      currentDriverIndex: number;
+      candidates: DriverCandidate[];
+      timeoutHandle?: NodeJS.Timeout;
+    }
+  >();
 
   constructor(
     @InjectRepository(User)
@@ -57,7 +60,7 @@ export class DriverMatchingService {
       const candidates = await this.findAvailableDrivers(
         ride.pickupLatitude,
         ride.pickupLongitude,
-        this.MAX_SEARCH_RADIUS_KM
+        this.MAX_SEARCH_RADIUS_KM,
       );
 
       if (candidates.length === 0) {
@@ -69,7 +72,7 @@ export class DriverMatchingService {
       }
 
       this.logger.log(
-        `Found ${candidates.length} available drivers for ride ${ride.id}`
+        `Found ${candidates.length} available drivers for ride ${ride.id}`,
       );
 
       // Step 2: Sort by distance and rating
@@ -92,7 +95,7 @@ export class DriverMatchingService {
     } catch (error) {
       this.logger.error(
         `Error matching driver for ride ${ride.id}:`,
-        error.stack
+        error.stack,
       );
       return {
         success: false,
@@ -107,7 +110,7 @@ export class DriverMatchingService {
   private async findAvailableDrivers(
     latitude: number,
     longitude: number,
-    radiusKm: number
+    radiusKm: number,
   ): Promise<DriverCandidate[]> {
     // Get all drivers (role = 'driver')
     const drivers = await this.usersRepository
@@ -121,14 +124,14 @@ export class DriverMatchingService {
     for (const driver of drivers) {
       // Check if driver is online via location gateway
       const isOnline = this.locationGateway.isDriverOnline(driver.id);
-      
+
       if (!isOnline) {
         continue;
       }
 
       // Get driver's current location
       const driverLocation = this.locationGateway.getDriverLocation(driver.id);
-      
+
       if (!driverLocation) {
         continue;
       }
@@ -138,7 +141,7 @@ export class DriverMatchingService {
         latitude,
         longitude,
         driverLocation.latitude,
-        driverLocation.longitude
+        driverLocation.longitude,
       );
 
       // Filter by radius
@@ -161,15 +164,15 @@ export class DriverMatchingService {
    * Sort drivers by priority (distance and rating)
    */
   private sortDriversByPriority(
-    candidates: DriverCandidate[]
+    candidates: DriverCandidate[],
   ): DriverCandidate[] {
     return candidates.sort((a, b) => {
       // Primary: Distance (closer is better)
       const distanceDiff = a.distance - b.distance;
-      
+
       // Secondary: Rating (higher is better)
       const ratingDiff = b.rating - a.rating;
-      
+
       // Weight: Distance is 70%, Rating is 30%
       return distanceDiff * 0.7 + ratingDiff * 0.3;
     });
@@ -182,19 +185,19 @@ export class DriverMatchingService {
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
   ): number {
     const R = 6371; // Earth's radius in km
     const dLat = this.toRad(lat2 - lat1);
     const dLon = this.toRad(lon2 - lon1);
-    
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.toRad(lat1)) *
         Math.cos(this.toRad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-    
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -211,7 +214,7 @@ export class DriverMatchingService {
     const speedKmPerHour = 30;
     const hours = distanceKm / speedKmPerHour;
     const seconds = hours * 3600;
-    
+
     // Add 60 seconds buffer for acceptance and preparation
     return Math.round(seconds + 60);
   }
@@ -221,7 +224,7 @@ export class DriverMatchingService {
    */
   private async sendRideRequestToNextDriver(rideId: number): Promise<void> {
     const request = this.pendingRequests.get(rideId);
-    
+
     if (!request) {
       this.logger.warn(`No pending request found for ride ${rideId}`);
       return;
@@ -253,7 +256,7 @@ export class DriverMatchingService {
     }
 
     this.logger.log(
-      `Sending ride request to driver ${candidate.driverId} (attempt ${currentDriverIndex + 1}/${Math.min(candidates.length, this.MAX_DRIVERS_TO_TRY)})`
+      `Sending ride request to driver ${candidate.driverId} (attempt ${currentDriverIndex + 1}/${Math.min(candidates.length, this.MAX_DRIVERS_TO_TRY)})`,
     );
 
     // Calculate ETA
@@ -287,13 +290,13 @@ export class DriverMatchingService {
    */
   async handleDriverAcceptance(
     rideId: number,
-    driverId: number
+    driverId: number,
   ): Promise<MatchResult> {
     const request = this.pendingRequests.get(rideId);
-    
+
     if (!request) {
       this.logger.warn(
-        `No pending request for ride ${rideId} (driver ${driverId} acceptance)`
+        `No pending request for ride ${rideId} (driver ${driverId} acceptance)`,
       );
       return {
         success: false,
@@ -330,7 +333,7 @@ export class DriverMatchingService {
     await this.cancelPendingRequestsForOtherDrivers(
       rideId,
       request.candidates,
-      driverId
+      driverId,
     );
 
     return {
@@ -346,10 +349,10 @@ export class DriverMatchingService {
    */
   async handleDriverRejection(rideId: number, driverId: number): Promise<void> {
     const request = this.pendingRequests.get(rideId);
-    
+
     if (!request) {
       this.logger.warn(
-        `No pending request for ride ${rideId} (driver ${driverId} rejection)`
+        `No pending request for ride ${rideId} (driver ${driverId} rejection)`,
       );
       return;
     }
@@ -374,16 +377,16 @@ export class DriverMatchingService {
    */
   private async handleDriverTimeout(
     rideId: number,
-    driverId: number
+    driverId: number,
   ): Promise<void> {
     const request = this.pendingRequests.get(rideId);
-    
+
     if (!request) {
       return;
     }
 
     this.logger.log(
-      `Driver ${driverId} timeout for ride ${rideId} - trying next driver`
+      `Driver ${driverId} timeout for ride ${rideId} - trying next driver`,
     );
 
     // Move to next driver
@@ -422,14 +425,11 @@ export class DriverMatchingService {
   private async cancelPendingRequestsForOtherDrivers(
     rideId: number,
     candidates: DriverCandidate[],
-    acceptedDriverId: number
+    acceptedDriverId: number,
   ): Promise<void> {
     for (const candidate of candidates) {
       if (candidate.driverId !== acceptedDriverId) {
-        this.ridesGateway.cancelRideRequestToDriver(
-          candidate.driverId,
-          rideId
-        );
+        this.ridesGateway.cancelRideRequestToDriver(candidate.driverId, rideId);
       }
     }
   }
@@ -443,12 +443,15 @@ export class DriverMatchingService {
 
     for (const [rideId, request] of this.pendingRequests.entries()) {
       // If request is older than 5 minutes, consider it expired
-      const ride = await this.ridesRepository.findOne({ where: { id: rideId } });
-      
+      const ride = await this.ridesRepository.findOne({
+        where: { id: rideId },
+      });
+
       if (ride) {
         const rideAge = now - new Date(ride.createdAt).getTime();
-        
-        if (rideAge > 300000) { // 5 minutes
+
+        if (rideAge > 300000) {
+          // 5 minutes
           expiredRides.push(rideId);
         }
       }
@@ -459,7 +462,9 @@ export class DriverMatchingService {
     }
 
     if (expiredRides.length > 0) {
-      this.logger.log(`Cleaned up ${expiredRides.length} expired ride requests`);
+      this.logger.log(
+        `Cleaned up ${expiredRides.length} expired ride requests`,
+      );
     }
   }
 
@@ -476,4 +481,3 @@ export class DriverMatchingService {
     };
   }
 }
-

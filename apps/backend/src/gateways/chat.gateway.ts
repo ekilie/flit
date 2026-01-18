@@ -43,11 +43,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private logger: Logger = new Logger('ChatGateway');
-  
+
   // Track chat participants
   private chatParticipants: Map<number, Set<string>> = new Map(); // rideId -> Set of socketIds
   private userSockets: Map<number, string> = new Map(); // userId -> socketId
-  
+
   // Store messages in memory (consider using database for production)
   private messages: Map<number, ChatMessage[]> = new Map(); // rideId -> messages
 
@@ -57,7 +57,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Chat client disconnected: ${client.id}`);
-    
+
     // Clean up chat subscriptions
     this.chatParticipants.forEach((participants, rideId) => {
       participants.delete(client.id);
@@ -94,7 +94,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.chatParticipants.get(rideId).add(client.id);
     this.userSockets.set(user.userId, client.id);
-    
+
     client.join(room);
 
     this.logger.log(`User ${user.userId} joined chat for ride ${rideId}`);
@@ -232,7 +232,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const rideMessages = this.messages.get(rideId);
 
     if (rideMessages) {
-      rideMessages.forEach((msg) => {
+      rideMessages.forEach(msg => {
         if (messageIds.includes(msg.id) && msg.senderId !== user.userId) {
           msg.read = true;
         }
@@ -296,4 +296,3 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Chat history cleared for ride ${rideId}`);
   }
 }
-

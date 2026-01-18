@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Payment, PaymentStatus } from './entities/payment.entity';
@@ -65,12 +69,12 @@ export class PaymentsService {
     updatePaymentDto: UpdatePaymentDto,
   ): Promise<Payment> {
     const payment = await this.findOne(id);
-    
+
     // Validate status transitions if status is being updated
     if (updatePaymentDto.status && updatePaymentDto.status !== payment.status) {
       this.validateStatusTransition(payment.status, updatePaymentDto.status);
     }
-    
+
     Object.assign(payment, updatePaymentDto);
     return await this.paymentRepository.save(payment);
   }
@@ -105,7 +109,7 @@ export class PaymentsService {
 
   async remove(id: number): Promise<void> {
     const payment = await this.findOne(id);
-    
+
     // Prevent deletion of completed or refunded payments
     if (
       payment.status === PaymentStatus.COMPLETED ||
@@ -115,14 +119,14 @@ export class PaymentsService {
         'Cannot delete completed or refunded payments',
       );
     }
-    
+
     await this.paymentRepository.remove(payment);
   }
 
   // Financial Analytics Methods
   async getPaymentAnalytics(startDate?: Date, endDate?: Date) {
     const where: any = {};
-    
+
     if (startDate && endDate) {
       where.createdAt = Between(startDate, endDate);
     }
@@ -136,36 +140,46 @@ export class PaymentsService {
         .reduce((sum, p) => sum + p.amount, 0),
       averagePayment: 0,
       paymentsByStatus: {
-        pending: payments.filter(p => p.status === PaymentStatus.PENDING).length,
-        processing: payments.filter(p => p.status === PaymentStatus.PROCESSING).length,
-        completed: payments.filter(p => p.status === PaymentStatus.COMPLETED).length,
+        pending: payments.filter(p => p.status === PaymentStatus.PENDING)
+          .length,
+        processing: payments.filter(p => p.status === PaymentStatus.PROCESSING)
+          .length,
+        completed: payments.filter(p => p.status === PaymentStatus.COMPLETED)
+          .length,
         failed: payments.filter(p => p.status === PaymentStatus.FAILED).length,
-        refunded: payments.filter(p => p.status === PaymentStatus.REFUNDED).length,
+        refunded: payments.filter(p => p.status === PaymentStatus.REFUNDED)
+          .length,
       },
       revenueByStatus: {
-        pending: payments.filter(p => p.status === PaymentStatus.PENDING)
+        pending: payments
+          .filter(p => p.status === PaymentStatus.PENDING)
           .reduce((sum, p) => sum + p.amount, 0),
-        processing: payments.filter(p => p.status === PaymentStatus.PROCESSING)
+        processing: payments
+          .filter(p => p.status === PaymentStatus.PROCESSING)
           .reduce((sum, p) => sum + p.amount, 0),
-        completed: payments.filter(p => p.status === PaymentStatus.COMPLETED)
+        completed: payments
+          .filter(p => p.status === PaymentStatus.COMPLETED)
           .reduce((sum, p) => sum + p.amount, 0),
-        failed: payments.filter(p => p.status === PaymentStatus.FAILED)
+        failed: payments
+          .filter(p => p.status === PaymentStatus.FAILED)
           .reduce((sum, p) => sum + p.amount, 0),
-        refunded: payments.filter(p => p.status === PaymentStatus.REFUNDED)
+        refunded: payments
+          .filter(p => p.status === PaymentStatus.REFUNDED)
           .reduce((sum, p) => sum + p.amount, 0),
       },
     };
 
-    analytics.averagePayment = analytics.totalPayments > 0
-      ? analytics.totalRevenue / analytics.paymentsByStatus.completed
-      : 0;
+    analytics.averagePayment =
+      analytics.totalPayments > 0
+        ? analytics.totalRevenue / analytics.paymentsByStatus.completed
+        : 0;
 
     return analytics;
   }
 
   async getPendingPayouts() {
     return await this.paymentRepository.find({
-      where: { 
+      where: {
         status: PaymentStatus.COMPLETED,
       },
       relations: ['ride', 'user'],
@@ -205,9 +219,10 @@ export class PaymentsService {
       endDate: now,
       totalRevenue: payments.reduce((sum, p) => sum + p.amount, 0),
       transactionCount: payments.length,
-      averageTransaction: payments.length > 0 
-        ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length 
-        : 0,
+      averageTransaction:
+        payments.length > 0
+          ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length
+          : 0,
     };
   }
 }

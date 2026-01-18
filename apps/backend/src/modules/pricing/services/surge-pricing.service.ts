@@ -44,7 +44,7 @@ export class SurgePricingService {
         if (distance <= zone.radiusKm) {
           // Check if surge is still valid (within time window)
           const now = new Date();
-          
+
           if (zone.startTime && zone.endTime) {
             if (now < zone.startTime || now > zone.endTime) {
               continue; // Surge window not active
@@ -189,4 +189,3 @@ export class SurgePricingService {
     });
   }
 }
-
