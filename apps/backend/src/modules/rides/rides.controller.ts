@@ -71,7 +71,7 @@ export class RidesController {
   ) {
     const driverId = user.userId;
     const rideId = +id;
-    
+
     // Handle driver acceptance through matching service
     const result = await this.driverMatchingService.handleDriverAcceptance(
       rideId,
@@ -93,16 +93,13 @@ export class RidesController {
   }
 
   @Post(':id/reject')
-  async rejectRide(
-    @Param('id') id: string,
-    @AuthUser() user: IAuthUser,
-  ) {
+  async rejectRide(@Param('id') id: string, @AuthUser() user: IAuthUser) {
     const driverId = user.userId;
     const rideId = +id;
-    
+
     // Handle driver rejection through matching service
     await this.driverMatchingService.handleDriverRejection(rideId, driverId);
-    
+
     return {
       success: true,
       message: 'Ride rejected successfully',

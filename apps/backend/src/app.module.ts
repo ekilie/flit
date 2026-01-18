@@ -19,11 +19,15 @@ import { AuthService } from 'src/modules/auth/services/auth.service';
 import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { WebSocketModule } from './gateways/websocket.module';
 import { PricingModule } from './modules/pricing/pricing.module';
+import { CloudinaryModule } from 'src/lib/cloudinary/cloudinary.module';
+import { EmailModule } from 'src/lib/email/email.module';
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
+    CloudinaryModule,
+    EmailModule,
     UsersModule,
     RolesModule,
     SeederModule,

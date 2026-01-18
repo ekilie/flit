@@ -17,9 +17,14 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/modules/users/entities/user.entity';
 import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 import { RolesService } from 'src/modules/roles/roles.service';
+import { EmailService } from 'src/lib/email/email.service';
 import OTPX from 'otpx';
 
 // In-memory OTP storage (In production, use Redis or database)
+// TODO: Replace with Redis for production use to support:
+// - Server restarts without losing OTPs
+// - Horizontal scaling across multiple instances
+// - Better security and automatic expiration
 const otpStorage = new Map<
   string,
   { otp: string; expiresAt: Date; type: string }
@@ -31,6 +36,7 @@ export class AuthService {
     private usersService: UsersService,
     private rolesService: RolesService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User> {
@@ -92,7 +98,17 @@ export class AuthService {
     const otp = this.generateOTP();
     this.storeOTP(registerDto.email, otp, 'verification');
 
-    console.log(`Verification OTP for ${registerDto.email}: ${otp}`);
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(
+        registerDto.email,
+        registerDto.name,
+        otp,
+      );
+    } catch (error) {
+      console.log(`Failed to send verification email: ${error.message}`);
+      console.log(`Verification OTP for ${registerDto.email}: ${otp}`);
+    }
 
     return {
       message:
@@ -163,8 +179,13 @@ export class AuthService {
     const otp = this.generateOTP();
     this.storeOTP(email, otp, 'verification');
 
-    // In production, send email with OTP
-    console.log(`Verification OTP for ${email}: ${otp}`);
+    // Send verification email
+    try {
+      await this.emailService.sendVerificationEmail(email, user.fullName, otp);
+    } catch (error) {
+      console.log(`Failed to send verification email: ${error.message}`);
+      console.log(`Verification OTP for ${email}: ${otp}`);
+    }
 
     return {
       success: true,
@@ -204,8 +225,17 @@ export class AuthService {
     const otp = this.generateOTP();
     this.storeOTP(dto.email, otp, 'reset');
 
-    // In production, send email with OTP
-    console.log(`Password reset OTP for ${dto.email}: ${otp}`);
+    // Send password reset email
+    try {
+      await this.emailService.sendPasswordResetEmail(
+        dto.email,
+        user.fullName,
+        otp,
+      );
+    } catch (error) {
+      console.log(`Failed to send password reset email: ${error.message}`);
+      console.log(`Password reset OTP for ${dto.email}: ${otp}`);
+    }
 
     return {
       success: true,

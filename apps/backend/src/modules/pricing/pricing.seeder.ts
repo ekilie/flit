@@ -39,15 +39,15 @@ export class PricingSeeder {
       },
       {
         name: 'City Center (Posta)',
-        centerLatitude: -6.8160,
+        centerLatitude: -6.816,
         centerLongitude: 39.2803,
         radiusKm: 2.5,
         surgeMultiplier: 1.3,
       },
       {
         name: 'Mlimani City Area',
-        centerLatitude: -6.7730,
-        centerLongitude: 39.2120,
+        centerLatitude: -6.773,
+        centerLongitude: 39.212,
         radiusKm: 1.5,
         surgeMultiplier: 1.2,
       },
@@ -59,9 +59,10 @@ export class PricingSeeder {
         this.logger.log(`Created surge zone: ${zone.name}`);
       } catch (error) {
         // Zone might already exist, skip
-        this.logger.debug(`Surge zone ${zone.name} may already exist, skipping`);
+        this.logger.debug(
+          `Surge zone ${zone.name} may already exist, skipping`,
+        );
       }
     }
   }
 }
-

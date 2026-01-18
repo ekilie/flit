@@ -8,7 +8,12 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { PricingService } from './services/pricing.service';
 import { SurgePricingService } from './services/surge-pricing.service';
 import { FareEstimateDto } from './dto/fare-estimate.dto';
@@ -156,4 +161,3 @@ export class PricingController {
     return { message: 'Surge zone deactivated successfully' };
   }
 }
-

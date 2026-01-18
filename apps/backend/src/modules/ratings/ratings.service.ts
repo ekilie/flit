@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rating } from './entities/rating.entity';
@@ -67,7 +71,9 @@ export class RatingsService {
     });
   }
 
-  async getAverageRating(userId: number): Promise<{ average: number; count: number }> {
+  async getAverageRating(
+    userId: number,
+  ): Promise<{ average: number; count: number }> {
     const result = await this.ratingRepository
       .createQueryBuilder('rating')
       .select('AVG(rating.rating)', 'average')

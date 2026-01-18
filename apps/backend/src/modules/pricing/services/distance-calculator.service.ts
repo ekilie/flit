@@ -14,13 +14,16 @@ export class DistanceCalculatorService {
   private readonly useGoogleMaps: boolean;
 
   constructor(private configService: ConfigService) {
-    this.googleMapsApiKey = this.configService.get<string>('GOOGLE_MAPS_API_KEY') || '';
+    this.googleMapsApiKey =
+      this.configService.get<string>('GOOGLE_MAPS_API_KEY') || '';
     this.useGoogleMaps = this.googleMapsApiKey.length > 0;
-    
+
     if (this.useGoogleMaps) {
       this.logger.log('Google Maps Distance Matrix API enabled');
     } else {
-      this.logger.warn('Google Maps API key not configured, using Haversine formula');
+      this.logger.warn(
+        'Google Maps API key not configured, using Haversine formula',
+      );
     }
   }
 
@@ -51,7 +54,10 @@ export class DistanceCalculatorService {
         );
       }
     } catch (error) {
-      this.logger.error('Error calculating route, falling back to Haversine:', error);
+      this.logger.error(
+        'Error calculating route, falling back to Haversine:',
+        error,
+      );
       // Fallback to Haversine if Google Maps fails
       return await this.calculateRouteWithHaversine(
         pickupLat,
@@ -71,7 +77,9 @@ export class DistanceCalculatorService {
     dropoffLat: number,
     dropoffLng: number,
   ): Promise<RouteInfo> {
-    const url = new URL('https://maps.googleapis.com/maps/api/distancematrix/json');
+    const url = new URL(
+      'https://maps.googleapis.com/maps/api/distancematrix/json',
+    );
     url.searchParams.append('origins', `${pickupLat},${pickupLng}`);
     url.searchParams.append('destinations', `${dropoffLat},${dropoffLng}`);
     url.searchParams.append('mode', 'driving');
@@ -92,7 +100,8 @@ export class DistanceCalculatorService {
     }
 
     const distanceMeters = element.distance.value;
-    const durationSeconds = element.duration_in_traffic?.value || element.duration.value;
+    const durationSeconds =
+      element.duration_in_traffic?.value || element.duration.value;
 
     this.logger.log(
       `Google Maps route: ${(distanceMeters / 1000).toFixed(2)} km, ${Math.round(durationSeconds / 60)} minutes (with traffic)`,
@@ -191,4 +200,3 @@ export class DistanceCalculatorService {
     return Math.round(hours * 3600);
   }
 }
-

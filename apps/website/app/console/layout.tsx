@@ -15,11 +15,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useAuth } from "@/lib/auth/auth-context"
 
 interface NavItem {
   title: string
@@ -107,6 +109,7 @@ export default function ConsoleLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
+  const { user, logout } = useAuth()
 
   return (
     <div className="flex min-h-screen">
@@ -166,8 +169,27 @@ export default function ConsoleLayout({
             )}
           </ScrollArea>
 
-          {/* Collapse Toggle */}
-          <div className="border-t p-3">
+          {/* User Info and Logout */}
+          <div className="border-t p-3 space-y-2">
+            {!sidebarCollapsed && user && (
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium truncate">{user.fullName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.role?.name}</p>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className={cn(
+                "w-full",
+                sidebarCollapsed ? "justify-center" : "justify-start"
+              )}
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+              {!sidebarCollapsed && <span className="ml-2">Logout</span>}
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -210,6 +232,23 @@ export default function ConsoleLayout({
                 <ScrollArea className="flex-1 px-3 py-4">
                   <SidebarNav />
                 </ScrollArea>
+                <div className="border-t p-3">
+                  {user && (
+                    <div className="px-3 py-2 mb-2">
+                      <p className="text-sm font-medium truncate">{user.fullName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.role?.name}</p>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={logout}
+                    className="w-full justify-start"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

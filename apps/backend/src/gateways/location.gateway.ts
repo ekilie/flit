@@ -42,13 +42,13 @@ export class LocationGateway
   server: Server;
 
   private logger: Logger = new Logger('LocationGateway');
-  
+
   // Track driver locations in memory TODO: will move to Redis for production
   private driverLocations: Map<number, DriverLocationData> = new Map();
-  
+
   // Track which rides are being tracked TODO: will move to Redis for production
   private rideLocationSubscribers: Map<number, Set<string>> = new Map(); // rideId -> Set of socketIds
-  
+
   // Track driver socket connections TODO: will move to Redis for production
   private driverSockets: Map<number, string> = new Map(); // driverId -> socketId
 
@@ -58,7 +58,7 @@ export class LocationGateway
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Location client disconnected: ${client.id}`);
-    
+
     // Clean up ride subscriptions
     this.rideLocationSubscribers.forEach((subscribers, rideId) => {
       subscribers.delete(client.id);
@@ -92,8 +92,8 @@ export class LocationGateway
 
       // Validate location data
       if (
-        !location || 
-        typeof location.latitude !== 'number' || 
+        !location ||
+        typeof location.latitude !== 'number' ||
         typeof location.longitude !== 'number' ||
         isNaN(location.latitude) ||
         isNaN(location.longitude)
@@ -156,14 +156,14 @@ export class LocationGateway
   ) {
     try {
       const { rideId } = data;
-      
+
       if (!rideId) {
         return {
           success: false,
           message: 'Ride ID is required',
         };
       }
-      
+
       const room = `ride:${rideId}:location`;
 
       if (!this.rideLocationSubscribers.has(rideId)) {
@@ -211,7 +211,9 @@ export class LocationGateway
 
     client.leave(room);
 
-    this.logger.log(`Client ${client.id} unsubscribed from ride ${rideId} location`);
+    this.logger.log(
+      `Client ${client.id} unsubscribed from ride ${rideId} location`,
+    );
 
     return {
       success: true,
@@ -249,7 +251,11 @@ export class LocationGateway
   /**
    * Broadcast driver location to all ride subscribers
    */
-  broadcastDriverLocation(rideId: number, driverId: number, location: LocationUpdate) {
+  broadcastDriverLocation(
+    rideId: number,
+    driverId: number,
+    location: LocationUpdate,
+  ) {
     const room = `ride:${rideId}:location`;
 
     this.server.to(room).emit('location:driver-update', {
@@ -280,4 +286,3 @@ export class LocationGateway
     return Array.from(this.driverSockets.keys());
   }
 }
-

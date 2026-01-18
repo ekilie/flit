@@ -23,4 +23,3 @@ import { WsJwtGuard } from '../guards/ws-jwt.guard';
   exports: [RidesGateway, LocationGateway, ChatGateway],
 })
 export class WebSocketModule {}
-

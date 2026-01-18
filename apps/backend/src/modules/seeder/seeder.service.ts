@@ -147,7 +147,7 @@ export class SeederService {
     ];
 
     await Promise.all(
-      users.map(async (userData) => {
+      users.map(async userData => {
         const userExists = await this.entityManager.findOneBy(User, [
           {
             email: userData.email,

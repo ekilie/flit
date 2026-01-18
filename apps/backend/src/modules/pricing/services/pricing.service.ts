@@ -46,9 +46,7 @@ export class PricingService {
   /**
    * Calculate fare estimate for a ride
    */
-  async calculateFareEstimate(
-    request: EstimateRequest,
-  ): Promise<FareEstimate> {
+  async calculateFareEstimate(request: EstimateRequest): Promise<FareEstimate> {
     try {
       const {
         pickupLat,
@@ -239,4 +237,3 @@ export class PricingService {
     }
   }
 }
-
