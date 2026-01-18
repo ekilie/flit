@@ -1,0 +1,31 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function RideDetailPage() {
+  return (
+    <div className="flex-1 space-y-6 p-6">
+      <div className="flex items-center gap-4">
+        <Link href="/console/rides">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+        <h2 className="text-3xl font-bold tracking-tight">Ride Details</h2>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Ride Information</CardTitle>
+          <CardDescription>View detailed ride information and route</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Detailed ride information will be displayed here.</p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
