@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { Role } from 'src/modules/roles/entities/role.entity';
@@ -51,11 +52,11 @@ export class User extends BasicEntity {
   })
   metadata?: UserMetadata;
 
-  @OneToOne(() => ExpoPushToken, expoPushToken => expoPushToken.user, {
+  @OneToMany(() => ExpoPushToken, expoPushToken => expoPushToken.user, {
     cascade: true,
     eager: true,
   })
-  expoPushToken?: ExpoPushToken;
+  expoPushTokens?: ExpoPushToken[];
 
   @BeforeInsert()
   @BeforeUpdate()
