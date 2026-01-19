@@ -7,6 +7,7 @@ import { ArrowRight, ChevronRight, Menu, X, Car, Clock, Shield, Zap } from "luci
 import { motion, type Variants } from "framer-motion"
 import { GridMotion } from "./ui/grid-motion"
 import Image from "next/image"
+import { Logo } from "./app-logo"
 
 function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(" ")
@@ -229,19 +230,7 @@ const HeroHeader = () => {
   )
 }
 
-const Logo = ({ className }: { className?: string }) => {
-  return (
-    <div className={cn("flex items-center space-x-2", className)}>
-      <Image
-        src="/icon-512.png"
-        alt="FLIT"
-        width={45}
-        height={45}
-      />
-      <span className="text-xl font-bold">FLIT</span>
-    </div>
-  )
-}
+
 
 const CardDecorator = ({ children }: { children: React.ReactNode }) => (
   <div
@@ -310,7 +299,7 @@ export default function FlitLanding() {
                     href="#ride"
                     className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-black/5 transition-all duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
                   >
-                    <span className="text-foreground text-sm">Premium Special Hire Vehicles At Your Service</span>
+                    <span className="text-foreground text-sm sm:text-xs">Special Hire Vehicles At Your Service</span>
                     <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
                     <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
