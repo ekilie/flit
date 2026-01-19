@@ -1,65 +1,60 @@
+# --------------------
 # Build stage
-FROM node:22-alpine as builder
+# --------------------
+FROM node:22-alpine AS builder
 
-# Set shell and environment variables
-ENV SHELL=/bin/sh
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
-# Install pnpm
-RUN apk add --no-cache bash && \
-    corepack enable && \
-    corepack prepare pnpm@latest --activate && \
-    SHELL=/bin/bash pnpm setup
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package files
+# Copy dependency files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies with husky
-RUN pnpm install --no-frozen-lockfile
+# Install all deps
+RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Build the application
+# Build
 RUN pnpm run build
 
-# Runner stage
-FROM node:slim as runner
 
+# --------------------
+# Runner stage
+# --------------------
+FROM node:22-alpine AS runner
+
+# Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Set shell and environment variables
-ENV SHELL=/bin/sh
+ENV NODE_ENV=production
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
-# Install pnpm
-RUN apk add --no-cache bash && \
-    corepack enable && \
-    corepack prepare pnpm@latest --activate && \
-    SHELL=/bin/bash pnpm setup
+# Enable pnpm (no bash, no apk needed)
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package files
+# Copy dependency files
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies
+# Install prod-only deps
 RUN HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts
 
-# Copy built application
+# Copy build output
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/config ./src/config
 
+# Permissions
 RUN chown -R appuser:appgroup /app
-
 USER appuser
 
-# Expose port
 EXPOSE 3000
 
-# Start command
-CMD ["node", "dist/main"]
+CMD ["pnpm", "start:watch"]
