@@ -8,6 +8,6 @@ driver-app:
 	cd apps/driver-app && npm run start
 
 web-app:
-	cd apps/web-app && npm run dev
+	cd apps/website && npm run dev
 
 all: backend rider-app driver-app web-app
