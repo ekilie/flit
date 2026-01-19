@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { Role } from 'src/modules/roles/entities/role.entity';
 import { UserMetadata } from './user-metadata.entity';
 import { BasicEntity } from 'src/common/entities/base.entity';
 import * as crypto from 'crypto';
+import { ExpoPushToken } from './expo-push-token.entity';
 
 @Entity('users')
 export class User extends BasicEntity {
@@ -49,6 +51,12 @@ export class User extends BasicEntity {
     eager: true,
   })
   metadata?: UserMetadata;
+
+  @OneToMany(() => ExpoPushToken, expoPushToken => expoPushToken.user, {
+    cascade: true,
+    eager: true,
+  })
+  expoPushTokens?: ExpoPushToken[];
 
   @BeforeInsert()
   @BeforeUpdate()
