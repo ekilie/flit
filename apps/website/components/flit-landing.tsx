@@ -6,6 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { ArrowRight, ChevronRight, Menu, X, Car, Clock, Shield, Zap } from "lucide-react"
 import { motion, type Variants } from "framer-motion"
 import { GridMotion } from "./ui/grid-motion"
+import Image from "next/image"
 
 function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(" ")
@@ -231,9 +232,12 @@ const HeroHeader = () => {
 const Logo = ({ className }: { className?: string }) => {
   return (
     <div className={cn("flex items-center space-x-2", className)}>
-      <div className="bg-[#98a75e] rounded-lg p-2">
-        <Car className="h-6 w-6 text-black" />
-      </div>
+      <Image
+        src="/icon-512.png"
+        alt="FLIT"
+        width={45}
+        height={45}
+      />
       <span className="text-xl font-bold">FLIT</span>
     </div>
   )
