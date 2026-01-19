@@ -17,9 +17,12 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
         entities: ['dist/**/*.entity.{ts,js}'],
         synchronize: configService.get<boolean>('database.sync'),
         logging: configService.get<boolean>('database.logging'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
       inject: [ConfigService],
     }),
   ],
 })
-export class DatabaseModule {}
+export class DatabaseModule { }

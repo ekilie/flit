@@ -33,6 +33,6 @@ async function bootstrap() {
 
   await app.get(SeederService).seed();
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(process.env.PORT || 3001);
 }
 bootstrap();
