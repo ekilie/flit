@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ekilie.flit",
+      "icon": "./assets/images/ios/AppIcon~ios-marketing.png",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -24,9 +25,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+        "backgroundImage": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher_background.png",
+        "monochromeImage": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher_monochrome.png"
       },
+      "icon": "./assets/images/android/res/mipmap-xxxhdpi/ic_launcher.png",
+      "playStoreIcon": "./assets/images/android/play_store_512.png",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.tach.flit",
