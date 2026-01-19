@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { Logo } from "@/components/app-logo"
+import Api from "@/lib/api"
+import { setAuthToken } from "@/lib/api/authToken"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,29 +25,18 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await Api.login({ email, password })
 
-      const data = await response.json()
-      console.log('Login response data:', data)
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
-      }
+      console.log('Login response data:', response)
 
       // Check if user is admin or manager
-      if (!['Admin', 'Manager'].includes(data.user?.role?.name)) {
-        throw new Error('Access denied. Admin or Manager role required.')
-      }
+      // if (!['Admin', 'Manager'].includes(response.user?.role?.name)) {
+      //   throw new Error('Access denied. Admin or Manager role required.')
+      // }
 
+      setAuthToken({ access: response.token || null })
       // Store token and user data
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      localStorage.setItem('user', JSON.stringify(response.user))
 
       // Redirect to console
       router.push('/console')
