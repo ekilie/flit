@@ -9,6 +9,9 @@ import { ResetPasswordDto } from 'src/modules/auth/dto/reset-password.dto';
 import { SendVerificationDto } from 'src/modules/auth/dto/send-verification.dto';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Public } from 'src/modules/auth/decorator/public.decorator';
+import { AuthUser } from './decorator/auth-user.decorator';
+import { IAuthUser } from './interfaces/auth-user.interface';
+import { ExpoPushTokenDto } from './dto/register-push-token.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth('JWT')
@@ -82,5 +85,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Reset password with verified code' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPasswordWithOtp(resetPasswordDto);
+  }
+
+  @Post('auth/register-expo-push-token')
+  @ApiOperation({ summary: 'Register Expo Push Token for the user' })
+  async registerExpoPushToken(@AuthUser() user: IAuthUser, @Body() expoPushTokenDto: ExpoPushTokenDto) {
+    return this.authService.registerExpoPushToken(user.userId, expoPushTokenDto);
   }
 }
