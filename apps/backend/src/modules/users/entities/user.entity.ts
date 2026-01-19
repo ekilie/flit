@@ -11,6 +11,7 @@ import { Role } from 'src/modules/roles/entities/role.entity';
 import { UserMetadata } from './user-metadata.entity';
 import { BasicEntity } from 'src/common/entities/base.entity';
 import * as crypto from 'crypto';
+import { ExpoPushToken } from './expo-push-token.entity';
 
 @Entity('users')
 export class User extends BasicEntity {
@@ -49,6 +50,12 @@ export class User extends BasicEntity {
     eager: true,
   })
   metadata?: UserMetadata;
+
+  @OneToOne(() => ExpoPushToken, expoPushToken => expoPushToken.user, {
+    cascade: true,
+    eager: true,
+  })
+  expoPushToken?: ExpoPushToken;
 
   @BeforeInsert()
   @BeforeUpdate()
