@@ -12,13 +12,15 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml ./
+COPY apps/backend/package.json ./
+COPY pnpm-lock.yaml ./
 
 # Install all deps
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source
-COPY . .
+COPY apps/backend/src ./src
+COPY apps/backend/nest-cli.json apps/backend/tsconfig*.json ./
 
 # Build
 RUN pnpm run build
@@ -42,10 +44,11 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml ./
+COPY apps/backend/package.json ./
+COPY pnpm-lock.yaml ./
 
 # Install prod-only deps
-RUN HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN HUSKY=0 pnpm install --prod --no-frozen-lockfile --ignore-scripts
 
 # Copy build output
 COPY --from=builder /app/dist ./dist
@@ -57,4 +60,4 @@ USER appuser
 
 EXPOSE 3000
 
-CMD ["pnpm", "start:watch"]
+CMD ["pnpm", "start:prod"]
