@@ -120,7 +120,7 @@ export default function Register() {
   return (
     <ScreenLayout>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      
+
       {/* Background Pattern */}
       <View style={styles.backgroundPattern}>
         <View style={styles.patternCircle1} />
@@ -225,10 +225,10 @@ export default function Register() {
                     onPress={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    <Feather 
-                      name={showPassword ? "eye-off" : "eye"} 
-                      size={20} 
-                      color="#666666" 
+                    <Feather
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={20}
+                      color="#666666"
                     />
                   </TouchableOpacity>
                 </View>
@@ -252,10 +252,10 @@ export default function Register() {
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
                   >
-                    <Feather 
-                      name={showConfirmPassword ? "eye-off" : "eye"} 
-                      size={20} 
-                      color="#666666" 
+                    <Feather
+                      name={showConfirmPassword ? "eye-off" : "eye"}
+                      size={20}
+                      color="#666666"
                     />
                   </TouchableOpacity>
                 </View>
@@ -273,7 +273,7 @@ export default function Register() {
                     styles.checkbox,
                     {
                       borderColor: "#e0e0e0",
-                      backgroundColor: agreeToTerms ? "#7BCA88" : "transparent",
+                      backgroundColor: agreeToTerms ? "#98a75e" : "transparent",
                     },
                   ]}
                 >

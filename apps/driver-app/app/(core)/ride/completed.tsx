@@ -21,10 +21,10 @@ export default function RideCompletedScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
-  
+
   // Mock ride data
   const rideData = {
     id: params.id || '1',
@@ -46,12 +46,12 @@ export default function RideCompletedScreen() {
 
     try {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
+
       // TODO: API call to submit rating and feedback
       // await Api.rateRider(rideData.id, rating, feedback);
-      
+
       toast.success('Thanks for your feedback!');
-      
+
       // Navigate back to home immediately
       router.replace('/(core)/(tabs)/home');
     } catch (error) {
@@ -75,7 +75,7 @@ export default function RideCompletedScreen() {
             <Ionicons
               name={star <= rating ? 'star' : 'star-outline'}
               size={48}
-              color={star <= rating ? '#7BCA88' : theme.border}
+              color={star <= rating ? '#98a75e' : theme.border}
             />
           </TouchableOpacity>
         ))}
@@ -86,7 +86,7 @@ export default function RideCompletedScreen() {
   return (
     <ScreenLayout>
       <StatusBar style={theme.isDark ? "light" : "dark"} />
-      
+
       <ScrollView
         style={[styles.container, { backgroundColor: theme.background }]}
         showsVerticalScrollIndicator={false}
@@ -119,7 +119,7 @@ export default function RideCompletedScreen() {
           <Text style={[styles.cardTitle, { color: theme.text }]}>
             📊 Trip Summary
           </Text>
-          
+
           <View style={styles.summaryRows}>
             <View style={styles.summaryRow}>
               <MaterialCommunityIcons name="map-marker-distance" size={20} color={theme.primary} />
@@ -174,7 +174,7 @@ export default function RideCompletedScreen() {
           <Text style={[styles.cardTitle, { color: theme.text }]}>
             📍 Route
           </Text>
-          
+
           <View style={styles.routeContainer}>
             <View style={styles.routePoint}>
               <View style={[styles.routeDot, styles.pickupDot]} />
@@ -182,9 +182,9 @@ export default function RideCompletedScreen() {
                 {rideData.pickup}
               </Text>
             </View>
-            
+
             <View style={[styles.routeLine, { backgroundColor: theme.border }]} />
-            
+
             <View style={styles.routePoint}>
               <View style={[styles.routeDot, styles.dropoffDot]} />
               <Text style={[styles.routeText, { color: theme.text }]}>
@@ -209,7 +209,7 @@ export default function RideCompletedScreen() {
           <Text style={[styles.ratingSubtitle, { color: theme.subtleText }]}>
             How was your experience with {rideData.riderName}?
           </Text>
-          
+
           {renderStars()}
 
           {rating > 0 && (
@@ -218,7 +218,7 @@ export default function RideCompletedScreen() {
                 💬 Optional Feedback
               </Text>
               <TextInput
-                style={[styles.feedbackInput, { 
+                style={[styles.feedbackInput, {
                   backgroundColor: theme.inputBackground,
                   borderColor: theme.border,
                   color: theme.text,
@@ -244,8 +244,8 @@ export default function RideCompletedScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={rating === 0 
-                ? ['#9ca3af', '#6b7280'] 
+              colors={rating === 0
+                ? ['#9ca3af', '#6b7280']
                 : ['#10b981', '#059669']}
               style={styles.submitButtonGradient}
             >

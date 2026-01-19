@@ -1,1 +1,1 @@
- logo color is oklch(0.532 0.157 131.589) or #7BCA88
+ logo color is oklch(0.7 0.1 119) or #98a75e

@@ -23,9 +23,9 @@ export default function IncomingRideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
   const [countdown, setCountdown] = useState(15);
-  
+
   // Mock ride data (would come from Socket.IO in real app)
   const rideData = {
     id: params.id || '1',
@@ -50,16 +50,16 @@ export default function IncomingRideScreen() {
   const handleDecline = useCallback(async (reason?: string) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      
+
       if (reason === 'timeout') {
         toast.info('Ride request expired');
       } else {
         toast.info('Ride declined');
       }
-      
+
       // TODO: API call to decline ride
       // await Api.declineRide(rideData.id, reason);
-      
+
       // Navigate back to home
       router.back();
     } catch (error) {
@@ -72,10 +72,10 @@ export default function IncomingRideScreen() {
     try {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       toast.success('Ride accepted!');
-      
+
       // TODO: API call to accept ride
       // await Api.acceptRide(rideData.id);
-      
+
       // Navigate to active ride screen
       router.replace(`/(core)/ride/active?id=${rideData.id}`);
     } catch (error) {
@@ -101,7 +101,7 @@ export default function IncomingRideScreen() {
   return (
     <ScreenLayout>
       <StatusBar style="light" />
-      
+
       <View style={[styles.container, { backgroundColor: 'rgba(0, 0, 0, 0.9)' }]}>
         {/* Header */}
         <View style={styles.header}>
@@ -206,7 +206,7 @@ export default function IncomingRideScreen() {
                 👤 {rideData.rider.name}
               </Text>
               <View style={styles.riderRating}>
-                <Ionicons name="star" size={16} color="#7BCA88" />
+                <Ionicons name="star" size={16} color="#98a75e" />
                 <Text style={[styles.ratingText, { color: theme.text }]}>
                   {rideData.rider.rating}
                 </Text>

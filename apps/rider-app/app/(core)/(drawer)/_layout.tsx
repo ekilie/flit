@@ -30,9 +30,9 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     }
   }, [signOut]);
 
-  const gradientColors: [string, string, ...string[]] = theme.isDark 
-    ? ['#7BCA88', '#ff9500'] 
-    : ['#7BCA88', '#ff9500'];
+  const gradientColors: [string, string, ...string[]] = theme.isDark
+    ? ['#98a75e', '#ff9500']
+    : ['#98a75e', '#ff9500'];
 
   const menuItems = [
     {
@@ -74,10 +74,10 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           <View style={styles.header}>
             <View style={[styles.avatarContainer, { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)' }]}>
               <View style={[styles.avatarCircle, { backgroundColor: theme.isDark ? '#2A2A2A' : '#FFFFFF' }]}>
-                <Ionicons 
-                  name="person" 
-                  size={24} 
-                  color={theme.isDark ? '#FFFFFF' : '#FFC800'} 
+                <Ionicons
+                  name="person"
+                  size={24}
+                  color={theme.isDark ? '#FFFFFF' : '#FFC800'}
                 />
               </View>
             </View>
@@ -94,8 +94,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
       </View>
 
       {/* Drawer Menu Items */}
-      <DrawerContentScrollView 
-        {...props} 
+      <DrawerContentScrollView
+        {...props}
         style={[styles.drawerLinks, { backgroundColor: theme.background }]}
         contentContainerStyle={styles.drawerLinksContent}
         showsVerticalScrollIndicator={false}
@@ -105,8 +105,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
             <TouchableOpacity
               key={item.id}
               style={[
-                styles.menuItem, 
-                { 
+                styles.menuItem,
+                {
                   backgroundColor: theme.surface,
                   borderColor: theme.border
                 }
@@ -129,7 +129,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
       {/* Footer Section */}
       <View style={[styles.footer, { backgroundColor: theme.background }]}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.footerItem, { backgroundColor: theme.surface, borderColor: theme.border }]}
           onPress={() => {
             props.navigation.closeDrawer();
@@ -145,7 +145,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         </TouchableOpacity>
 
         {/* Sign Out Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.signOutButton, { opacity: isLoading ? 0.5 : 1 }]}
           onPress={handleSignOut}
           disabled={isLoading}
@@ -180,14 +180,14 @@ export default function Layout() {
         screenOptions={{
           drawerStyle: [
             styles.drawerStyle,
-            { 
+            {
               backgroundColor: theme.background,
               borderRightWidth: StyleSheet.hairlineWidth,
               borderRightColor: theme.border
             }
           ],
           drawerActiveBackgroundColor: theme.isDark ? 'rgba(123, 202, 136, 0.1)' : 'rgba(123, 202, 136, 0.1)',
-          drawerActiveTintColor: theme.isDark ? '#7BCA88' : '#7BCA88',
+          drawerActiveTintColor: theme.isDark ? '#98a75e' : '#98a75e',
           drawerInactiveTintColor: theme.subtleText,
           drawerLabelStyle: [styles.drawerLabelStyle, { color: theme.text }],
           headerShown: false,

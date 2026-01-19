@@ -1,14 +1,14 @@
 import { useColorScheme } from "react-native";
 
-const tintColorLight = "#7BCA88";
+const tintColorLight = "#98a75e";
 const tintColorDark = "#fff";
 
 export const Colors = {
   tabColors: {
     ride: "#178764ff", // Green for ride booking (rider app)
     home: "#10b981", // Green for driver home/online status
-    earnings: "#7BCA88", // Green accent for earnings
-    profile: "#7BCA88", // Flit green accent for profile
+    earnings: "#98a75e", // Green accent for earnings
+    profile: "#98a75e", // Flit green accent for profile
     feed: "#178764ff", // Spotify-like green for listening/audio
     insights: "#6366f1", // Purple for analytics/data
     "voice-memory": "#FFA726", // Amber for memories/nostalgia
@@ -20,7 +20,7 @@ export const Colors = {
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
-    primary: "#7BCA88",
+    primary: "#98a75e",
     secondary: "#666666",
     surface: "#f5f5f5",
     border: "#e0e0e0",
@@ -30,7 +30,7 @@ export const Colors = {
     warning: "#ff9500",
     error: "#ff3b30",
     // Button colors
-    buttonBackground: "#7BCA88",
+    buttonBackground: "#98a75e",
     buttonText: "#000",
     // Input colors
     inputBackground: "#f9f9f9",
@@ -41,10 +41,10 @@ export const Colors = {
   dark: {
     text: "#ffffff",
     background: "#000000",
-    tint: "#7BCA88",
+    tint: "#98a75e",
     tabIconDefault: "#cccccc",
-    tabIconSelected: "#7BCA88",
-    primary: "#7BCA88",
+    tabIconSelected: "#98a75e",
+    primary: "#98a75e",
     secondary: "#aaaaaa", // Lighter gray for secondary text
     surface: "#111111", // Slightly lighter than background for cards/surfaces
     border: "#333333",
@@ -62,7 +62,7 @@ export const Colors = {
     inputText: "#ffffff",
     inputPlaceholder: "#888888",
     // Link colors
-    link: "#7BCA88",
+    link: "#98a75e",
   },
 };
 
@@ -147,7 +147,7 @@ export function useAdaptiveColors() {
       : Colors.dark.background,
     subtleText: isDark ? "#cccccc" : "#666666",
     mutedText: isDark ? "#999999" : "#888888",
-    accent: "#7BCA88",
+    accent: "#98a75e",
   };
 }
 
