@@ -10,7 +10,7 @@ export const Logo = ({ className }: { className?: string }) => {
         width={45}
         height={45}
       />
-      <span className="text-xl font-bold">FLIT</span>
+      {/* <span className="text-xl font-bold">FLIT</span> */}
     </div>
   )
 }

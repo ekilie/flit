@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
+import { Logo } from "@/components/app-logo"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -60,7 +61,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground text-2xl font-bold">
-              F
+              <Logo/>
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-center">FLIT Admin Login</CardTitle>
@@ -103,7 +104,7 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-[#98a75e] hover:bg-[#99a568] rounded-md text-white font-bold"
               disabled={isLoading}
             >
               {isLoading ? (
