@@ -149,7 +149,7 @@ export default function Register() {
                 />
                 <Image
                   style={styles.iconImage}
-                  source={require("@/assets/images/icon.png")}
+                  source={require("@/assets/images/android/play_store_512.png")}
                 />
                 <Text style={styles.logoText}>flit</Text>
               </View>
@@ -420,6 +420,7 @@ const styles = StyleSheet.create({
   iconImage: {
     position: "absolute",
     width: 64,
+    borderRadius: 32,
     height: 64,
   },
   logoText: {

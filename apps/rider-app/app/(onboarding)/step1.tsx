@@ -18,7 +18,7 @@ const { width, height } = Dimensions.get("window");
 
 export default function Step1() {
   const router = useRouter();
-  const { trigger:haptics } = useHaptics();
+  const { trigger: haptics } = useHaptics();
 
   return (
     <ScreenLayout>
@@ -43,8 +43,8 @@ export default function Step1() {
             />
             <Image
               style={{ position: "absolute", width: 64, height: 64 }}
-              source={require("@/assets/images/icon.png")}
-              // source={require("@/assets/images/icon-black-and-white.png")}
+              source={require("@/assets/images/android/play_store_512.png")}
+            // source={require("@/assets/images/icon-black-and-white.png")}
             />
             <Text style={styles.logoText}>flit</Text>
           </View>

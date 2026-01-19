@@ -67,7 +67,7 @@ export default function Verify() {
   return (
     <ScreenLayout>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      
+
       {/* Background Pattern */}
       <View style={styles.backgroundPattern}>
         <View style={styles.patternCircle1} />
@@ -96,7 +96,7 @@ export default function Verify() {
                 />
                 <Image
                   style={styles.iconImage}
-                  source={require("@/assets/images/icon.png")}
+                  source={require("@/assets/images/android/play_store_512.png")}
                 />
                 <Text style={styles.logoText}>flit</Text>
               </View>
@@ -265,6 +265,7 @@ const styles = StyleSheet.create({
   iconImage: {
     position: "absolute",
     width: 64,
+    borderRadius: 32,
     height: 64,
   },
   logoText: {
