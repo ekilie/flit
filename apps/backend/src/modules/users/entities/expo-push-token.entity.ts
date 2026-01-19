@@ -9,7 +9,7 @@ export class ExpoPushToken extends BasicEntity {
     token: string;
 
     @Column({ nullable: true })
-    platform?: 'ios' | 'android' | 'web';
+    platform?: 'ios' | 'android';
 
     @ManyToOne(
         () => User,

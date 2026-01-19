@@ -19,6 +19,7 @@ import { ExcludeFromObject } from 'src/common/dto/sanitize-response.dto';
 import { RolesService } from 'src/modules/roles/roles.service';
 import { EmailService } from 'src/lib/email/email.service';
 import OTPX from 'otpx';
+import { ExpoPushTokenDto } from '../dto/register-push-token.dto';
 
 // In-memory OTP storage (In production, use Redis or database)
 // TODO: Replace with Redis for production use to support:
@@ -170,7 +171,7 @@ export class AuthService {
     };
   }
 
-  
+  registerExpoPushToken(userId: number, expoPushTokenDto: ExpoPushTokenDto) {}
 
   async sendVerificationEmail(email: string) {
     const user = await this.usersService.findByEmail(email);

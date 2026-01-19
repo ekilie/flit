@@ -1,4 +1,4 @@
 export class ExpoPushTokenDto {
-  token: string;
-  platform?: 'ios' | 'android' | 'web';
+    token: string;
+    platform?: 'ios' | 'android';
 }

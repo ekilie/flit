@@ -63,7 +63,7 @@ export class PushService {
 
         return this.expoPushTokenRepo.save({
             token,
-            platform,
+            platform: platform as 'ios' | 'android',
             user,
         });
     }
