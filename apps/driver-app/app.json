@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "flit",
-    "slug": "flit",
+    "name": "Flit Driver",
+    "slug": "flit-driver",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

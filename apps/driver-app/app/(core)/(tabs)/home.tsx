@@ -1,5 +1,5 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import Colors from "@/constants/Colors";
+import Colors, { brandColor } from "@/constants/Colors";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -33,12 +33,12 @@ const DEFAULT_REGION = {
 
 // UI Color Constants - extracted for theme consistency
 const UI_COLORS = {
-  online: '#10b981',        // Green for online status and earnings
+  online: brandColor,        // Green for online status and earnings
   onlineGradient: '#059669', // Darker green for gradient
   offline: '#6b7280',       // Gray for offline status
   offlineDark: '#1f2937',   // Dark gray for offline button
   offlineDarker: '#111827', // Darker gray for gradient
-  earnings: '#10b981',      // Green for earnings icon
+  earnings: brandColor,      // Green for earnings icon
   trips: '#fbbf24',         // Amber for trips/navigation
   time: '#3b82f6',          // Blue for time/clock
   iconBg: 'rgba(16, 185, 129, 0.1)',   // Light green background for icons
@@ -467,10 +467,10 @@ const styles = StyleSheet.create({
   // Enhanced Earnings Card
   earningsCard: {
     position: 'absolute',
-    bottom: 100,
-    left: 20,
-    right: 20,
-    borderRadius: 20,
+    bottom: 10,
+    left: 10,
+    right: 10,
+    borderRadius: 10,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },

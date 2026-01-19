@@ -1,5 +1,5 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { Colors } from "@/constants/Colors";
+import { brandColor, Colors } from "@/constants/Colors";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
@@ -537,7 +537,7 @@ export default function RideScreen() {
                 coordinate={pickupCoordinates}
                 title="Pickup Location"
                 description={pickupLocation}
-                pinColor={theme.primary}
+                pinColor={brandColor}
               />
 
               {/* Destination Marker */}
@@ -546,7 +546,7 @@ export default function RideScreen() {
                   coordinate={destinationCoordinates}
                   title="Destination"
                   description={destination}
-                  pinColor={theme.success || '#10b981'}
+                  pinColor={brandColor}
                 />
               )}
 
@@ -554,7 +554,7 @@ export default function RideScreen() {
               {destinationCoordinates && (
                 <Polyline
                   coordinates={[pickupCoordinates, destinationCoordinates]}
-                  strokeColor={theme.primary}
+                  strokeColor={brandColor}
                   strokeWidth={3}
                   lineDashPattern={[10, 5]}
 
@@ -622,8 +622,8 @@ export default function RideScreen() {
                         ]}
                         onPress={() => handleLocationSelect(location)}
                       >
-                        <View style={[styles.locationItemIcon, { backgroundColor: `${theme.primary}15` }]}>
-                          <Ionicons name={location.icon as any} size={20} color={theme.primary} />
+                        <View style={[styles.locationItemIcon, { backgroundColor: `${brandColor}15` }]}>
+                          <Ionicons name={location.icon as any} size={20} color={brandColor} />
                         </View>
                         <View style={styles.locationItemInfo}>
                           <Text style={[styles.locationItemName, { color: theme.text }]}>
@@ -654,7 +654,7 @@ export default function RideScreen() {
                     <View style={styles.vehicleList}>
                       {isLoadingFares && (
                         <View style={{ padding: 20, alignItems: 'center' }}>
-                          <ActivityIndicator size="large" color={theme.primary} />
+                          <ActivityIndicator size="large" color={brandColor} />
                           <Text style={{ color: theme.mutedText, marginTop: 10 }}>
                             Calculating fares...
                           </Text>

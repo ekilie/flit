@@ -3,7 +3,6 @@ import { ThemeStatusBar } from "@/context/CentralTheme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MiniPlayer from "./player/MiniPlayer";
 
 interface ScreenLayoutProps {
   children: React.ReactNode;
@@ -23,7 +22,6 @@ export default function ScreenLayout({ children, styles, fullScreen = false }: S
       >
         <ThemeStatusBar />
         {children}
-        <MiniPlayer />
       </View>
     );
   }
@@ -38,7 +36,6 @@ export default function ScreenLayout({ children, styles, fullScreen = false }: S
     >
       <ThemeStatusBar />
       {children}
-      <MiniPlayer />
     </SafeAreaView>
   );
 }

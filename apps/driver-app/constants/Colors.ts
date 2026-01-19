@@ -2,17 +2,14 @@ import { useColorScheme } from "react-native";
 
 const tintColorLight = "#98a75e";
 const tintColorDark = "#fff";
+export const brandColor = "#98a75e";
 
 export const Colors = {
   tabColors: {
-    ride: "#178764ff", // Green for ride booking (rider app)
-    home: "#10b981", // Green for driver home/online status
-    earnings: "#98a75e", // Green accent for earnings
-    profile: "#98a75e", // Flit green accent for profile
-    feed: "#178764ff", // Spotify-like green for listening/audio
-    insights: "#6366f1", // Purple for analytics/data
-    "voice-memory": "#FFA726", // Amber for memories/nostalgia
-    me: "#FF6B6B", // Violet for personal/profile
+    ride: brandColor , // Green for ride booking (rider app)
+    home: brandColor, // Green for driver home/online status
+    earnings: brandColor, // Green accent for earnings
+    profile: brandColor, // Flit green accent for profile
   },
   light: {
     text: "#000",
@@ -20,7 +17,7 @@ export const Colors = {
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
-    primary: "#98a75e",
+    primary: brandColor,
     secondary: "#666666",
     surface: "#f5f5f5",
     border: "#e0e0e0",

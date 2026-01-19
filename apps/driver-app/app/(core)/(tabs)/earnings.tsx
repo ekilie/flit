@@ -236,10 +236,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: 'rgba(0,0,0,0.2)',
+    borderWidth: StyleSheet.hairlineWidth,
+
   },
   cardLabel: {
     fontSize: 14,
