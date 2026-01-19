@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/users/users.service';
 import { LoginDto } from '../dto/login.dto';
@@ -20,6 +21,7 @@ import { RolesService } from 'src/modules/roles/roles.service';
 import { EmailService } from 'src/lib/email/email.service';
 import OTPX from 'otpx';
 import { ExpoPushTokenDto } from '../dto/register-push-token.dto';
+import { PushService } from 'src/modules/notifications/services/push.service';
 
 // In-memory OTP storage (In production, use Redis or database)
 // TODO: Replace with Redis for production use to support:
@@ -38,7 +40,10 @@ export class AuthService {
     private rolesService: RolesService,
     private jwtService: JwtService,
     private emailService: EmailService,
+    private pushService: PushService,
   ) {}
+
+  private readonly logger = new Logger(AuthService.name);
 
   async validateUser(email: string, pass: string): Promise<User> {
     const user = await this.usersService.findByEmail(email);
@@ -107,8 +112,8 @@ export class AuthService {
         otp,
       );
     } catch (error) {
-      console.log(`Failed to send verification email: ${error.message}`);
-      console.log(`Verification OTP for ${registerDto.email}: ${otp}`);
+      this.logger.error(`Failed to send verification email: ${error.message}`);
+      this.logger.error(`Verification OTP for ${registerDto.email}: ${otp}`);
     }
 
     return {
@@ -171,7 +176,18 @@ export class AuthService {
     };
   }
 
-  registerExpoPushToken(userId: number, expoPushTokenDto: ExpoPushTokenDto) {}
+  async registerExpoPushToken(userId: number, expoPushTokenDto: ExpoPushTokenDto) {
+    try {
+      const user = await this.usersService.findOne(userId);
+      await this.pushService.registerPushToken(user, expoPushTokenDto.token, expoPushTokenDto.platform);
+      return {
+        message: 'Expo push token registered successfully',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to register Expo push token: ${error.message}`);
+      throw new BadRequestException('Failed to register Expo push token');
+    }
+  }
 
   async sendVerificationEmail(email: string) {
     const user = await this.usersService.findByEmail(email);

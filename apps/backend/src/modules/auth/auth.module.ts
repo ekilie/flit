@@ -9,11 +9,14 @@ import { JwtStrategy } from 'src/modules/auth/services/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesModule } from 'src/modules/roles/roles.module';
+import { Not } from 'typeorm';
+import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
   imports: [
     UsersModule,
     RolesModule,
     PassportModule,
+    NotificationsModule,
     JwtModule.register({
       global: true,
       secret: configuration().jwtSecret,
