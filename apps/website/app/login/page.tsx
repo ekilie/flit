@@ -23,7 +23,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,6 +32,7 @@ export default function LoginPage() {
       })
 
       const data = await response.json()
+      console.log('Login response data:', data)
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
