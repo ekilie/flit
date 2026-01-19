@@ -4,10 +4,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-nati
 import { useState, useMemo, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/ctx';
 import { useCurrentTheme } from '@/context/CentralTheme';
 import { router } from 'expo-router';
+import { brandColor } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -30,9 +30,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     }
   }, [signOut]);
 
-  const gradientColors: [string, string, ...string[]] = theme.isDark
-    ? ['#98a75e', '#ff9500']
-    : ['#98a75e', '#ff9500'];
+  const brandColor = '#98a75e';
 
   const menuItems = [
     {
@@ -65,32 +63,27 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     <View style={[styles.drawerContainer, { backgroundColor: theme.background }]}>
       {/* Header Section with User Info */}
       <View style={styles.headerContainer}>
-        <LinearGradient
-          colors={gradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
+        <View style={[styles.headerGradient, { backgroundColor: brandColor }]}>
           <View style={styles.header}>
             <View style={[styles.avatarContainer, { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)' }]}>
               <View style={[styles.avatarCircle, { backgroundColor: theme.isDark ? '#2A2A2A' : '#FFFFFF' }]}>
                 <Ionicons
                   name="person"
                   size={24}
-                  color={theme.isDark ? '#FFFFFF' : '#FFC800'}
+                  color={brandColor}
                 />
               </View>
             </View>
             <View style={styles.userInfo}>
-              <Text style={[styles.userName, { color: theme.isDark ? '#1A1A1A' : '#1A1A1A' }]} numberOfLines={1}>
+              <Text style={[styles.userName, { color: theme.isDark ? '#1A1A1A' : '#fff' }]} numberOfLines={1}>
                 {(userInfo as any)?.fullName || (userInfo as any)?.name || 'Rider'}
               </Text>
-              <Text style={[styles.userEmail, { color: theme.isDark ? 'rgba(26,26,26,0.8)' : 'rgba(26,26,26,0.8)' }]} numberOfLines={1}>
+              <Text style={[styles.userEmail, { color: theme.isDark ? 'rgba(26,26,26,0.8)' : 'rgba(255,255,255,0.8)' }]} numberOfLines={1}>
                 {(userInfo as any)?.email || 'rider@flit.com'}
               </Text>
             </View>
           </View>
-        </LinearGradient>
+        </View>
       </View>
 
       {/* Drawer Menu Items */}
@@ -118,7 +111,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
               activeOpacity={0.7}
             >
               <View style={[styles.iconContainer, { backgroundColor: theme.isDark ? '#2A2A2A' : '#F5F5F5' }]}>
-                <Ionicons name={item.icon as any} size={22} color={theme.isDark ? '#FFC800' : '#FF9800'} />
+                <Ionicons name={item.icon as any} size={22} color={brandColor} />
               </View>
               <Text style={[styles.menuItemText, { color: theme.text }]}>{item.label}</Text>
               <Ionicons name="chevron-forward" size={16} color={theme.subtleText} />
@@ -138,7 +131,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           activeOpacity={0.7}
         >
           <View style={[styles.iconContainer, { backgroundColor: theme.isDark ? '#2A2A2A' : '#F5F5F5' }]}>
-            <Ionicons name="settings-outline" size={20} color={theme.isDark ? '#FFC800' : '#FF9800'} />
+            <Ionicons name="settings-outline" size={20} color={brandColor} />
           </View>
           <Text style={[styles.footerText, { color: theme.text }]}>Settings</Text>
           <Ionicons name="chevron-forward" size={16} color={theme.subtleText} />
@@ -146,24 +139,25 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
         {/* Sign Out Button */}
         <TouchableOpacity
-          style={[styles.signOutButton, { opacity: isLoading ? 0.5 : 1 }]}
+          style={[
+            styles.signOutButton,
+            {
+              opacity: isLoading ? 0.5 : 1,
+              backgroundColor: '#ff3b30'
+            }
+          ]}
           onPress={handleSignOut}
           disabled={isLoading}
           activeOpacity={0.7}
         >
-          <LinearGradient
-            colors={['#ff3b30', '#ff6b6b']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.signOutGradient}
-          >
+          <View style={styles.signOutGradient}>
             <View style={styles.signOutIcon}>
               <Ionicons name="log-out-outline" size={20} color="#fff" />
             </View>
             <Text style={styles.signOutText}>
               {isLoading ? 'Signing Out...' : 'Sign Out'}
             </Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -186,8 +180,8 @@ export default function Layout() {
               borderRightColor: theme.border
             }
           ],
-          drawerActiveBackgroundColor: theme.isDark ? 'rgba(123, 202, 136, 0.1)' : 'rgba(123, 202, 136, 0.1)',
-          drawerActiveTintColor: theme.isDark ? '#98a75e' : '#98a75e',
+          drawerActiveBackgroundColor: theme.isDark ? 'rgba(152, 167, 94, 0.1)' : 'rgba(152, 167, 94, 0.1)',
+          drawerActiveTintColor: brandColor,
           drawerInactiveTintColor: theme.subtleText,
           drawerLabelStyle: [styles.drawerLabelStyle, { color: theme.text }],
           headerShown: false,

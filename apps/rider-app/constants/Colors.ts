@@ -2,6 +2,7 @@ import { useColorScheme } from "react-native";
 
 const tintColorLight = "#98a75e";
 const tintColorDark = "#fff";
+export const brandColor = "#98a75e";
 
 export const Colors = {
   tabColors: {
