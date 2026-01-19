@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
-import { AuthProvider } from '@/lib/auth/auth-context'
+import { ClientWrapper } from '@/components/client-wrapper'
 import './globals.css'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'FLIT - Special Hire Vehicle Platform',
@@ -25,9 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <AuthProvider>
+        <ClientWrapper>
           {children}
-        </AuthProvider>
+        </ClientWrapper>
         <Analytics />
       </body>
     </html>

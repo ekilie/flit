@@ -4,8 +4,7 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { ArrowRight, ChevronRight, Menu, X, Car, Clock, Shield, Zap } from "lucide-react"
-import { motion, type Variants } from "framer-motion"
-import { GridMotion } from "./ui/grid-motion"
+// import { motion, type Variants } from "framer-motion"
 import Image from "next/image"
 import { Logo } from "./app-logo"
 
@@ -70,20 +69,46 @@ const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
 )
 CardContent.displayName = "CardContent"
 
-const defaultContainerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-}
+// const defaultContainerVariants: Variants = {
+//   hidden: { opacity: 0 },
+//   visible: {
+//     opacity: 1,
+//     transition: {
+//       staggerChildren: 0.1,
+//     },
+//   },
+// }
 
-const defaultItemVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-}
+// const defaultItemVariants: Variants = {
+//   hidden: { opacity: 0 },
+//   visible: { opacity: 1 },
+// }
+
+// function AnimatedGroup({
+//   children,
+//   className,
+//   variants,
+// }: {
+//   children: React.ReactNode
+//   className?: string
+//   variants?: {
+//     container?: Variants
+//     item?: Variants
+//   }
+// }) {
+//   const containerVariants = variants?.container || defaultContainerVariants
+//   const itemVariants = variants?.item || defaultItemVariants
+
+//   return (
+//     <motion.div initial="hidden" animate="visible" variants={containerVariants} className={cn(className)}>
+//       {React.Children.map(children, (child, index) => (
+//         <motion.div key={index} variants={itemVariants}>
+//           {child}
+//         </motion.div>
+//       ))}
+//     </motion.div>
+//   )
+// }
 
 function AnimatedGroup({
   children,
@@ -92,22 +117,12 @@ function AnimatedGroup({
 }: {
   children: React.ReactNode
   className?: string
-  variants?: {
-    container?: Variants
-    item?: Variants
-  }
+  variants?: any
 }) {
-  const containerVariants = variants?.container || defaultContainerVariants
-  const itemVariants = variants?.item || defaultItemVariants
-
   return (
-    <motion.div initial="hidden" animate="visible" variants={containerVariants} className={cn(className)}>
-      {React.Children.map(children, (child, index) => (
-        <motion.div key={index} variants={itemVariants}>
-          {child}
-        </motion.div>
-      ))}
-    </motion.div>
+    <div className={cn(className)}>
+      {children}
+    </div>
   )
 }
 

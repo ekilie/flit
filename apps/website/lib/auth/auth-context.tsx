@@ -34,29 +34,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Check for stored auth data on mount
-    const storedToken = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
+    // Check for stored auth data on mount - only on client side
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      setIsLoading(false)
+      return
+    }
 
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser)
-        // Validate user object structure
-        if (parsedUser && parsedUser.id && parsedUser.email && parsedUser.role) {
-          setToken(storedToken)
-          setUser(parsedUser)
-        } else {
-          // Invalid user data, clear storage
+    try {
+      const storedToken = localStorage.getItem('token')
+      const storedUser = localStorage.getItem('user')
+
+      if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser)
+          // Validate user object structure
+          if (parsedUser && parsedUser.id && parsedUser.email && parsedUser.role) {
+            setToken(storedToken)
+            setUser(parsedUser)
+          } else {
+            // Invalid user data, clear storage
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+          }
+        } catch (error) {
+          // Invalid JSON, clear storage
+          console.error('Failed to parse stored user data:', error)
           localStorage.removeItem('token')
           localStorage.removeItem('user')
         }
-      } catch (error) {
-        // Invalid JSON, clear storage
-        console.error('Failed to parse stored user data:', error)
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
       }
+    } catch (error) {
+      // localStorage access failed - likely during SSR
+      console.warn('localStorage access failed:', error)
     }
+    
     setIsLoading(false)
   }, [])
 
@@ -89,15 +100,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setToken(data.token)
     setUser(data.user)
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('user', JSON.stringify(data.user))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+    }
   }
 
   const logout = () => {
     setToken(null)
     setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+    }
     router.push('/login')
   }
 
