@@ -1,9 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-
-
-import * as Haptics from "expo-haptics";
-import { Platform, Vibration } from "react-native";
 import { jwtDecode } from "jwt-decode";
 
 export function cn(...inputs: ClassValue[]) {
