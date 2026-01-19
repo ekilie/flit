@@ -413,7 +413,7 @@ export default function FlitLanding() {
                 />
                 <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-[oklch(0.532_0.157_131.589)]/30 p-4 shadow-lg shadow-[oklch(0.532_0.157_131.589)]/15 ring-1">
                   <div className="bg-gradient-to-br from-[oklch(0.532_0.157_131.589)]/10 to-[oklch(0.532_0.157_131.589)]/5 dark:from-[oklch(0.532_0.157_131.589)]/20 dark:to-[oklch(0.532_0.157_131.589)]/10 aspect-15/8 relative rounded-2xl border border-[oklch(0.532_0.157_131.589)]/30 overflow-hidden">
-                    <GridMotion items={gridItems} gradientColor="rgba(245, 199, 36, 0.1)" className="h-full w-full" />
+                    <GridMotion items={gridItems} gradientColor="rgba(123, 202, 136, 0.1)" className="h-full w-full" />
                   </div>
                 </div> */}
               </div>
