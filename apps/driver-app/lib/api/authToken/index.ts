@@ -33,7 +33,7 @@ const storage = {
 
 export const authToken = async (tokenType: string) => {
   //TODO:Will add custom token prefixing mechanism
-  const _key = `ekili-sync:${tokenType}-token`;
+  const _key = `ekili-flit:${tokenType}-token`;
   return (await storage.getItem(_key)) || null;
 };
 
@@ -43,10 +43,10 @@ export const setAuthToken = async (tokens: {
   try {
     for (const [key, value] of Object.entries(tokens)) {
       if (value !== null) {
-        await storage.setItem(`ekili-sync:${key}-token`, value);
+        await storage.setItem(`ekili-flit:${key}-token`, value);
       } else {
         // Remove token if value is null
-        await storage.removeItem(`ekili-sync:${key}-token`);
+        await storage.removeItem(`ekili-flit:${key}-token`);
       }
     }
   } catch (error) {
@@ -56,25 +56,25 @@ export const setAuthToken = async (tokens: {
 };
 
 export const saveUser = async (user: CurrentUser) => {
-  await storage.setItem("ekili-sync:user", JSON.stringify(user));
+  await storage.setItem("ekili-flit:user", JSON.stringify(user));
 };
 
 export const saveUserData = async (user: any) => {
-  await storage.setItem("ekili-sync:user-data", JSON.stringify(user));
+  await storage.setItem("ekili-flit:user-data", JSON.stringify(user));
 };
 
 export const currentUser = async (): Promise<CurrentUser | null> => {
-  const user = await storage.getItem("ekili-sync:user");
+  const user = await storage.getItem("ekili-flit:user");
   return user ? JSON.parse(user) : null;
 };
 
 export const userData = async () => {
-  const user = await storage.getItem("ekili-sync:user-data");
+  const user = await storage.getItem("ekili-flit:user-data");
   return user ? JSON.parse(user) : null;
 };
 
 export const userLocation = async () => {
-  const user = await storage.getItem("ekili-sync:user-data");
+  const user = await storage.getItem("ekili-flit:user-data");
   return user ? JSON.parse(user).userInfo.location : null;
 };
 
