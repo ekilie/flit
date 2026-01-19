@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // localStorage access failed - likely during SSR
       console.warn('localStorage access failed:', error)
     }
-    
+
     setIsLoading(false)
   }, [])
 
