@@ -31,8 +31,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   }, [signOut]);
 
   const gradientColors: [string, string, ...string[]] = theme.isDark 
-    ? ['#ffc800', '#ff9500'] 
-    : ['#ffc800', '#ff9500'];
+    ? ['#7BCA88', '#ff9500'] 
+    : ['#7BCA88', '#ff9500'];
 
   const menuItems = [
     {
@@ -186,8 +186,8 @@ export default function Layout() {
               borderRightColor: theme.border
             }
           ],
-          drawerActiveBackgroundColor: theme.isDark ? 'rgba(255, 200, 0, 0.1)' : 'rgba(255, 152, 0, 0.1)',
-          drawerActiveTintColor: theme.isDark ? '#ffc800' : '#ff9800',
+          drawerActiveBackgroundColor: theme.isDark ? 'rgba(123, 202, 136, 0.1)' : 'rgba(123, 202, 136, 0.1)',
+          drawerActiveTintColor: theme.isDark ? '#7BCA88' : '#7BCA88',
           drawerInactiveTintColor: theme.subtleText,
           drawerLabelStyle: [styles.drawerLabelStyle, { color: theme.text }],
           headerShown: false,
