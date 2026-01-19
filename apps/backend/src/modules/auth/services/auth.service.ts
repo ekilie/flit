@@ -142,7 +142,7 @@ export class AuthService {
   }
 
   async logout() {
-    // In production, invalidate tokens (use Redis blacklist)
+    // TODO: I will Implement token invalidation if using a token blacklist
     return {
       message: 'Logout successful',
     };
@@ -169,6 +169,8 @@ export class AuthService {
       refresh_token_expires_at: expiresAt.toISOString(),
     };
   }
+
+  
 
   async sendVerificationEmail(email: string) {
     const user = await this.usersService.findByEmail(email);

@@ -1,12 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
+import { ExpoPushToken } from 'src/modules/users/entities/expo-push-token.entity';
+import { User } from 'src/modules/users/entities/user.entity';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class PushService {
     private readonly logger = new Logger(PushService.name);
     private expo: Expo;
 
-    constructor() {
+    constructor(
+        @InjectRepository(ExpoPushToken)
+        private readonly expoPushTokenRepo: Repository<ExpoPushToken>
+    ) {
         this.expo = new Expo({
             useFcmV1: true,
         });
@@ -39,6 +46,28 @@ export class PushService {
             }
         }
     }
+
+    async registerPushToken(user: User, token: string, platform?: string) {
+        if (!Expo.isExpoPushToken(token)) {
+            throw new BadRequestException('Invalid Expo push token');
+        }
+
+        const existing = await this.expoPushTokenRepo.findOne({
+            where: { token },
+        });
+
+        if (existing) {
+            existing.user = user;
+            return this.expoPushTokenRepo.save(existing);
+        }
+
+        return this.expoPushTokenRepo.save({
+            token,
+            platform,
+            user,
+        });
+    }
+
 
     private handleTickets(tickets) {
         for (const ticket of tickets) {
