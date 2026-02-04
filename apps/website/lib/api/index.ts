@@ -1,5 +1,3 @@
-import { Alert } from "react-native";
-
 import {
   ApiResponse,
   AuthResponse,
@@ -320,8 +318,8 @@ class Api {
       const res = await api(false).post("/auth/verify", payload);
       const responseData = res.data;
 
-      Alert.alert(
-        "Success",
+      console.log(
+        "Success:",
         responseData.message || "Account verified successfully!"
       );
       return responseData;
@@ -345,8 +343,8 @@ class Api {
       const res = await api(false).post("/auth/forgot-password", payload);
       const responseData = res.data;
 
-      Alert.alert(
-        "Success",
+      console.log(
+        "Success:",
         responseData.message || "Password reset code sent to your email."
       );
       return responseData;
@@ -370,8 +368,8 @@ class Api {
       const res = await api(false).post("/auth/verify-reset-code", payload);
       const responseData = res.data;
 
-      Alert.alert(
-        "Success",
+      console.log(
+        "Success:",
         responseData.message || "Reset code verified successfully!"
       );
       return responseData;
@@ -393,8 +391,8 @@ class Api {
       const res = await api(false).post("/auth/reset-password", payload);
       const responseData = res.data;
 
-      Alert.alert(
-        "Success",
+      console.log(
+        "Success:",
         responseData.message || "Password reset successful!"
       );
       return responseData;
