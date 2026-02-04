@@ -1,5 +1,3 @@
-import { router } from "expo-router";
-
 import axios from "axios";
 
 import { BASE_URL } from "@/constants/constants";
@@ -24,7 +22,9 @@ const api = (authenticate: any) => {
               c.headers.Authorization = "Bearer " + refreshed;
             } else {
               // Redirect to login if refresh fails
-              router.replace("/login");
+              if (typeof window !== 'undefined') {
+                window.location.href = "/login";
+              }
               return Promise.reject(
                 new Error("Token expired and refresh failed")
               );
@@ -54,7 +54,9 @@ const api = (authenticate: any) => {
             originalRequest.headers.Authorization = "Bearer " + refreshed;
             return config(originalRequest);
           } else {
-            router.replace("/login");
+            if (typeof window !== 'undefined') {
+              window.location.href = "/login";
+            }
             return Promise.reject(error);
           }
         }
@@ -71,7 +73,9 @@ const api = (authenticate: any) => {
 let refreshTokenPromise: Promise<string | null> | null = null;
 
 async function refreshAuthToken(): Promise<string | null> {
-  router.replace("/(auth)/login");
+  if (typeof window !== 'undefined') {
+    window.location.href = "/login";
+  }
   // // Return existing refresh promise if one is already in progress
   // if (refreshTokenPromise) {
   //   return refreshTokenPromise;

@@ -186,11 +186,13 @@ export default function ActiveRideScreen() {
     if (!ride) return "Loading...";
     
     switch (ride.status) {
-      case RideStatus.PENDING:
+      case RideStatus.REQUESTED:
         return "Finding driver...";
       case RideStatus.ACCEPTED:
         return "Driver arriving";
-      case RideStatus.PICKED_UP:
+      case RideStatus.ARRIVED:
+        return "Driver has arrived";
+      case RideStatus.IN_PROGRESS:
         return "On the way";
       case RideStatus.COMPLETED:
         return "Ride completed";
@@ -310,6 +312,33 @@ export default function ActiveRideScreen() {
           </View>
         </View>
 
+        {/* Searching for Driver Overlay */}
+        {ride?.status === RideStatus.REQUESTED && (
+          <View style={[styles.searchingOverlay, { backgroundColor: `${theme.background}F0` }]}>
+            <View style={[styles.searchingCard, { backgroundColor: theme.cardBackground }]}>
+              <Animated.View
+                style={[
+                  styles.searchingPulse,
+                  {
+                    backgroundColor: `${theme.primary}40`,
+                    transform: [{ scale: pulseAnim }],
+                  },
+                ]}
+              />
+              <View style={[styles.searchingIcon, { backgroundColor: theme.primary }]}>
+                <Ionicons name="search" size={32} color="white" />
+              </View>
+              <Text style={[styles.searchingTitle, { color: theme.text }]}>
+                Finding nearby drivers...
+              </Text>
+              <Text style={[styles.searchingSubtitle, { color: theme.subtleText }]}>
+                This usually takes a few seconds
+              </Text>
+              <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 16 }} />
+            </View>
+          </View>
+        )}
+
         {/* Bottom Sheet */}
         <View style={[styles.bottomSheet, { backgroundColor: theme.cardBackground }]}>
           <ScrollView
@@ -317,27 +346,28 @@ export default function ActiveRideScreen() {
             contentContainerStyle={styles.bottomSheetScrollContent}
             showsVerticalScrollIndicator={false}
           >
-            {/* Driver Info */}
-            <View style={styles.driverSection}>
-              <View style={styles.driverInfo}>
-                <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
-                  <Text style={styles.driverInitials}>
-                    {getDriverInitials()}
-                  </Text>
-                </View>
-                <View style={styles.driverDetails}>
-                  <Text style={[styles.driverName, { color: theme.text }]}>
-                    {getDriverName()}
-                  </Text>
-                  <View style={styles.driverRating}>
-                    <Ionicons name="star" size={14} color={theme.warning} />
-                    <Text style={[styles.ratingText, { color: theme.subtleText }]}>
-                      {ride.driver?.metadata?.rating || "N/A"}
+            {/* Driver Info - Only show if driver is assigned */}
+            {ride?.driver && (
+              <View style={styles.driverSection}>
+                <View style={styles.driverInfo}>
+                  <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
+                    <Text style={styles.driverInitials}>
+                      {getDriverInitials()}
                     </Text>
                   </View>
+                  <View style={styles.driverDetails}>
+                    <Text style={[styles.driverName, { color: theme.text }]}>
+                      {getDriverName()}
+                    </Text>
+                    <View style={styles.driverRating}>
+                      <Ionicons name="star" size={14} color={theme.warning} />
+                      <Text style={[styles.ratingText, { color: theme.subtleText }]}>
+                        {ride.driver?.metadata?.rating || "N/A"}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.contactButtons}>
+                <View style={styles.contactButtons}>
                 <Pressable
                   style={({ pressed }) => [
                     styles.contactButton,
@@ -364,10 +394,12 @@ export default function ActiveRideScreen() {
                 </Pressable>
               </View>
             </View>
+            )}
 
-            {/* Vehicle Info */}
-            <View style={[styles.vehicleSection, { backgroundColor: theme.surface }]}>
-              <View style={styles.vehicleInfo}>
+            {/* Vehicle Info - Only show if vehicle is assigned */}
+            {ride?.vehicle && (
+              <View style={[styles.vehicleSection, { backgroundColor: theme.surface }]}>
+                <View style={styles.vehicleInfo}>
                 <Ionicons
                   name="car-sport-outline"
                   size={24}
@@ -378,11 +410,12 @@ export default function ActiveRideScreen() {
                     {ride.vehicle ? `${ride.vehicle.make} ${ride.vehicle.model}` : "Vehicle"}
                   </Text>
                   <Text style={[styles.vehiclePlate, { color: theme.subtleText }]}>
-                    {ride.vehicle?.licensePlate || "N/A"}
+                    {ride.vehicle ? ride.vehicle.licensePlate : "N/A"}
                   </Text>
                 </View>
               </View>
             </View>
+            )}
 
             {/* Trip Details */}
             <View style={styles.tripSection}>
@@ -583,6 +616,53 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: "600",
+  },
+  searchingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+  },
+  searchingCard: {
+    borderRadius: 20,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 10,
+    minWidth: width * 0.8,
+  },
+  searchingPulse: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    opacity: 0.3,
+  },
+  searchingIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  searchingTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  searchingSubtitle: {
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 8,
   },
   bottomSheet: {
     position: "absolute",

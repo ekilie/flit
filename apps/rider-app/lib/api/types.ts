@@ -146,6 +146,7 @@ export interface CreateRideDto {
   dropoffAddress: string;
   notes?: string;
   riderId: number;
+  vehicleType?: string;
 }
 
 export interface UpdateRideDto {
