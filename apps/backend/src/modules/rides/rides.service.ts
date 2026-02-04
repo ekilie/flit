@@ -13,6 +13,7 @@ import { CreateRideDto } from './dto/create-ride.dto';
 import { UpdateRideDto } from './dto/update-ride.dto';
 import { DriverMatchingService } from './services/driver-matching.service';
 import { PricingService } from '../pricing/services/pricing.service';
+import { RidesGateway } from '../../gateways/rides.gateway';
 
 @Injectable()
 export class RidesService {
@@ -24,6 +25,8 @@ export class RidesService {
     @Inject(forwardRef(() => DriverMatchingService))
     private readonly driverMatchingService: DriverMatchingService,
     private readonly pricingService: PricingService,
+    @Inject(forwardRef(() => RidesGateway))
+    private readonly ridesGateway: RidesGateway,
   ) {}
 
   async create(createRideDto: CreateRideDto): Promise<Ride> {
@@ -114,6 +117,7 @@ export class RidesService {
 
   async update(id: number, updateRideDto: UpdateRideDto): Promise<Ride> {
     const ride = await this.findOne(id);
+    const previousStatus = ride.status;
 
     // Validate status transitions
     if (updateRideDto.status && updateRideDto.status !== ride.status) {
@@ -141,7 +145,73 @@ export class RidesService {
     }
 
     Object.assign(ride, updateRideDto);
-    return await this.rideRepository.save(ride);
+    const updatedRide = await this.rideRepository.save(ride);
+
+    // Emit socket events for status changes
+    if (updateRideDto.status && updateRideDto.status !== previousStatus) {
+      this.emitStatusChangeEvents(updatedRide, previousStatus, updateRideDto.status);
+    }
+
+    return updatedRide;
+  }
+
+  /**
+   * Emit socket events based on status transitions
+   */
+  private emitStatusChangeEvents(
+    ride: Ride,
+    previousStatus: RideStatus,
+    newStatus: RideStatus,
+  ): void {
+    try {
+      // Emit general ride update
+      this.ridesGateway.emitRideUpdate({
+        rideId: ride.id,
+        status: newStatus,
+        driverId: ride.driverId,
+        fare: ride.fare,
+        distance: ride.distance,
+        duration: ride.actualDuration,
+      });
+
+      // Emit specific status events
+      switch (newStatus) {
+        case RideStatus.ARRIVED:
+          this.ridesGateway.emitDriverArrived(ride.id);
+          this.logger.log(`Emitted driver arrived event for ride ${ride.id}`);
+          break;
+
+        case RideStatus.IN_PROGRESS:
+          this.ridesGateway.emitRideStarted(ride.id);
+          this.logger.log(`Emitted ride started event for ride ${ride.id}`);
+          break;
+
+        case RideStatus.COMPLETED:
+          this.ridesGateway.emitRideCompleted(
+            ride.id,
+            ride.fare,
+            ride.distance,
+            ride.actualDuration,
+          );
+          this.logger.log(`Emitted ride completed event for ride ${ride.id}`);
+          break;
+
+        case RideStatus.CANCELLED:
+          // Determine who cancelled based on previous status
+          const cancelledBy = 
+            previousStatus === RideStatus.REQUESTED ? 'rider' : 
+            ride.driverId ? 'driver' : 'rider';
+          this.ridesGateway.emitRideCancelled(
+            ride.id,
+            cancelledBy as 'rider' | 'driver',
+            ride.notes, // Use notes field for cancellation reason
+          );
+          this.logger.log(`Emitted ride cancelled event for ride ${ride.id}`);
+          break;
+      }
+    } catch (error) {
+      this.logger.error(`Failed to emit status change events for ride ${ride.id}:`, error);
+    }
   }
 
   private validateStatusTransition(

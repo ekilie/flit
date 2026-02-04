@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Ride, RideStatus } from '../entities/ride.entity';
 import { RidesGateway } from '../../../gateways/rides.gateway';
 import { LocationGateway } from '../../../gateways/location.gateway';
+import { PushService } from '../../notifications/services/push.service';
 
 export interface DriverCandidate {
   driverId: number;
@@ -45,8 +46,10 @@ export class DriverMatchingService {
     private usersRepository: Repository<User>,
     @InjectRepository(Ride)
     private ridesRepository: Repository<Ride>,
+    @Inject(forwardRef(() => RidesGateway))
     private ridesGateway: RidesGateway,
     private locationGateway: LocationGateway,
+    private pushService: PushService,
   ) {}
 
   /**
@@ -276,6 +279,21 @@ export class DriverMatchingService {
       estimatedArrival,
     });
 
+    // Send push notification as fallback (if driver is offline or not connected via socket)
+    try {
+      await this.sendPushNotificationToDriver(
+        candidate.driverId,
+        ride,
+        candidate.distance,
+        estimatedArrival,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send push notification to driver ${candidate.driverId}:`,
+        error,
+      );
+    }
+
     // Set timeout for driver response
     const timeoutHandle = setTimeout(() => {
       this.handleDriverTimeout(rideId, candidate.driverId);
@@ -283,6 +301,55 @@ export class DriverMatchingService {
 
     request.timeoutHandle = timeoutHandle;
     this.pendingRequests.set(rideId, request);
+  }
+
+  /**
+   * Send push notification to driver about ride request
+   */
+  private async sendPushNotificationToDriver(
+    driverId: number,
+    ride: Ride,
+    distance: number,
+    estimatedArrival: number,
+  ): Promise<void> {
+    try {
+      const driver = await this.usersRepository.findOne({
+        where: { id: driverId },
+        relations: ['expoPushTokens'],
+      });
+
+      if (!driver?.expoPushTokens?.length) {
+        this.logger.debug(`No push tokens found for driver ${driverId}`);
+        return;
+      }
+
+      const tokens = driver.expoPushTokens.map((t) => t.token);
+      
+      await this.pushService.send(tokens, {
+        title: 'New Ride Request!',
+        body: `Pickup: ${ride.pickupAddress.split(',')[0]}`,
+        data: {
+          type: 'ride_request',
+          rideId: ride.id.toString(),
+          pickupAddress: ride.pickupAddress,
+          dropoffAddress: ride.dropoffAddress,
+          distance: distance.toFixed(1),
+          estimatedArrival: estimatedArrival.toString(),
+        },
+        priority: 'high',
+        sound: 'default',
+      });
+
+      this.logger.log(
+        `Sent push notification for ride ${ride.id} to driver ${driverId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error sending push notification to driver ${driverId}:`,
+        error,
+      );
+      throw error;
+    }
   }
 
   /**
