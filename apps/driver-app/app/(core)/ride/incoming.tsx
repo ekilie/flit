@@ -32,6 +32,7 @@ export default function IncomingRideScreen() {
   
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
 
   // Use time remaining from hook or fallback to 15
   const countdown = timeRemainingSeconds || 15;
@@ -140,10 +141,11 @@ export default function IncomingRideScreen() {
 
   // Auto-decline on timeout
   useEffect(() => {
-    if (countdown <= 0 && !isAccepting && !isDeclining) {
+    if (countdown <= 0 && !isAccepting && !isDeclining && !hasTimedOut) {
+      setHasTimedOut(true);
       handleDecline('timeout');
     }
-  }, [countdown, handleDecline, isAccepting, isDeclining]);
+  }, [countdown, handleDecline, isAccepting, isDeclining, hasTimedOut]);
 
   return (
     <ScreenLayout>

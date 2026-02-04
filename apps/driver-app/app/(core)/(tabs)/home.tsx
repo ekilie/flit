@@ -109,11 +109,13 @@ export default function DriverHomeScreen() {
   // Track location when online
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | null = null;
+    let trackingStarted = false;
 
     if (isOnline && locationPermission) {
       (async () => {
         // Start socket-based location tracking
         await startLocationTracking();
+        trackingStarted = true;
 
         // Also update local state for map display
         locationSubscription = await Location.watchPositionAsync(
@@ -133,7 +135,7 @@ export default function DriverHomeScreen() {
       if (locationSubscription) {
         locationSubscription.remove();
       }
-      if (isOnline) {
+      if (trackingStarted) {
         stopLocationTracking();
       }
     };

@@ -21,6 +21,16 @@ import { toast } from "yooo-native";
 
 const { width } = Dimensions.get("window");
 
+// Helper function to get initials from name
+const getInitials = (name: string | undefined): string => {
+  if (!name) return "R";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+};
+
 export default function ActiveRideScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
@@ -291,13 +301,7 @@ export default function ActiveRideScreen() {
               <View style={styles.driverInfo}>
                 <View style={[styles.driverAvatar, { backgroundColor: theme.primary }]}>
                   <Text style={styles.driverInitials}>
-                    {ride.rider?.name
-                      ? ride.rider.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                      : "R"}
+                    {getInitials(ride.rider?.name)}
                   </Text>
                 </View>
                 <View style={styles.driverDetails}>
