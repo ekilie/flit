@@ -186,11 +186,13 @@ export default function ActiveRideScreen() {
     if (!ride) return "Loading...";
     
     switch (ride.status) {
-      case RideStatus.PENDING:
+      case RideStatus.REQUESTED:
         return "Finding driver...";
       case RideStatus.ACCEPTED:
         return "Driver arriving";
-      case RideStatus.PICKED_UP:
+      case RideStatus.ARRIVED:
+        return "Driver has arrived";
+      case RideStatus.IN_PROGRESS:
         return "On the way";
       case RideStatus.COMPLETED:
         return "Ride completed";
