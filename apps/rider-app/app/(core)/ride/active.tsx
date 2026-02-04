@@ -410,7 +410,7 @@ export default function ActiveRideScreen() {
                     {ride.vehicle ? `${ride.vehicle.make} ${ride.vehicle.model}` : "Vehicle"}
                   </Text>
                   <Text style={[styles.vehiclePlate, { color: theme.subtleText }]}>
-                    {ride.vehicle ? ride.vehicle.plateNumber : "N/A"}
+                    {ride.vehicle ? ride.vehicle.licensePlate : "N/A"}
                   </Text>
                 </View>
               </View>

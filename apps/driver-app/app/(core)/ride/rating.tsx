@@ -108,7 +108,7 @@ export default function RideRatingScreen() {
       // Submit rating to backend
       await Api.createRating({
         rideId: parseInt(rideId),
-        raterId: parseInt(riderId), // Rating the rider
+        raterId: parseInt(riderId), // Driver (current user) is rating the rider (passenger)
         rating,
         comment: comment || undefined,
       });
