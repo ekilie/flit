@@ -12,10 +12,13 @@ import {
   View,
   Dimensions,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { toast } from "yooo-native";
 import * as Haptics from "expo-haptics";
+import { useRideRequests } from "@/lib/socket/socket-hooks";
+import Api from "@/lib/api";
 
 const { width } = Dimensions.get("window");
 
@@ -24,79 +27,125 @@ export default function IncomingRideScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const [countdown, setCountdown] = useState(15);
+  // Get ride request from socket
+  const { rideRequest, timeRemainingSeconds, clearRequest } = useRideRequests();
+  
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isDeclining, setIsDeclining] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
 
-  // Mock ride data (would come from Socket.IO in real app)
-  const rideData = {
-    id: params.id || '1',
+  // Use time remaining from hook or fallback to 15
+  const countdown = timeRemainingSeconds || 15;
+
+  // If no ride request and params.id, redirect back
+  useEffect(() => {
+    if (!rideRequest && !params.id) {
+      router.back();
+    }
+  }, [rideRequest, params.id, router]);
+
+  // Prepare ride data from socket request or fallback to params
+  const rideData = rideRequest ? {
+    id: rideRequest.rideId.toString(),
     pickup: {
-      name: 'Mlimani City Mall',
-      address: 'Sam Nujoma Road, Dar es Salaam',
+      name: 'Pickup Location',
+      address: rideRequest.pickupAddress,
     },
     dropoff: {
-      name: 'Julius Nyerere Airport',
-      address: 'Julius Nyerere International Airport',
+      name: 'Dropoff Location',
+      address: rideRequest.dropoffAddress,
+    },
+    estimatedFare: 25000, // TODO: Calculate from distance
+    distance: rideRequest.distance,
+    duration: rideRequest.estimatedArrival,
+    rider: {
+      name: 'Rider', // Backend doesn't send rider details in request
+      rating: 4.8,
+      photo: null,
+    },
+  } : {
+    // Fallback for testing or when navigated with params
+    id: params.id as string || '1',
+    pickup: {
+      name: 'Pickup Location',
+      address: 'Loading...',
+    },
+    dropoff: {
+      name: 'Dropoff Location',
+      address: 'Loading...',
     },
     estimatedFare: 25000,
     distance: 8.5,
     duration: 15,
     rider: {
-      name: 'John Doe',
+      name: 'Rider',
       rating: 4.8,
       photo: null,
     },
   };
 
   const handleDecline = useCallback(async (reason?: string) => {
+    if (isDeclining) return; // Prevent double-click
+    
     try {
+      setIsDeclining(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
       if (reason === 'timeout') {
         toast.info('Ride request expired');
       } else {
+        // Call API to reject ride
+        await Api.rejectRide(parseInt(rideData.id));
         toast.info('Ride declined');
       }
 
-      // TODO: API call to decline ride
-      // await Api.declineRide(rideData.id, reason);
+      // Clear the request from socket context
+      clearRequest();
 
       // Navigate back to home
       router.back();
     } catch (error) {
       console.error('Decline ride error:', error);
-      router.back();
+      toast.error('Failed to decline ride');
+      setIsDeclining(false);
     }
-  }, [router]);
+  }, [rideData.id, router, clearRequest, isDeclining]);
 
   const handleAccept = async () => {
+    if (isAccepting) return; // Prevent double-click
+    
     try {
+      setIsAccepting(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      toast.success('Ride accepted!');
 
-      // TODO: API call to accept ride
-      // await Api.acceptRide(rideData.id);
+      // Call API to accept ride
+      const response = await Api.acceptRide(parseInt(rideData.id));
+      
+      if (response.success) {
+        toast.success('Ride accepted!');
+        
+        // Clear the request from socket context
+        clearRequest();
 
-      // Navigate to active ride screen
-      router.replace(`/(core)/ride/active?id=${rideData.id}`);
-    } catch (error) {
-      toast.error('Failed to accept ride');
+        // Navigate to active ride screen
+        router.replace(`/(core)/ride/active?id=${rideData.id}`);
+      } else {
+        throw new Error(response.message || 'Failed to accept ride');
+      }
+    } catch (error: any) {
       console.error('Accept ride error:', error);
+      toast.error(error.message || 'Failed to accept ride');
+      setIsAccepting(false);
     }
   };
 
-  // Countdown timer
+  // Auto-decline on timeout
   useEffect(() => {
-    if (countdown <= 0) {
+    if (countdown <= 0 && !isAccepting && !isDeclining && !hasTimedOut) {
+      setHasTimedOut(true);
       handleDecline('timeout');
-      return;
     }
-
-    const timer = setInterval(() => {
-      setCountdown(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [countdown, handleDecline]);
+  }, [countdown, handleDecline, isAccepting, isDeclining, hasTimedOut]);
 
   return (
     <ScreenLayout>
@@ -221,26 +270,40 @@ export default function IncomingRideScreen() {
             style={[styles.declineButton, { borderColor: theme.error }]}
             onPress={() => handleDecline('manual')}
             activeOpacity={0.8}
+            disabled={isAccepting || isDeclining}
           >
-            <MaterialCommunityIcons name="close-circle" size={24} color={theme.error} />
-            <Text style={[styles.declineButtonText, { color: theme.error }]}>
-              DECLINE
-            </Text>
+            {isDeclining ? (
+              <ActivityIndicator color={theme.error} size="small" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="close-circle" size={24} color={theme.error} />
+                <Text style={[styles.declineButtonText, { color: theme.error }]}>
+                  DECLINE
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.acceptButton}
             onPress={handleAccept}
             activeOpacity={0.8}
+            disabled={isAccepting || isDeclining}
           >
             <LinearGradient
               colors={['#10b981', '#059669']}
               style={styles.acceptButtonGradient}
             >
-              <MaterialCommunityIcons name="check-circle" size={24} color="#fff" />
-              <Text style={styles.acceptButtonText}>
-                ACCEPT
-              </Text>
+              {isAccepting ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <>
+                  <MaterialCommunityIcons name="check-circle" size={24} color="#fff" />
+                  <Text style={styles.acceptButtonText}>
+                    ACCEPT
+                  </Text>
+                </>
+              )}
             </LinearGradient>
           </TouchableOpacity>
         </View>
