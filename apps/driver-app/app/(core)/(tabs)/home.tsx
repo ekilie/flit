@@ -20,6 +20,8 @@ import { toast } from "yooo-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { LIGHT_MAP_STYLE } from "@/constants/mapstyle";
+import { useSocket } from "@/lib/socket/socket-context";
+import { useRideRequests } from "@/lib/socket/socket-hooks";
 
 const { width } = Dimensions.get("window");
 
@@ -50,6 +52,12 @@ const UI_COLORS = {
 export default function DriverHomeScreen() {
   const theme = useCurrentTheme();
   const router = useRouter();
+
+  // Socket connection for location tracking
+  const { startLocationTracking, stopLocationTracking } = useSocket();
+  
+  // Watch for incoming ride requests
+  const { rideRequest } = useRideRequests();
 
   // Driver state
   const [isOnline, setIsOnline] = useState(false);
@@ -89,12 +97,25 @@ export default function DriverHomeScreen() {
     })();
   }, []);
 
+  // Navigate to incoming ride screen when new request arrives
+  useEffect(() => {
+    if (rideRequest && isOnline) {
+      console.log('New ride request received, navigating to incoming screen:', rideRequest);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.push(`/(core)/ride/incoming?id=${rideRequest.rideId}`);
+    }
+  }, [rideRequest, isOnline, router]);
+
   // Track location when online
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | null = null;
 
     if (isOnline && locationPermission) {
       (async () => {
+        // Start socket-based location tracking
+        await startLocationTracking();
+
+        // Also update local state for map display
         locationSubscription = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
@@ -103,7 +124,6 @@ export default function DriverHomeScreen() {
           },
           (location) => {
             setCurrentLocation(location);
-            // TODO: Send location to backend via Socket.IO
           }
         );
       })();
@@ -113,8 +133,11 @@ export default function DriverHomeScreen() {
       if (locationSubscription) {
         locationSubscription.remove();
       }
+      if (isOnline) {
+        stopLocationTracking();
+      }
     };
-  }, [isOnline, locationPermission]);
+  }, [isOnline, locationPermission, startLocationTracking, stopLocationTracking]);
 
   const toggleOnlineStatus = async () => {
     if (!locationPermission) {
