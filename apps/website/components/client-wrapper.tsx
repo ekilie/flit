@@ -4,14 +4,15 @@ import { useState, useEffect } from 'react'
 import { AuthProvider } from '@/lib/auth/auth-context'
 
 export function ClientWrapper({ children }: { children: React.ReactNode }) {
-    const [mounted, setMounted] = useState(false)
+    const [isClientMounted, setIsClientMounted] = useState(false)
     
     useEffect(() => {
-        setMounted(true)
+        setIsClientMounted(true)
     }, [])
     
-    // During SSR or initial render, just render children without AuthProvider
-    if (!mounted) {
+    // During SSR, render children without AuthProvider to prevent hydration issues
+    // This ensures error pages and other routes can be properly pre-rendered
+    if (!isClientMounted) {
         return <>{children}</>
     }
     
