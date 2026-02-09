@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { AuthProvider } from '@/lib/auth/auth-context'
+import dynamic from 'next/dynamic'
+
+// Dynamically import AuthProvider with no SSR to prevent prerendering issues
+const DynamicAuthProvider = dynamic(
+    () => import('@/lib/auth/auth-context').then((mod) => ({ default: mod.AuthProvider })),
+    { ssr: false }
+)
 
 export function ClientWrapper({ children }: { children: React.ReactNode }) {
     const [isClientMounted, setIsClientMounted] = useState(false)
@@ -10,7 +16,7 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
         setIsClientMounted(true)
     }, [])
     
-    // During SSR, render children without AuthProvider to prevent hydration issues
+    // During SSR/prerendering, render children without AuthProvider to prevent hydration issues
     // This ensures error pages and other routes can be properly pre-rendered.
     // Note: AuthProvider is only used in /console routes, which are client-rendered,
     // so there's minimal hydration mismatch in practice.
@@ -19,5 +25,5 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
     }
     
     // Once mounted on client, wrap with AuthProvider
-    return <AuthProvider>{children}</AuthProvider>
+    return <DynamicAuthProvider>{children}</DynamicAuthProvider>
 }
