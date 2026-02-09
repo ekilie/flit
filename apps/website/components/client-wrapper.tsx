@@ -11,7 +11,9 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
     }, [])
     
     // During SSR, render children without AuthProvider to prevent hydration issues
-    // This ensures error pages and other routes can be properly pre-rendered
+    // This ensures error pages and other routes can be properly pre-rendered.
+    // Note: AuthProvider is only used in /console routes, which are client-rendered,
+    // so there's minimal hydration mismatch in practice.
     if (!isClientMounted) {
         return <>{children}</>
     }
