@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import AuthProvider with no SSR to prevent prerendering issues
-const AuthProvider = dynamic(
+const DynamicAuthProvider = dynamic(
     () => import('@/lib/auth/auth-context').then((mod) => ({ default: mod.AuthProvider })),
     { ssr: false }
 )
@@ -25,5 +25,5 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
     }
     
     // Once mounted on client, wrap with AuthProvider
-    return <AuthProvider>{children}</AuthProvider>
+    return <DynamicAuthProvider>{children}</DynamicAuthProvider>
 }
