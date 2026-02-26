@@ -13,52 +13,30 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import {
-  Plus, Search, MoreHorizontal, Eye, Edit, Ban, CheckCircle2, Clock, Filter
+  Search, MoreHorizontal, Eye, Ban, CheckCircle2, Clock, Filter, Loader2, RefreshCw
 } from "lucide-react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import Api from "@/lib/api"
+import { User } from "@/lib/api/types"
+import { filterUsersByRole } from "@/lib/utils"
 
 export const Route = createFileRoute('/console/drivers/')({
   component: DriversPage,
 })
 
-type DriverStatus = "active" | "offline" | "suspended" | "pending"
-
-interface Driver {
-  id: string
-  name: string
-  email: string
-  phone: string
-  status: DriverStatus
-  rating: number
-  totalRides: number
-  earnings: number
-  vehicle: string
-  joinedDate: string
-}
-
-const mockDrivers: Driver[] = [
-  { id: "DRV-001", name: "John Doe", email: "john.doe@example.com", phone: "+1 234-567-8901", status: "active", rating: 4.8, totalRides: 1250, earnings: 15600, vehicle: "Toyota Camry 2022", joinedDate: "2024-01-15" },
-  { id: "DRV-002", name: "Jane Smith", email: "jane.smith@example.com", phone: "+1 234-567-8902", status: "active", rating: 4.9, totalRides: 980, earnings: 12800, vehicle: "Honda Accord 2023", joinedDate: "2024-02-20" },
-  { id: "DRV-003", name: "Mike Johnson", email: "mike.johnson@example.com", phone: "+1 234-567-8903", status: "offline", rating: 4.6, totalRides: 750, earnings: 9500, vehicle: "Nissan Altima 2021", joinedDate: "2024-03-10" },
-  { id: "DRV-004", name: "Sarah Williams", email: "sarah.williams@example.com", phone: "+1 234-567-8904", status: "pending", rating: 0, totalRides: 0, earnings: 0, vehicle: "Ford Fusion 2022", joinedDate: "2024-12-28" },
-  { id: "DRV-005", name: "David Brown", email: "david.brown@example.com", phone: "+1 234-567-8905", status: "suspended", rating: 3.8, totalRides: 320, earnings: 3200, vehicle: "Chevrolet Malibu 2020", joinedDate: "2024-05-15" },
-]
-
-function getStatusBadge(status: DriverStatus) {
-  const variants = {
-    active: { variant: "default" as const, icon: CheckCircle2, label: "Active" },
-    offline: { variant: "secondary" as const, icon: Clock, label: "Offline" },
-    suspended: { variant: "destructive" as const, icon: Ban, label: "Suspended" },
-    pending: { variant: "outline" as const, icon: Clock, label: "Pending" },
-  }
-  const config = variants[status]
-  const Icon = config.icon
-  return (
-    <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
-      <Icon className="h-3 w-3" />
-      {config.label}
+function getStatusBadge(isActive: boolean) {
+  return isActive ? (
+    <Badge variant="default" className="flex items-center gap-1 w-fit">
+      <CheckCircle2 className="h-3 w-3" />
+      Active
+    </Badge>
+  ) : (
+    <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+      <Clock className="h-3 w-3" />
+      Inactive
     </Badge>
   )
 }
@@ -66,15 +44,55 @@ function getStatusBadge(status: DriverStatus) {
 function DriversPage() {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<string>("all")
+  const [drivers, setDrivers] = React.useState<User[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+  const [actionLoading, setActionLoading] = React.useState<number | null>(null)
 
-  const filteredDrivers = mockDrivers.filter((driver) => {
+  const fetchDrivers = React.useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const users = await Api.getUsers()
+      setDrivers(filterUsersByRole(users, "Driver"))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch drivers")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    fetchDrivers()
+  }, [fetchDrivers])
+
+  const handleToggleStatus = async (driver: User) => {
+    setActionLoading(driver.id)
+    try {
+      await Api.adminUpdateUser(driver.id, { is_active: !driver.is_active })
+      setDrivers((prev) =>
+        prev.map((d) => d.id === driver.id ? { ...d, is_active: !driver.is_active } : d)
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update driver status")
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const filteredDrivers = drivers.filter((driver) => {
     const matchesSearch =
       driver.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       driver.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      driver.id.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || driver.status === statusFilter
+      driver.id.toString().includes(searchQuery)
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && driver.is_active) ||
+      (statusFilter === "inactive" && !driver.is_active)
     return matchesSearch && matchesStatus
   })
+
+  const activeCount = drivers.filter((d) => d.is_active).length
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -83,52 +101,50 @@ function DriversPage() {
           <h2 className="text-3xl font-bold tracking-tight">Drivers</h2>
           <p className="text-muted-foreground">Manage and monitor all registered drivers</p>
         </div>
-        <Link to="/console/drivers/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Driver
-          </Button>
-        </Link>
+        <Button variant="outline" onClick={fetchDrivers} disabled={isLoading}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Drivers</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">{mockDrivers.length}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : drivers.length}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+            <CardTitle className="text-sm font-medium">Active</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">{mockDrivers.filter((d) => d.status === "active").length}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : activeCount}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <CardTitle className="text-sm font-medium">Inactive</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">{mockDrivers.filter((d) => d.status === "pending").length}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : drivers.length - activeCount}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
+            <CardTitle className="text-sm font-medium">Filtered Results</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(mockDrivers.filter((d) => d.rating > 0).reduce((acc, d) => acc + d.rating, 0) / mockDrivers.filter((d) => d.rating > 0).length).toFixed(1)}
-            </div>
-          </CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : filteredDrivers.length}</div></CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Drivers</CardTitle>
-              <CardDescription>A list of all drivers and their current status</CardDescription>
-            </div>
+          <div>
+            <CardTitle>All Drivers</CardTitle>
+            <CardDescription>A list of all drivers and their current status</CardDescription>
           </div>
           <div className="flex items-center gap-4 mt-4">
             <div className="relative flex-1">
@@ -148,100 +164,92 @@ function DriversPage() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="offline">Offline</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Driver ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Vehicle</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Total Rides</TableHead>
-                <TableHead>Earnings</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDrivers.length > 0 ? (
-                filteredDrivers.map((driver) => (
-                  <TableRow key={driver.id}>
-                    <TableCell className="font-medium">{driver.id}</TableCell>
-                    <TableCell>
-                      <div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Loading drivers...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDrivers.length > 0 ? (
+                  filteredDrivers.map((driver) => (
+                    <TableRow key={driver.id}>
+                      <TableCell className="font-medium">#{driver.id}</TableCell>
+                      <TableCell>
                         <div className="font-medium">{driver.name}</div>
-                        <div className="text-xs text-muted-foreground">Joined {new Date(driver.joinedDate).toLocaleDateString()}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>{driver.email}</div>
-                        <div className="text-muted-foreground">{driver.phone}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{driver.vehicle}</TableCell>
-                    <TableCell>{getStatusBadge(driver.status)}</TableCell>
-                    <TableCell>
-                      {driver.rating > 0 ? (
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">{driver.rating}</span>
-                          <span className="text-yellow-500">★</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{driver.totalRides.toLocaleString()}</TableCell>
-                    <TableCell>${driver.earnings.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link to="/console/drivers/$driverId" params={{ driverId: driver.id }}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to="/console/drivers/$driverId" params={{ driverId: driver.id }}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Driver
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            <Ban className="mr-2 h-4 w-4" />
-                            Suspend Driver
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      </TableCell>
+                      <TableCell>{driver.email}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{driver.role || "Driver"}</Badge>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(driver.is_active)}</TableCell>
+                      <TableCell>
+                        {driver.created_at ? new Date(driver.created_at).toLocaleDateString() : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0" disabled={actionLoading === driver.id}>
+                              <span className="sr-only">Open menu</span>
+                              {actionLoading === driver.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <MoreHorizontal className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link to="/console/drivers/$driverId" params={{ driverId: driver.id.toString() }}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className={driver.is_active ? "text-destructive" : "text-green-600"}
+                              onClick={() => handleToggleStatus(driver)}
+                            >
+                              {driver.is_active ? (
+                                <><Ban className="mr-2 h-4 w-4" />Deactivate</>
+                              ) : (
+                                <><CheckCircle2 className="mr-2 h-4 w-4" />Activate</>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      {drivers.length === 0 ? "No drivers found" : "No drivers match your search criteria"}
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    No drivers found matching your criteria
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

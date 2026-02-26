@@ -20,6 +20,11 @@ import { Route as ConsoleRidesIndexRouteImport } from './routes/console/rides/in
 import { Route as ConsoleRidersIndexRouteImport } from './routes/console/riders/index'
 import { Route as ConsolePaymentsIndexRouteImport } from './routes/console/payments/index'
 import { Route as ConsoleDriversIndexRouteImport } from './routes/console/drivers/index'
+import { Route as ConsoleSupportReportsIndexRouteImport } from './routes/console/support/reports/index'
+import { Route as ConsoleSupportRatingsIndexRouteImport } from './routes/console/support/ratings/index'
+import { Route as ConsoleSettingsPricingIndexRouteImport } from './routes/console/settings/pricing/index'
+import { Route as ConsoleSettingsNotificationsIndexRouteImport } from './routes/console/settings/notifications/index'
+import { Route as ConsoleSettingsLocationsIndexRouteImport } from './routes/console/settings/locations/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -76,6 +81,36 @@ const ConsoleDriversIndexRoute = ConsoleDriversIndexRouteImport.update({
   path: '/drivers/',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleSupportReportsIndexRoute =
+  ConsoleSupportReportsIndexRouteImport.update({
+    id: '/support/reports/',
+    path: '/support/reports/',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
+const ConsoleSupportRatingsIndexRoute =
+  ConsoleSupportRatingsIndexRouteImport.update({
+    id: '/support/ratings/',
+    path: '/support/ratings/',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
+const ConsoleSettingsPricingIndexRoute =
+  ConsoleSettingsPricingIndexRouteImport.update({
+    id: '/settings/pricing/',
+    path: '/settings/pricing/',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
+const ConsoleSettingsNotificationsIndexRoute =
+  ConsoleSettingsNotificationsIndexRouteImport.update({
+    id: '/settings/notifications/',
+    path: '/settings/notifications/',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
+const ConsoleSettingsLocationsIndexRoute =
+  ConsoleSettingsLocationsIndexRouteImport.update({
+    id: '/settings/locations/',
+    path: '/settings/locations/',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +124,11 @@ export interface FileRoutesByFullPath {
   '/console/settings/': typeof ConsoleSettingsIndexRoute
   '/console/support/': typeof ConsoleSupportIndexRoute
   '/console/vehicles/': typeof ConsoleVehiclesIndexRoute
+  '/console/settings/locations/': typeof ConsoleSettingsLocationsIndexRoute
+  '/console/settings/notifications/': typeof ConsoleSettingsNotificationsIndexRoute
+  '/console/settings/pricing/': typeof ConsoleSettingsPricingIndexRoute
+  '/console/support/ratings/': typeof ConsoleSupportRatingsIndexRoute
+  '/console/support/reports/': typeof ConsoleSupportReportsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,6 +141,11 @@ export interface FileRoutesByTo {
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/support': typeof ConsoleSupportIndexRoute
   '/console/vehicles': typeof ConsoleVehiclesIndexRoute
+  '/console/settings/locations': typeof ConsoleSettingsLocationsIndexRoute
+  '/console/settings/notifications': typeof ConsoleSettingsNotificationsIndexRoute
+  '/console/settings/pricing': typeof ConsoleSettingsPricingIndexRoute
+  '/console/support/ratings': typeof ConsoleSupportRatingsIndexRoute
+  '/console/support/reports': typeof ConsoleSupportReportsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -115,6 +160,11 @@ export interface FileRoutesById {
   '/console/settings/': typeof ConsoleSettingsIndexRoute
   '/console/support/': typeof ConsoleSupportIndexRoute
   '/console/vehicles/': typeof ConsoleVehiclesIndexRoute
+  '/console/settings/locations/': typeof ConsoleSettingsLocationsIndexRoute
+  '/console/settings/notifications/': typeof ConsoleSettingsNotificationsIndexRoute
+  '/console/settings/pricing/': typeof ConsoleSettingsPricingIndexRoute
+  '/console/support/ratings/': typeof ConsoleSupportRatingsIndexRoute
+  '/console/support/reports/': typeof ConsoleSupportReportsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,6 +180,11 @@ export interface FileRouteTypes {
     | '/console/settings/'
     | '/console/support/'
     | '/console/vehicles/'
+    | '/console/settings/locations/'
+    | '/console/settings/notifications/'
+    | '/console/settings/pricing/'
+    | '/console/support/ratings/'
+    | '/console/support/reports/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -142,6 +197,11 @@ export interface FileRouteTypes {
     | '/console/settings'
     | '/console/support'
     | '/console/vehicles'
+    | '/console/settings/locations'
+    | '/console/settings/notifications'
+    | '/console/settings/pricing'
+    | '/console/support/ratings'
+    | '/console/support/reports'
   id:
     | '__root__'
     | '/'
@@ -155,6 +215,11 @@ export interface FileRouteTypes {
     | '/console/settings/'
     | '/console/support/'
     | '/console/vehicles/'
+    | '/console/settings/locations/'
+    | '/console/settings/notifications/'
+    | '/console/settings/pricing/'
+    | '/console/support/ratings/'
+    | '/console/support/reports/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,6 +307,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleDriversIndexRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/support/reports/': {
+      id: '/console/support/reports/'
+      path: '/support/reports'
+      fullPath: '/console/support/reports/'
+      preLoaderRoute: typeof ConsoleSupportReportsIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/support/ratings/': {
+      id: '/console/support/ratings/'
+      path: '/support/ratings'
+      fullPath: '/console/support/ratings/'
+      preLoaderRoute: typeof ConsoleSupportRatingsIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/settings/pricing/': {
+      id: '/console/settings/pricing/'
+      path: '/settings/pricing'
+      fullPath: '/console/settings/pricing/'
+      preLoaderRoute: typeof ConsoleSettingsPricingIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/settings/notifications/': {
+      id: '/console/settings/notifications/'
+      path: '/settings/notifications'
+      fullPath: '/console/settings/notifications/'
+      preLoaderRoute: typeof ConsoleSettingsNotificationsIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/settings/locations/': {
+      id: '/console/settings/locations/'
+      path: '/settings/locations'
+      fullPath: '/console/settings/locations/'
+      preLoaderRoute: typeof ConsoleSettingsLocationsIndexRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
   }
 }
 
@@ -254,6 +354,11 @@ interface ConsoleRouteChildren {
   ConsoleSettingsIndexRoute: typeof ConsoleSettingsIndexRoute
   ConsoleSupportIndexRoute: typeof ConsoleSupportIndexRoute
   ConsoleVehiclesIndexRoute: typeof ConsoleVehiclesIndexRoute
+  ConsoleSettingsLocationsIndexRoute: typeof ConsoleSettingsLocationsIndexRoute
+  ConsoleSettingsNotificationsIndexRoute: typeof ConsoleSettingsNotificationsIndexRoute
+  ConsoleSettingsPricingIndexRoute: typeof ConsoleSettingsPricingIndexRoute
+  ConsoleSupportRatingsIndexRoute: typeof ConsoleSupportRatingsIndexRoute
+  ConsoleSupportReportsIndexRoute: typeof ConsoleSupportReportsIndexRoute
 }
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
@@ -265,6 +370,12 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleSettingsIndexRoute: ConsoleSettingsIndexRoute,
   ConsoleSupportIndexRoute: ConsoleSupportIndexRoute,
   ConsoleVehiclesIndexRoute: ConsoleVehiclesIndexRoute,
+  ConsoleSettingsLocationsIndexRoute: ConsoleSettingsLocationsIndexRoute,
+  ConsoleSettingsNotificationsIndexRoute:
+    ConsoleSettingsNotificationsIndexRoute,
+  ConsoleSettingsPricingIndexRoute: ConsoleSettingsPricingIndexRoute,
+  ConsoleSupportRatingsIndexRoute: ConsoleSupportRatingsIndexRoute,
+  ConsoleSupportReportsIndexRoute: ConsoleSupportReportsIndexRoute,
 }
 
 const ConsoleRouteWithChildren =

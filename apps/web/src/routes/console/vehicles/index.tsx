@@ -5,50 +5,93 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Search } from "lucide-react"
+import { Search, Loader2, RefreshCw } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import Api from "@/lib/api"
+import { Vehicle, VehicleStatus } from "@/lib/api/types"
 
 export const Route = createFileRoute('/console/vehicles/')({
   component: VehiclesPage,
 })
 
-const mockVehicles = [
-  { id: "VEH-001", make: "Toyota", model: "Camry", year: 2022, plate: "ABC-1234", driver: "John Doe", status: "active", inspection: "2025-06-15" },
-  { id: "VEH-002", make: "Honda", model: "Accord", year: 2023, plate: "XYZ-5678", driver: "Jane Smith", status: "active", inspection: "2025-08-20" },
-  { id: "VEH-003", make: "Nissan", model: "Altima", year: 2021, plate: "DEF-9012", driver: "Mike Johnson", status: "maintenance", inspection: "2025-03-10" },
-]
+function getStatusBadge(status: VehicleStatus) {
+  const variants: Record<VehicleStatus, "default" | "secondary" | "destructive" | "outline"> = {
+    [VehicleStatus.ACTIVE]: "default",
+    [VehicleStatus.INACTIVE]: "secondary",
+    [VehicleStatus.MAINTENANCE]: "outline",
+  }
+  return <Badge variant={variants[status] ?? "secondary"}>{status}</Badge>
+}
 
 function VehiclesPage() {
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [vehicles, setVehicles] = React.useState<Vehicle[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const fetchVehicles = React.useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const data = await Api.getVehicles()
+      setVehicles(Array.isArray(data) ? data : [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch vehicles")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    fetchVehicles()
+  }, [fetchVehicles])
+
+  const filteredVehicles = vehicles.filter((v) =>
+    `${v.make} ${v.model}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.licensePlate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.id.toString().includes(searchQuery)
+  )
+
+  const activeCount = vehicles.filter((v) => v.status === VehicleStatus.ACTIVE).length
+  const maintenanceCount = vehicles.filter((v) => v.status === VehicleStatus.MAINTENANCE).length
+
   return (
     <div className="flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Vehicles</h2>
-          <p className="text-muted-foreground">Manage registered vehicles and inspections</p>
+          <p className="text-muted-foreground">Manage registered vehicles</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Register Vehicle
+        <Button variant="outline" onClick={fetchVehicles} disabled={isLoading}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          Refresh
         </Button>
       </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">{mockVehicles.length}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : vehicles.length}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Vehicles</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">{mockVehicles.filter(v => v.status === "active").length}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : activeCount}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Inspections</CardTitle>
+            <CardTitle className="text-sm font-medium">In Maintenance</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">5</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{isLoading ? "..." : maintenanceCount}</div></CardContent>
         </Card>
       </div>
 
@@ -58,40 +101,60 @@ function VehiclesPage() {
           <CardDescription>Registered vehicles and their status</CardDescription>
           <div className="relative mt-4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search vehicles..." className="pl-10" />
+            <Input
+              placeholder="Search by make, model, or license plate..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle ID</TableHead>
-                <TableHead>Make & Model</TableHead>
-                <TableHead>Year</TableHead>
-                <TableHead>License Plate</TableHead>
-                <TableHead>Driver</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Next Inspection</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockVehicles.map((vehicle) => (
-                <TableRow key={vehicle.id}>
-                  <TableCell className="font-medium">{vehicle.id}</TableCell>
-                  <TableCell>{vehicle.make} {vehicle.model}</TableCell>
-                  <TableCell>{vehicle.year}</TableCell>
-                  <TableCell>{vehicle.plate}</TableCell>
-                  <TableCell>{vehicle.driver}</TableCell>
-                  <TableCell>
-                    <Badge variant={vehicle.status === "active" ? "default" : "secondary"}>
-                      {vehicle.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(vehicle.inspection).toLocaleDateString()}</TableCell>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Loading vehicles...</span>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Make & Model</TableHead>
+                  <TableHead>Year</TableHead>
+                  <TableHead>License Plate</TableHead>
+                  <TableHead>Color</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Capacity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Driver ID</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredVehicles.length > 0 ? (
+                  filteredVehicles.map((vehicle) => (
+                    <TableRow key={vehicle.id}>
+                      <TableCell className="font-medium">#{vehicle.id}</TableCell>
+                      <TableCell>{vehicle.make} {vehicle.model}</TableCell>
+                      <TableCell>{vehicle.year}</TableCell>
+                      <TableCell className="font-mono">{vehicle.licensePlate}</TableCell>
+                      <TableCell>{vehicle.color}</TableCell>
+                      <TableCell className="capitalize">{vehicle.type}</TableCell>
+                      <TableCell>{vehicle.capacity}</TableCell>
+                      <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
+                      <TableCell>#{vehicle.driverId}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      {vehicles.length === 0 ? "No vehicles found" : "No vehicles match your search criteria"}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
