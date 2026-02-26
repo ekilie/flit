@@ -427,7 +427,7 @@ class Api {
 
       const formData = new FormData();
 
-      // here since its react - native we need to properly format the file object
+      // format the file object for FormData upload
       const fileObject = {
         uri: fileUri,
         name: fileName,

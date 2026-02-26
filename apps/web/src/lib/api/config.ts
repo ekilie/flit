@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "@/constants/constants";
 import { isJwtExpired } from "@/lib/utils";
-import { authToken } from "./authToken";
+import { authToken, clearCache } from "./authToken";
 
 const api = (authenticate: boolean) => {
   const config = axios.create({ baseURL: BASE_URL });
@@ -13,6 +13,7 @@ const api = (authenticate: boolean) => {
         const token = authToken("access");
         if (token) {
           if (isJwtExpired(token)) {
+            clearCache();
             window.location.href = "/login";
             return Promise.reject(new Error("Token expired"));
           } else {
@@ -28,6 +29,7 @@ const api = (authenticate: boolean) => {
       (response) => response,
       async (error) => {
         if (error.response?.status === 401) {
+          clearCache();
           window.location.href = "/login";
         }
         return Promise.reject(error);
