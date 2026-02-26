@@ -15,7 +15,7 @@
     "@react-navigation/drawer": "^7.7.10",
     "@react-navigation/native": "^7.1.8",
     "@simform_solutions/react-native-audio-waveform": "^2.1.6",
-    "axios": "^1.12.2",
+    "axios": "^1.13.5",
     "expo": "54.0.22",
     "expo-blur": "^15.0.7",
     "expo-constants": "~18.0.10",
