@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { jwtDecode } from "jwt-decode"
+import { User } from "@/lib/api/types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -14,4 +15,10 @@ export function isJwtExpired(token: string): boolean {
   } catch {
     return true
   }
+}
+
+export function filterUsersByRole(users: User[], roleName: string): User[] {
+  return users.filter(
+    (u) => u.role === roleName || u.roles?.some((r) => r.name === roleName)
+  )
 }

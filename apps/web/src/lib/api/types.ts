@@ -378,3 +378,62 @@ export interface UpdateLocationDto {
   speed?: number;
   heading?: number;
 }
+
+// Pricing types
+export interface PricingConfig {
+  id: number;
+  vehicleType: string;
+  baseFare: number;
+  perKmRate: number;
+  perMinuteRate: number;
+  minimumFare: number;
+  bookingFee?: number;
+  cancellationFee?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePricingConfigDto {
+  vehicleType: string;
+  baseFare: number;
+  perKmRate: number;
+  perMinuteRate: number;
+  minimumFare: number;
+  bookingFee?: number;
+  cancellationFee?: number;
+  isActive?: boolean;
+}
+
+export interface SurgeZone {
+  id: number;
+  name: string;
+  centerLatitude: number;
+  centerLongitude: number;
+  radiusKm: number;
+  surgeMultiplier: number;
+  startTime?: string;
+  endTime?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSurgeZoneDto {
+  name: string;
+  centerLatitude: number;
+  centerLongitude: number;
+  radiusKm: number;
+  surgeMultiplier: number;
+  startTime?: string;
+  endTime?: string;
+  isActive?: boolean;
+}
+
+export interface CreateUserDto {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber?: string;
+  role?: string;
+}

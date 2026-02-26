@@ -3,18 +3,23 @@ import {
   AuthResponse,
   CreateNotificationDto,
   CreatePaymentDto,
+  CreatePricingConfigDto,
   CreateRatingDto,
   CreateRideDto,
+  CreateSurgeZoneDto,
+  CreateUserDto,
   ForgotPasswordDto,
   LoginDto,
   Notification,
   Payment,
+  PricingConfig,
   Rating,
   RefreshTokenResponse,
   RegisterDto,
   ResetPasswordDto,
   Ride,
   RideStatus,
+  SurgeZone,
   UpdateNotificationDto,
   UpdatePaymentDto,
   UpdateRatingDto,
@@ -935,6 +940,119 @@ class Api {
         err.response?.data?.message ||
         "Failed to update rating";
       throw new Error(message);
+    }
+  }
+
+  // Users API (Admin)
+  static async getUsers(): Promise<User[]> {
+    try {
+      const res = await api(true).get("/users");
+      const data = res.data;
+      return Array.isArray(data) ? data : data?.data ?? [];
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to fetch users");
+    }
+  }
+
+  static async getUser(id: number): Promise<User> {
+    try {
+      const res = await api(true).get(`/users/${id}`);
+      const data = res.data;
+      return data?.data ?? data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to fetch user");
+    }
+  }
+
+  static async createUser(payload: CreateUserDto): Promise<User> {
+    try {
+      const res = await api(true).post("/users", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to create user");
+    }
+  }
+
+  static async adminUpdateUser(id: number, payload: Partial<UpdateUserDto & { role?: string; is_active?: boolean }>): Promise<User> {
+    try {
+      const res = await api(true).patch(`/users/${id}`, payload);
+      const data = res.data;
+      return data?.data ?? data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to update user");
+    }
+  }
+
+  static async deleteUser(id: number): Promise<void> {
+    try {
+      await api(true).delete(`/users/${id}`);
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to delete user");
+    }
+  }
+
+  // Pricing API (Admin)
+  static async getPricingConfigs(): Promise<PricingConfig[]> {
+    try {
+      const res = await api(true).get("/pricing/configs");
+      return Array.isArray(res.data) ? res.data : res.data?.data ?? [];
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to fetch pricing configs");
+    }
+  }
+
+  static async createPricingConfig(payload: CreatePricingConfigDto): Promise<PricingConfig> {
+    try {
+      const res = await api(true).post("/pricing/configs", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to create pricing config");
+    }
+  }
+
+  static async updatePricingConfig(vehicleType: string, payload: Partial<CreatePricingConfigDto>): Promise<PricingConfig> {
+    try {
+      const res = await api(true).patch(`/pricing/configs/${vehicleType}`, payload);
+      return res.data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to update pricing config");
+    }
+  }
+
+  static async getSurgeZones(): Promise<SurgeZone[]> {
+    try {
+      const res = await api(true).get("/pricing/surge-zones");
+      return Array.isArray(res.data) ? res.data : res.data?.data ?? [];
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to fetch surge zones");
+    }
+  }
+
+  static async createSurgeZone(payload: CreateSurgeZoneDto): Promise<SurgeZone> {
+    try {
+      const res = await api(true).post("/pricing/surge-zones", payload);
+      return res.data;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to create surge zone");
+    }
+  }
+
+  static async deactivateSurgeZone(id: number): Promise<void> {
+    try {
+      await api(true).delete(`/pricing/surge-zones/${id}`);
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      throw new Error(err.response?.data?.error || err.response?.data?.message || "Failed to deactivate surge zone");
     }
   }
 
